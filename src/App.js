@@ -196,8 +196,7 @@ function App() {
     const favoriteTeamBets = settledBets.filter(b => b.favoriteTeam);
     const primeTimeBets = settledBets.filter(b => b.primeTime);
     
-    const systemBets = settledBets.filter(b => b.systemPlay !== 'none');
-    const clearSystemBets = settledBets.filter(b => b.systemPlay === 'clear');
+const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPlay !== 'not-system');    const clearSystemBets = settledBets.filter(b => b.systemPlay === 'clear');
     const kindOfSystemBets = settledBets.filter(b => b.systemPlay === 'kind-of');
     const notSystemBets = settledBets.filter(b => b.systemPlay === 'not-system');
 
@@ -707,7 +706,7 @@ function App() {
                   )}
                 </div>
                 <div className="text-sm text-gray-600">
-                  {bet.date} • {bet.sport.toUpperCase()} • {bet.betType} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
+               {bet.date} • {bet.sport.toUpperCase()} • {bet.betType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
                   Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
