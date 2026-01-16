@@ -232,7 +232,7 @@ function App() {
       bet.date,
       bet.sport,
       bet.betType,
-      bet.description,
+      `"${bet.description}"`,
       bet.units,
       bet.odds,
       bet.riskAmount.toFixed(2),
@@ -242,7 +242,7 @@ function App() {
       bet.favoriteTeam ? 'Yes' : 'No',
       bet.primeTime ? 'Yes' : 'No',
       bet.systemPlay,
-      bet.notes || ''
+      `"${bet.notes || ''}"`
     ]);
     
     const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
@@ -330,7 +330,7 @@ function App() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               {resources.map((resource, idx) => (
-                
+                <a
                   key={idx}
                   href={resource.url}
                   target="_blank"
@@ -533,7 +533,9 @@ function App() {
                 <option value="prop">Prop</option>
                 <option value="future">Future</option>
               </select>
-            </div><div>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium mb-1">Units</label>
               <input
                 type="number"
@@ -557,7 +559,8 @@ function App() {
               </div>
               {formData.units && formData.odds && (
                 <div className="text-xs text-gray-600 mt-2">
-                  Risk: ${calculateRiskAndWin(formData.units, formData.odds).risk.toFixed(2)} | Win: ${calculateRiskAndWin(formData.units, formData.odds).win.toFixed(2)}
+                  Risk: ${calculateRiskAndWin(formData.units, formData.odds).risk.toFixed(2)} | 
+                  Win: ${calculateRiskAndWin(formData.units, formData.odds).win.toFixed(2)}
                 </div>
               )}
             </div>
@@ -581,192 +584,188 @@ function App() {
                 className="w-full p-2 border rounded"
               >
                 <option value="pending">Pending</option>
-                <option value="win">Win</option>
-                <option value="loss">Loss</option>
+                <option value="win">Win</option
+
                 <option value="push">Push</option>
-              </select>
-            </div>
+          </select>
+        </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <input
-                type="text"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="w-full p-2 border rounded"
-                placeholder="e.g., Chiefs -3 vs Bills"
-              />
-            </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium mb-1">Description</label>
+          <input
+            type="text"
+            value={formData.description}
+            onChange={(e) => setFormData({...formData, description: e.target.value})}
+            className="w-full p-2 border rounded"
+            placeholder="e.g., Chiefs -3 vs Bills"
+          />
+        </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Notes (Optional)</label>
-              <textarea
-                value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                className="w-full p-2 border rounded"
-                placeholder="e.g., Reverse line movement from -7 to -6.5"
-                rows="2"
-              />
-            </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium mb-1">Notes (Optional)</label>
+          <textarea
+            value={formData.notes}
+            onChange={(e) => setFormData({...formData, notes: e.target.value})}
+            className="w-full p-2 border rounded"
+            placeholder="e.g., Reverse line movement from -7 to -6.5"
+            rows="2"
+          />
+        </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-2">System Play Classification</label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'clear'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'clear' ? 'border-purple-500 bg-purple-50' : 'border-gray-300'}`}
-                >
-                  Clear System
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'kind-of'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'kind-of' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
-                >
-                  Kind Of
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'no-system'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'no-system' ? 'border-gray-500 bg-gray-50' : 'border-gray-300'}`}
-                >
-                  No System
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'not-system'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'not-system' ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
-                >
-                  Not System
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.favoriteTeam}
-                  onChange={(e) => setFormData({...formData, favoriteTeam: e.target.checked})}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm">Favorite Team</span>
-              </label>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.primeTime}
-                  onChange={(e) => setFormData({...formData, primeTime: e.target.checked})}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm">Prime Time Game</span>
-              </label>
-            </div>
-
-            <div className="md:col-span-2 flex gap-2">
-              <button
-                onClick={addBet}
-                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-              >
-                Add Bet
-              </button>
-              <button
-                onClick={() => setShowForm(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium mb-2">System Play Classification</label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <button
+              type="button"
+              onClick={() => setFormData({...formData, systemPlay: 'clear'})}
+              className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'clear' ? 'border-purple-500 bg-purple-50' : 'border-gray-300'}`}
+            >
+              Clear System
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData({...formData, systemPlay: 'kind-of'})}
+              className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'kind-of' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+            >
+              Kind Of
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData({...formData, systemPlay: 'no-system'})}
+              className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'no-system' ? 'border-gray-500 bg-gray-50' : 'border-gray-300'}`}
+            >
+              No System
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData({...formData, systemPlay: 'not-system'})}
+              className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'not-system' ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+            >
+              Not System
+            </button>
           </div>
         </div>
-      )}
 
-      <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-        <h2 className="text-xl font-bold mb-4">Bet History</h2>
-        <div className="space-y-3">
-          {bets.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No bets yet. Add your first bet above!</p>
-          ) : (
-            bets.map(bet => (
-              <div key={bet.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="font-semibold">{bet.description}</span>
-                      {bet.favoriteTeam && <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">Fav Team</span>}
-                      {bet.primeTime && <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Prime Time</span>}
-                      {bet.systemPlay !== 'none' && (
-                        <span className={`text-xs px-2 py-0.5 rounded ${getSystemColor(bet.systemPlay)}`}>
-                          {getSystemLabel(bet.systemPlay)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {bet.date} • {bet.sport.toUpperCase()} • {bet.betType} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
-                    </div>
-                    {bet.notes && (
-                      <div className="text-xs text-gray-600 mt-1 italic">
-                        Note: {bet.notes}
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    {bet.result === 'pending' ? (
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => updateBetResult(bet.id, 'win')}
-                          className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200"
-                        >
-                          Win
-                        </button>
-                        <button
-                          onClick={() => updateBetResult(bet.id, 'loss')}
-                          className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200"
-                        >
-                          Loss
-                        </button>
-                        <button
-                          onClick={() => updateBetResult(bet.id, 'push')}
-                          className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
-                        >
-                          Push
-                        </button>
-                      </div>
-                    ) : (
-                      <div className={`font-semibold ${bet.payout > 0 ? 'text-green-600' : bet.payout < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-                        {bet.payout > 0 ? '+' : ''}${bet.payout.toFixed(2)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center mt-2 pt-2 border-t">
-                  <span className={`text-xs font-medium px-2 py-1 rounded ${
-                    bet.result === 'win' ? 'bg-green-100 text-green-700' :
-                    bet.result === 'loss' ? 'bg-red-100 text-red-700' :
-                    bet.result === 'push' ? 'bg-gray-100 text-gray-700' :
-                    'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {bet.result.toUpperCase()}
-                  </span>
-                  <button
-                    onClick={() => deleteBet(bet.id)}
-                    className="text-xs text-red-600 hover:text-red-800"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.favoriteTeam}
+              onChange={(e) => setFormData({...formData, favoriteTeam: e.target.checked})}
+              className="w-4 h-4"
+            />
+            <span className="text-sm">Favorite Team</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.primeTime}
+              onChange={(e) => setFormData({...formData, primeTime: e.target.checked})}
+              className="w-4 h-4"
+            />
+            <span className="text-sm">Prime Time Game</span>
+          </label>
+        </div>
+
+        <div className="md:col-span-2 flex gap-2">
+          <button
+            onClick={addBet}
+            className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          >
+            Add Bet
+          </button>
+          <button
+            onClick={() => setShowForm(false)}
+            className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
-  );
-}
+  )}
 
-export default App;
+  <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+    <h2 className="text-xl font-bold mb-4">Bet History</h2>
+    <div className="space-y-3">
+      {bets.length === 0 ? (
+        <p className="text-gray-500 text-center py-8">No bets yet. Add your first bet above!</p>
+      ) : (
+        bets.map(bet => (
+          <div key={bet.id} className="border rounded-lg p-4 hover:bg-gray-50">
+            <div className="flex justify-between items-start mb-2">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="font-semibold">{bet.description}</span>
+                  {bet.favoriteTeam && <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">Fav Team</span>}
+                  {bet.primeTime && <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Prime Time</span>}
+                  {bet.systemPlay !== 'none' && (
+                    <span className={`text-xs px-2 py-0.5 rounded ${getSystemColor(bet.systemPlay)}`}>
+                      {getSystemLabel(bet.systemPlay)}
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm text-gray-600">
+                  {bet.date} • {bet.sport.toUpperCase()} • {bet.betType} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
+                </div>
+                {bet.notes && (
+                  <div className="text-xs text-gray-600 mt-1 italic">
+                    Note: {bet.notes}
+                  </div>
+                )}
+              </div>
+              <div className="text-right">
+                {bet.result === 'pending' ? (
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => updateBetResult(bet.id, 'win')}
+                      className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200"
+                    >
+                      Win
+                    </button>
+                    <button
+                      onClick={() => updateBetResult(bet.id, 'loss')}
+                      className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200"
+                    >
+                      Loss
+                    </button>
+                    <button
+                      onClick={() => updateBetResult(bet.id, 'push')}
+                      className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
+                    >
+                      Push
+                    </button>
+                  </div>
+                ) : (
+                  <div className={`font-semibold ${bet.payout > 0 ? 'text-green-600' : bet.payout < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                    {bet.payout > 0 ? '+' : ''}${bet.payout.toFixed(2)}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex justify-between items-center mt-2 pt-2 border-t">
+              <span className={`text-xs font-medium px-2 py-1 rounded ${
+                bet.result === 'win' ? 'bg-green-100 text-green-700' :
+                bet.result === 'loss' ? 'bg-red-100 text-red-700' :
+                bet.result === 'push' ? 'bg-gray-100 text-gray-700' :
+                'bg-yellow-100 text-yellow-700'
+              }`}>
+                {bet.result.toUpperCase()}
+              </span>
+              <button
+                onClick={() => deleteBet(bet.id)}
+                className="text-xs text-red-600 hover:text-red-800"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  </div>
+</div>
