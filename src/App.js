@@ -448,7 +448,7 @@ const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPl
             ) : (
               Object.entries(stats.bySport).map(([sport, dollars]) => (
                 <div key={sport} className="flex justify-between text-sm py-1">
-                  <span className="capitalize">{sport}</span>
+                  <span className="capitalize">{sport.toUpperCase()}</span>
                   <span className={dollars >= 0 ? 'text-green-600' : 'text-red-600'}>
                     {dollars >= 0 ? '+' : ''}${dollars.toFixed(2)}
                   </span>
