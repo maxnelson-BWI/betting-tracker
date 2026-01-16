@@ -584,8 +584,8 @@ function App() {
                 className="w-full p-2 border rounded"
               >
                 <option value="pending">Pending</option>
-                <option value="win">Win</option
-
+                <option value="win">Win</option>
+                <option value="loss">Loss</option>
                 <option value="push">Push</option>
           </select>
         </div>
