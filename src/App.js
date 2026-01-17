@@ -55,7 +55,7 @@ function App() {
   const [showResources, setShowResources] = useState(false);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
     sport: '',
     betType: '',
     description: '',
@@ -105,9 +105,14 @@ function App() {
 
   const addBet = async () => {
     if (!formData.sport || !formData.betType || !formData.description || !formData.units || !formData.odds) {
-      alert('Please fill in all required fields');
-      return;
-    }
+  alert('Please fill in all required fields');
+  return;
+}
+if (formData.betType === 'longshot-parlay' && parseFloat(formData.odds) < 500) {
+  alert('Long shot parlays must be +500 or greater. Converting to regular parlay.');
+  setFormData({...formData, betType: 'parlay'});
+  return;
+}
 
     const { risk, win } = calculateRiskAndWin(formData.units, formData.odds);
     
@@ -128,7 +133,7 @@ function App() {
     try {
       await addDoc(collection(db, 'bets'), newBet);
       setFormData({
-        date: new Date().toISOString().split('T')[0],
+        date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
         sport: '',
         betType: '',
         description: '',
@@ -220,6 +225,8 @@ const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPl
       clearSystemRecord: `${clearSystemBets.filter(b => b.result === 'win').length}-${clearSystemBets.filter(b => b.result === 'loss').length}`,
       kindOfSystemDollars: kindOfSystemBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
       notSystemDollars: notSystemBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
+      kindOfSystemRecord: `${kindOfSystemBets.filter(b => b.result === 'win').length}-${kindOfSystemBets.filter(b => b.result === 'loss').length}`,
+notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notSystemBets.filter(b => b.result === 'loss').length}`,
       monthlyLossWarning: monthlyLoss < -1500,
       totalLossWarning: totalDollars < -5000
     };
@@ -274,7 +281,7 @@ const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPl
       'clear': 'Clear System',
       'kind-of': 'Kind Of',
       'no-system': 'No System',
-      'not-system': 'Not System',
+      'not-system': 'Anti System',
       'none': ''
     };
     return labels[systemPlay] || '';
@@ -370,12 +377,14 @@ const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPl
           </div>
           
           <div className="bg-purple-50 p-3 md:p-4 rounded-lg">
-            <div className="text-xs md:text-sm text-gray-600">This Month</div>
-            <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.monthlyLoss) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${stats.monthlyLoss}
-            </div>
-            <div className="text-xs text-gray-500">-$1,500 limit</div>
-          </div>
+  <div className="text-xs md:text-sm text-gray-600 flex items-center gap-1">
+    This Month
+    {stats.monthlyLossWarning && <span className="text-red-600">⚠️</span>}
+  </div>
+  <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.monthlyLoss) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+    ${stats.monthlyLoss}
+  </div>
+</div>
 
           <div className="bg-green-50 p-3 md:p-4 rounded-lg">
             <div className="text-xs md:text-sm text-gray-600">Win Rate</div>
@@ -413,12 +422,14 @@ const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPl
               <div className="text-xs md:text-sm text-gray-600">Kind Of</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.kindOfSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 ${stats.kindOfSystemDollars}
+                <div className="text-xs text-gray-500">{stats.kindOfSystemRecord}</div>
               </div>
             </div>
             <div>
               <div className="text-xs md:text-sm text-gray-600">Not System</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.notSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 ${stats.notSystemDollars}
+                <div className="text-xs text-gray-500">{stats.notSystemRecord}</div>
               </div>
             </div>
           </div>
@@ -529,6 +540,7 @@ const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPl
                 <option value="over-under">Over/Under</option>
                 <option value="teaser">Teaser</option>
                 <option value="parlay">Parlay</option>
+                <option value="longshot-parlay">Long Shot Parlay (+500)</option>
                 <option value="prop">Prop</option>
                 <option value="future">Future</option>
               </select>
