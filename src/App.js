@@ -426,7 +426,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
               </div>
             </div>
             <div>
-              <div className="text-xs md:text-sm text-gray-600">Not System</div>
+              <div className="text-xs md:text-sm text-gray-600">Anti System</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.notSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 ${stats.notSystemDollars}
                 <div className="text-xs text-gray-500">{stats.notSystemRecord}</div>
@@ -652,7 +652,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
               onClick={() => setFormData({...formData, systemPlay: 'not-system'})}
               className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'not-system' ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
             >
-              Not System
+              Anti System
             </button>
           </div>
         </div>
