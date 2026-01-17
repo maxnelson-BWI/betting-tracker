@@ -62,7 +62,6 @@ function App() {
   const [showResources, setShowResources] = useState(false);
   const [loading, setLoading] = useState(true);
   const [displayMode, setDisplayMode] = useState(() => {
-    // Load saved preference from localStorage, default to 'dollars'
     return localStorage.getItem('displayMode') || 'dollars';
   });
   const [formData, setFormData] = useState({
@@ -81,7 +80,6 @@ function App() {
 
   const unitValue = 50;
 
-  // Save display mode preference whenever it changes
   useEffect(() => {
     localStorage.setItem('displayMode', displayMode);
   }, [displayMode]);
@@ -104,17 +102,15 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Helper function to format money display
   const formatMoney = (dollarAmount) => {
     if (displayMode === 'units') {
       const units = dollarAmount / unitValue;
       return `${units >= 0 ? '+' : ''}${units.toFixed(2)}u`;
     } else {
-      return `$${dollarAmount.toFixed(2)}`;
+      return `${dollarAmount >= 0 ? '+' : ''}$${Math.abs(dollarAmount).toFixed(2)}`;
     }
   };
 
-  // Helper function to format money display without sign
   const formatMoneyNoSign = (dollarAmount) => {
     if (displayMode === 'units') {
       const units = Math.abs(dollarAmount) / unitValue;
@@ -543,6 +539,7 @@ function App() {
           Add New Bet
         </button>
       </div>
+
       {showForm && (
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
           <h2 className="text-xl font-bold mb-4">New Bet</h2>
