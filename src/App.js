@@ -49,21 +49,11 @@ const BarChart = () => (
   </svg>
 );
 
-const DollarSign = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="12" y1="1" x2="12" y2="23"></line>
-    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-  </svg>
-);
-
 function App() {
   const [bets, setBets] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showResources, setShowResources] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [displayMode, setDisplayMode] = useState(() => {
-    return localStorage.getItem('displayMode') || 'dollars';
-  });
   const [formData, setFormData] = useState({
     date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
     sport: '',
@@ -79,10 +69,6 @@ function App() {
   });
 
   const unitValue = 50;
-
-  useEffect(() => {
-    localStorage.setItem('displayMode', displayMode);
-  }, [displayMode]);
 
   useEffect(() => {
     const q = query(collection(db, 'bets'), orderBy('timestamp', 'desc'));
@@ -102,28 +88,6 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  const formatMoney = (dollarAmount) => {
-    if (displayMode === 'units') {
-      const units = dollarAmount / unitValue;
-      return `${units >= 0 ? '+' : ''}${units.toFixed(2)}u`;
-    } else {
-      return `${dollarAmount >= 0 ? '+' : ''}$${Math.abs(dollarAmount).toFixed(2)}`;
-    }
-  };
-
-  const formatMoneyNoSign = (dollarAmount) => {
-    if (displayMode === 'units') {
-      const units = Math.abs(dollarAmount) / unitValue;
-      return `${units.toFixed(2)}u`;
-    } else {
-      return `$${Math.abs(dollarAmount).toFixed(2)}`;
-    }
-  };
-
-  const toggleDisplayMode = () => {
-    setDisplayMode(prev => prev === 'dollars' ? 'units' : 'dollars');
-  };
-
   const calculateRiskAndWin = (units, odds) => {
     const unitNum = parseFloat(units);
     const oddsNum = parseFloat(odds);
@@ -141,14 +105,14 @@ function App() {
 
   const addBet = async () => {
     if (!formData.sport || !formData.betType || !formData.description || !formData.units || !formData.odds) {
-      alert('Please fill in all required fields');
-      return;
-    }
-    if (formData.betType === 'longshot-parlay' && parseFloat(formData.odds) < 500) {
-      alert('Long shot parlays must be +500 or greater. Converting to regular parlay.');
-      setFormData({...formData, betType: 'parlay'});
-      return;
-    }
+  alert('Please fill in all required fields');
+  return;
+}
+if (formData.betType === 'longshot-parlay' && parseFloat(formData.odds) < 500) {
+  alert('Long shot parlays must be +500 or greater. Converting to regular parlay.');
+  setFormData({...formData, betType: 'parlay'});
+  return;
+}
 
     const { risk, win } = calculateRiskAndWin(formData.units, formData.odds);
     
@@ -237,33 +201,32 @@ function App() {
     const favoriteTeamBets = settledBets.filter(b => b.favoriteTeam);
     const primeTimeBets = settledBets.filter(b => b.primeTime);
     
-    const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPlay !== 'not-system');
-    const clearSystemBets = settledBets.filter(b => b.systemPlay === 'clear');
+const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPlay !== 'not-system');    const clearSystemBets = settledBets.filter(b => b.systemPlay === 'clear');
     const kindOfSystemBets = settledBets.filter(b => b.systemPlay === 'kind-of');
     const notSystemBets = settledBets.filter(b => b.systemPlay === 'not-system');
 
     return {
-      totalDollars: totalDollars,
-      monthlyLoss: monthlyLoss,
+      totalDollars: totalDollars.toFixed(2),
+      monthlyLoss: monthlyLoss.toFixed(2),
       totalBets: settledBets.length,
       wins: settledBets.filter(b => b.result === 'win').length,
       losses: settledBets.filter(b => b.result === 'loss').length,
       winRate: settledBets.length ? ((settledBets.filter(b => b.result === 'win').length / settledBets.length) * 100).toFixed(1) : 0,
       byType,
       bySport,
-      favoriteTeamDollars: favoriteTeamBets.reduce((sum, bet) => sum + bet.payout, 0),
+      favoriteTeamDollars: favoriteTeamBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
       favoriteTeamRecord: `${favoriteTeamBets.filter(b => b.result === 'win').length}-${favoriteTeamBets.filter(b => b.result === 'loss').length}`,
-      primeTimeDollars: primeTimeBets.reduce((sum, bet) => sum + bet.payout, 0),
+      primeTimeDollars: primeTimeBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
       primeTimeRecord: `${primeTimeBets.filter(b => b.result === 'win').length}-${primeTimeBets.filter(b => b.result === 'loss').length}`,
-      systemDollars: systemBets.reduce((sum, bet) => sum + bet.payout, 0),
+      systemDollars: systemBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
       systemRecord: `${systemBets.filter(b => b.result === 'win').length}-${systemBets.filter(b => b.result === 'loss').length}`,
       systemWinRate: systemBets.length ? ((systemBets.filter(b => b.result === 'win').length / systemBets.length) * 100).toFixed(1) : 0,
-      clearSystemDollars: clearSystemBets.reduce((sum, bet) => sum + bet.payout, 0),
+      clearSystemDollars: clearSystemBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
       clearSystemRecord: `${clearSystemBets.filter(b => b.result === 'win').length}-${clearSystemBets.filter(b => b.result === 'loss').length}`,
-      kindOfSystemDollars: kindOfSystemBets.reduce((sum, bet) => sum + bet.payout, 0),
-      notSystemDollars: notSystemBets.reduce((sum, bet) => sum + bet.payout, 0),
+      kindOfSystemDollars: kindOfSystemBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
+      notSystemDollars: notSystemBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
       kindOfSystemRecord: `${kindOfSystemBets.filter(b => b.result === 'win').length}-${kindOfSystemBets.filter(b => b.result === 'loss').length}`,
-      notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notSystemBets.filter(b => b.result === 'loss').length}`,
+notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notSystemBets.filter(b => b.result === 'loss').length}`,
       monthlyLossWarning: monthlyLoss < -1500,
       totalLossWarning: totalDollars < -5000
     };
@@ -347,14 +310,7 @@ function App() {
       <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Sports Betting Tracker</h1>
-          <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={toggleDisplayMode}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm md:text-base"
-            >
-              <DollarSign />
-              {displayMode === 'dollars' ? 'Units' : 'Dollars'}
-            </button>
+          <div className="flex gap-2">
             <button
               onClick={() => setShowResources(!showResources)}
               className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base"
@@ -380,7 +336,7 @@ function App() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               {resources.map((resource, idx) => (
-                
+                <a
                   key={idx}
                   href={resource.url}
                   target="_blank"
@@ -403,10 +359,10 @@ function App() {
             </div>
             <div>
               {stats.monthlyLossWarning && (
-                <p className="text-red-800 font-medium text-sm md:text-base">⚠️ Monthly loss limit: {formatMoneyNoSign(stats.monthlyLoss)} / $1,500</p>
+                <p className="text-red-800 font-medium text-sm md:text-base">⚠️ Monthly loss limit: ${Math.abs(stats.monthlyLoss)} / $1,500</p>
               )}
               {stats.totalLossWarning && (
-                <p className="text-red-800 font-medium text-sm md:text-base">⚠️ Total loss threshold: {formatMoneyNoSign(stats.totalDollars)} / $5,000</p>
+                <p className="text-red-800 font-medium text-sm md:text-base">⚠️ Total loss threshold: ${Math.abs(stats.totalDollars)} / $5,000</p>
               )}
             </div>
           </div>
@@ -415,20 +371,20 @@ function App() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
           <div className="bg-blue-50 p-3 md:p-4 rounded-lg">
             <div className="text-xs md:text-sm text-gray-600">Total P/L</div>
-            <div className={`text-xl md:text-2xl font-bold ${stats.totalDollars >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {formatMoney(stats.totalDollars)}
+            <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.totalDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              ${stats.totalDollars}
             </div>
           </div>
           
           <div className="bg-purple-50 p-3 md:p-4 rounded-lg">
-            <div className="text-xs md:text-sm text-gray-600 flex items-center gap-1">
-              This Month
-              {stats.monthlyLossWarning && <span className="text-red-600">⚠️</span>}
-            </div>
-            <div className={`text-xl md:text-2xl font-bold ${stats.monthlyLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {formatMoney(stats.monthlyLoss)}
-            </div>
-          </div>
+  <div className="text-xs md:text-sm text-gray-600 flex items-center gap-1">
+    This Month
+    {stats.monthlyLossWarning && <span className="text-red-600">⚠️</span>}
+  </div>
+  <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.monthlyLoss) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+    ${stats.monthlyLoss}
+  </div>
+</div>
 
           <div className="bg-green-50 p-3 md:p-4 rounded-lg">
             <div className="text-xs md:text-sm text-gray-600">Win Rate</div>
@@ -450,31 +406,31 @@ function App() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
             <div>
               <div className="text-xs md:text-sm text-gray-600">All System</div>
-              <div className={`text-lg md:text-xl font-bold ${stats.systemDollars >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {formatMoney(stats.systemDollars)}
+              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.systemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                ${stats.systemDollars}
               </div>
               <div className="text-xs text-gray-500">{stats.systemWinRate}%</div>
             </div>
             <div>
               <div className="text-xs md:text-sm text-gray-600">Clear</div>
-              <div className={`text-lg md:text-xl font-bold ${stats.clearSystemDollars >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {formatMoney(stats.clearSystemDollars)}
+              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.clearSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                ${stats.clearSystemDollars}
               </div>
               <div className="text-xs text-gray-500">{stats.clearSystemRecord}</div>
             </div>
             <div>
               <div className="text-xs md:text-sm text-gray-600">Kind Of</div>
-              <div className={`text-lg md:text-xl font-bold ${stats.kindOfSystemDollars >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {formatMoney(stats.kindOfSystemDollars)}
+              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.kindOfSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                ${stats.kindOfSystemDollars}
+                <div className="text-xs text-gray-500">{stats.kindOfSystemRecord}</div>
               </div>
-              <div className="text-xs text-gray-500">{stats.kindOfSystemRecord}</div>
             </div>
             <div>
               <div className="text-xs md:text-sm text-gray-600">Anti System</div>
-              <div className={`text-lg md:text-xl font-bold ${stats.notSystemDollars >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {formatMoney(stats.notSystemDollars)}
+              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.notSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                ${stats.notSystemDollars}
+                <div className="text-xs text-gray-500">{stats.notSystemRecord}</div>
               </div>
-              <div className="text-xs text-gray-500">{stats.notSystemRecord}</div>
             </div>
           </div>
         </div>
@@ -489,7 +445,7 @@ function App() {
                 <div key={type} className="flex justify-between text-sm py-1">
                   <span className="capitalize">{type}</span>
                   <span className={dollars >= 0 ? 'text-green-600' : 'text-red-600'}>
-                    {formatMoney(dollars)}
+                    {dollars >= 0 ? '+' : ''}${dollars.toFixed(2)}
                   </span>
                 </div>
               ))
@@ -505,7 +461,7 @@ function App() {
                 <div key={sport} className="flex justify-between text-sm py-1">
                   <span className="capitalize">{sport.toUpperCase()}</span>
                   <span className={dollars >= 0 ? 'text-green-600' : 'text-red-600'}>
-                    {formatMoney(dollars)}
+                    {dollars >= 0 ? '+' : ''}${dollars.toFixed(2)}
                   </span>
                 </div>
               ))
@@ -516,16 +472,16 @@ function App() {
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-orange-50 p-3 rounded-lg">
             <div className="text-xs md:text-sm text-gray-600">Favorite Team</div>
-            <div className={`text-lg md:text-xl font-bold ${stats.favoriteTeamDollars >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {formatMoney(stats.favoriteTeamDollars)}
+            <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.favoriteTeamDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              ${stats.favoriteTeamDollars}
             </div>
             <div className="text-xs text-gray-500">{stats.favoriteTeamRecord}</div>
           </div>
           
           <div className="bg-indigo-50 p-3 rounded-lg">
             <div className="text-xs md:text-sm text-gray-600">Prime Time</div>
-            <div className={`text-lg md:text-xl font-bold ${stats.primeTimeDollars >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {formatMoney(stats.primeTimeDollars)}
+            <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.primeTimeDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              ${stats.primeTimeDollars}
             </div>
             <div className="text-xs text-gray-500">{stats.primeTimeRecord}</div>
           </div>
@@ -642,187 +598,187 @@ function App() {
                 <option value="win">Win</option>
                 <option value="loss">Loss</option>
                 <option value="push">Push</option>
-              </select>
-            </div>
+          </select>
+        </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <input
-                type="text"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="w-full p-2 border rounded"
-                placeholder="e.g., Chiefs -3 vs Bills"
-              />
-            </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium mb-1">Description</label>
+          <input
+            type="text"
+            value={formData.description}
+            onChange={(e) => setFormData({...formData, description: e.target.value})}
+            className="w-full p-2 border rounded"
+            placeholder="e.g., Chiefs -3 vs Bills"
+          />
+        </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Notes (Optional)</label>
-              <textarea
-                value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                className="w-full p-2 border rounded"
-                placeholder="e.g., Reverse line movement from -7 to -6.5"
-                rows="2"
-              />
-            </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium mb-1">Notes (Optional)</label>
+          <textarea
+            value={formData.notes}
+            onChange={(e) => setFormData({...formData, notes: e.target.value})}
+            className="w-full p-2 border rounded"
+            placeholder="e.g., Reverse line movement from -7 to -6.5"
+            rows="2"
+          />
+        </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-2">System Play Classification</label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'clear'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'clear' ? 'border-purple-500 bg-purple-50' : 'border-gray-300'}`}
-                >
-                  Clear System
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'kind-of'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'kind-of' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
-                >
-                  Kind Of
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'no-system'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'no-system' ? 'border-gray-500 bg-gray-50' : 'border-gray-300'}`}
-                >
-                  No System
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'not-system'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'not-system' ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
-                >
-                  Anti System
-                </button>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium mb-2">System Play Classification</label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <button
+              type="button"
+              onClick={() => setFormData({...formData, systemPlay: 'clear'})}
+              className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'clear' ? 'border-purple-500 bg-purple-50' : 'border-gray-300'}`}
+            >
+              Clear System
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData({...formData, systemPlay: 'kind-of'})}
+              className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'kind-of' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+            >
+              Kind Of
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData({...formData, systemPlay: 'no-system'})}
+              className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'no-system' ? 'border-gray-500 bg-gray-50' : 'border-gray-300'}`}
+            >
+              No System
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData({...formData, systemPlay: 'not-system'})}
+              className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'not-system' ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+            >
+              Anti System
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.favoriteTeam}
+              onChange={(e) => setFormData({...formData, favoriteTeam: e.target.checked})}
+              className="w-4 h-4"
+            />
+            <span className="text-sm">Favorite Team</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.primeTime}
+              onChange={(e) => setFormData({...formData, primeTime: e.target.checked})}
+              className="w-4 h-4"
+            />
+            <span className="text-sm">Prime Time Game</span>
+          </label>
+        </div>
+
+        <div className="md:col-span-2 flex gap-2">
+          <button
+            onClick={addBet}
+            className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          >
+            Add Bet
+          </button>
+          <button
+            onClick={() => setShowForm(false)}
+            className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+
+  <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+    <h2 className="text-xl font-bold mb-4">Bet History</h2>
+    <div className="space-y-3">
+      {bets.length === 0 ? (
+        <p className="text-gray-500 text-center py-8">No bets yet. Add your first bet above!</p>
+      ) : (
+        bets.map(bet => (
+          <div key={bet.id} className="border rounded-lg p-4 hover:bg-gray-50">
+            <div className="flex justify-between items-start mb-2">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="font-semibold">{bet.description}</span>
+                  {bet.favoriteTeam && <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">Fav Team</span>}
+                  {bet.primeTime && <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Prime Time</span>}
+                  {bet.systemPlay !== 'none' && (
+                    <span className={`text-xs px-2 py-0.5 rounded ${getSystemColor(bet.systemPlay)}`}>
+                      {getSystemLabel(bet.systemPlay)}
+                    </span>
+                  )}
+                </div>
+                <div className="text-sm text-gray-600">
+               {bet.date} • {bet.sport.toUpperCase()} • {bet.betType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
+                </div>
+                {bet.notes && (
+                  <div className="text-xs text-gray-600 mt-1 italic">
+                    Note: {bet.notes}
+                  </div>
+                )}
+              </div>
+              <div className="text-right">
+                {bet.result === 'pending' ? (
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => updateBetResult(bet.id, 'win')}
+                      className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200"
+                    >
+                      Win
+                    </button>
+                    <button
+                      onClick={() => updateBetResult(bet.id, 'loss')}
+                      className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200"
+                    >
+                      Loss
+                    </button>
+                    <button
+                      onClick={() => updateBetResult(bet.id, 'push')}
+                      className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
+                    >
+                      Push
+                    </button>
+                  </div>
+                ) : (
+                  <div className={`font-semibold ${bet.payout > 0 ? 'text-green-600' : bet.payout < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                    {bet.payout > 0 ? '+' : ''}${bet.payout.toFixed(2)}
+                  </div>
+                )}
               </div>
             </div>
-
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.favoriteTeam}
-                  onChange={(e) => setFormData({...formData, favoriteTeam: e.target.checked})}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm">Favorite Team</span>
-              </label>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.primeTime}
-                  onChange={(e) => setFormData({...formData, primeTime: e.target.checked})}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm">Prime Time Game</span>
-              </label>
-            </div>
-
-            <div className="md:col-span-2 flex gap-2">
+            <div className="flex justify-between items-center mt-2 pt-2 border-t">
+              <span className={`text-xs font-medium px-2 py-1 rounded ${
+                bet.result === 'win' ? 'bg-green-100 text-green-700' :
+                bet.result === 'loss' ? 'bg-red-100 text-red-700' :
+                bet.result === 'push' ? 'bg-gray-100 text-gray-700' :
+                'bg-yellow-100 text-yellow-700'
+              }`}>
+                {bet.result.toUpperCase()}
+              </span>
               <button
-                onClick={addBet}
-                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+                onClick={() => deleteBet(bet.id)}
+                className="text-xs text-red-600 hover:text-red-800"
               >
-                Add Bet
-              </button>
-              <button
-                onClick={() => setShowForm(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
-              >
-                Cancel
+                Delete
               </button>
             </div>
           </div>
-        </div>
+        ))
       )}
-
-      <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-        <h2 className="text-xl font-bold mb-4">Bet History</h2>
-        <div className="space-y-3">
-          {bets.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No bets yet. Add your first bet above!</p>
-          ) : (
-            bets.map(bet => (
-              <div key={bet.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="font-semibold">{bet.description}</span>
-                      {bet.favoriteTeam && <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">Fav Team</span>}
-                      {bet.primeTime && <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Prime Time</span>}
-                      {bet.systemPlay !== 'none' && (
-                        <span className={`text-xs px-2 py-0.5 rounded ${getSystemColor(bet.systemPlay)}`}>
-                          {getSystemLabel(bet.systemPlay)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {bet.date} • {bet.sport.toUpperCase()} • {bet.betType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
-                    </div>
-                    {bet.notes && (
-                      <div className="text-xs text-gray-600 mt-1 italic">
-                        Note: {bet.notes}
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    {bet.result === 'pending' ? (
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => updateBetResult(bet.id, 'win')}
-                          className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200"
-                        >
-                          Win
-                        </button>
-                        <button
-                          onClick={() => updateBetResult(bet.id, 'loss')}
-                          className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200"
-                        >
-                          Loss
-                        </button>
-                        <button
-                          onClick={() => updateBetResult(bet.id, 'push')}
-                          className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
-                        >
-                          Push
-                        </button>
-                      </div>
-                    ) : (
-                      <div className={`font-semibold ${bet.payout > 0 ? 'text-green-600' : bet.payout < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-                        {formatMoney(bet.payout)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center mt-2 pt-2 border-t">
-                  <span className={`text-xs font-medium px-2 py-1 rounded ${
-                    bet.result === 'win' ? 'bg-green-100 text-green-700' :
-                    bet.result === 'loss' ? 'bg-red-100 text-red-700' :
-                    bet.result === 'push' ? 'bg-gray-100 text-gray-700' :
-                    'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {bet.result.toUpperCase()}
-                  </span>
-                  <button
-                    onClick={() => deleteBet(bet.id)}
-                    className="text-xs text-red-600 hover:text-red-800"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+    </div>
+  </div>
     </div>
   );
 }
