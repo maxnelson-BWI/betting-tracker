@@ -49,11 +49,21 @@ const BarChart = () => (
   </svg>
 );
 
+const DollarSign = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="12" y1="1" x2="12" y2="23"></line>
+    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+  </svg>
+);
+
 function App() {
   const [bets, setBets] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showResources, setShowResources] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [displayMode, setDisplayMode] = useState(() => {
+    return localStorage.getItem('displayMode') || 'dollars';
+  });
   const [formData, setFormData] = useState({
     date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
     sport: '',
@@ -69,6 +79,10 @@ function App() {
   });
 
   const unitValue = 50;
+
+  useEffect(() => {
+    localStorage.setItem('displayMode', displayMode);
+  }, [displayMode]);
 
   useEffect(() => {
     const q = query(collection(db, 'bets'), orderBy('timestamp', 'desc'));
@@ -87,6 +101,28 @@ function App() {
 
     return () => unsubscribe();
   }, []);
+
+  const formatMoney = (dollarAmount) => {
+    if (displayMode === 'units') {
+      const units = dollarAmount / unitValue;
+      return `${units >= 0 ? '+' : ''}${units.toFixed(2)}u`;
+    } else {
+      return `${dollarAmount >= 0 ? '+' : ''}$${Math.abs(dollarAmount).toFixed(2)}`;
+    }
+  };
+
+  const formatMoneyNoSign = (dollarAmount) => {
+    if (displayMode === 'units') {
+      const units = Math.abs(dollarAmount) / unitValue;
+      return `${units.toFixed(2)}u`;
+    } else {
+      return `$${Math.abs(dollarAmount).toFixed(2)}`;
+    }
+  };
+
+  const toggleDisplayMode = () => {
+    setDisplayMode(prev => prev === 'dollars' ? 'units' : 'dollars');
+  };
 
   const calculateRiskAndWin = (units, odds) => {
     const unitNum = parseFloat(units);
@@ -312,6 +348,13 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Sports Betting Tracker</h1>
           <div className="flex gap-2">
             <button
+              onClick={toggleDisplayMode}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm md:text-base"
+            >
+              <DollarSign />
+              {displayMode === 'dollars' ? 'Units' : 'Dollars'}
+            </button>
+            <button
               onClick={() => setShowResources(!showResources)}
               className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base"
             >
@@ -359,10 +402,10 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
             </div>
             <div>
               {stats.monthlyLossWarning && (
-                <p className="text-red-800 font-medium text-sm md:text-base">⚠️ Monthly loss limit: ${Math.abs(stats.monthlyLoss)} / $1,500</p>
+                <p className="text-red-800 font-medium text-sm md:text-base">⚠️ Monthly loss limit: {formatMoneyNoSign(stats.monthlyLoss)} / $1,500</p>
               )}
               {stats.totalLossWarning && (
-                <p className="text-red-800 font-medium text-sm md:text-base">⚠️ Total loss threshold: ${Math.abs(stats.totalDollars)} / $5,000</p>
+                <p className="text-red-800 font-medium text-sm md:text-base">⚠️ Total loss threshold: {formatMoneyNoSign(stats.totalDollars)} / $5,000</p>
               )}
             </div>
           </div>
@@ -372,7 +415,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
           <div className="bg-blue-50 p-3 md:p-4 rounded-lg">
             <div className="text-xs md:text-sm text-gray-600">Total P/L</div>
             <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.totalDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${stats.totalDollars}
+              {formatMoney(parseFloat(stats.totalDollars))}
             </div>
           </div>
           
@@ -382,7 +425,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
     {stats.monthlyLossWarning && <span className="text-red-600">⚠️</span>}
   </div>
   <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.monthlyLoss) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-    ${stats.monthlyLoss}
+    {formatMoney(parseFloat(stats.monthlyLoss))}
   </div>
 </div>
 
@@ -407,28 +450,28 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
             <div>
               <div className="text-xs md:text-sm text-gray-600">All System</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.systemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${stats.systemDollars}
+                {formatMoney(parseFloat(stats.systemDollars))}
               </div>
               <div className="text-xs text-gray-500">{stats.systemWinRate}%</div>
             </div>
             <div>
               <div className="text-xs md:text-sm text-gray-600">Clear</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.clearSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${stats.clearSystemDollars}
+                {formatMoney(parseFloat(stats.clearSystemDollars))}
               </div>
               <div className="text-xs text-gray-500">{stats.clearSystemRecord}</div>
             </div>
             <div>
               <div className="text-xs md:text-sm text-gray-600">Kind Of</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.kindOfSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${stats.kindOfSystemDollars}
+                {formatMoney(parseFloat(stats.kindOfSystemDollars))}
                 <div className="text-xs text-gray-500">{stats.kindOfSystemRecord}</div>
               </div>
             </div>
             <div>
               <div className="text-xs md:text-sm text-gray-600">Anti System</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.notSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${stats.notSystemDollars}
+                {formatMoney(parseFloat(stats.notSystemDollars))}
                 <div className="text-xs text-gray-500">{stats.notSystemRecord}</div>
               </div>
             </div>
@@ -445,7 +488,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
                 <div key={type} className="flex justify-between text-sm py-1">
                   <span className="capitalize">{type}</span>
                   <span className={dollars >= 0 ? 'text-green-600' : 'text-red-600'}>
-                    {dollars >= 0 ? '+' : ''}${dollars.toFixed(2)}
+                    {formatMoney(dollars)}
                   </span>
                 </div>
               ))
@@ -461,7 +504,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
                 <div key={sport} className="flex justify-between text-sm py-1">
                   <span className="capitalize">{sport.toUpperCase()}</span>
                   <span className={dollars >= 0 ? 'text-green-600' : 'text-red-600'}>
-                    {dollars >= 0 ? '+' : ''}${dollars.toFixed(2)}
+                    {formatMoney(dollars)}
                   </span>
                 </div>
               ))
@@ -473,7 +516,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
           <div className="bg-orange-50 p-3 rounded-lg">
             <div className="text-xs md:text-sm text-gray-600">Favorite Team</div>
             <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.favoriteTeamDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${stats.favoriteTeamDollars}
+              {formatMoney(parseFloat(stats.favoriteTeamDollars))}
             </div>
             <div className="text-xs text-gray-500">{stats.favoriteTeamRecord}</div>
           </div>
@@ -481,7 +524,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
           <div className="bg-indigo-50 p-3 rounded-lg">
             <div className="text-xs md:text-sm text-gray-600">Prime Time</div>
             <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.primeTimeDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${stats.primeTimeDollars}
+              {formatMoney(parseFloat(stats.primeTimeDollars))}
             </div>
             <div className="text-xs text-gray-500">{stats.primeTimeRecord}</div>
           </div>
@@ -753,7 +796,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
                   </div>
                 ) : (
                   <div className={`font-semibold ${bet.payout > 0 ? 'text-green-600' : bet.payout < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-                    {bet.payout > 0 ? '+' : ''}${bet.payout.toFixed(2)}
+                    {formatMoney(bet.payout)}
                   </div>
                 )}
               </div>
