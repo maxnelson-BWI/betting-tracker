@@ -580,6 +580,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
               >
                 <option value="">Select...</option>
                 <option value="straight">Straight</option>
+                <option value="ml">Money Line</option>
                 <option value="over-under">Over/Under</option>
                 <option value="teaser">Teaser</option>
                 <option value="parlay">Parlay</option>
