@@ -237,8 +237,9 @@ if (formData.betType === 'longshot-parlay' && parseFloat(formData.odds) < 500) {
     const favoriteTeamBets = settledBets.filter(b => b.favoriteTeam);
     const primeTimeBets = settledBets.filter(b => b.primeTime);
     
-const systemBets = settledBets.filter(b => b.systemPlay === 'clear' || b.systemPlay === 'kind-of');    const kindOfSystemBets = settledBets.filter(b => b.systemPlay === 'kind-of');
-    const notSystemBets = settledBets.filter(b => b.systemPlay === 'not-system');
+const systemBets = settledBets.filter(b => b.systemPlay === 'clear' || b.systemPlay === 'kind-of');
+    const clearSystemBets = settledBets.filter(b => b.systemPlay === 'clear');
+    const kindOfSystemBets = settledBets.filter(b => b.systemPlay === 'kind-of');    const notSystemBets = settledBets.filter(b => b.systemPlay === 'not-system');
 
     return {
       totalDollars: totalDollars.toFixed(2),
