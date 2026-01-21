@@ -346,24 +346,24 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
       <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Sports Betting Tracker</h1>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1 md:gap-2 flex-wrap">
             <button
               onClick={toggleDisplayMode}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm md:text-base"
+              className="flex items-center gap-1 px-2 py-2 md:px-4 md:py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-xs md:text-base"
             >
               <DollarSign />
-              {displayMode === 'units' ? 'Dollars' : 'Units'}
+              {displayMode === 'dollars' ? 'Dollars' : 'Units'}
             </button>
             <button
               onClick={() => setShowResources(!showResources)}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base"
+              className="flex items-center gap-1 px-2 py-2 md:px-4 md:py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-xs md:text-base"
             >
               <BarChart />
               Resources
             </button>
             <button
               onClick={exportToCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm md:text-base"
+              className="flex items-center gap-1 px-2 py-2 md:px-4 md:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs md:text-base"
             >
               <Download />
               Export
