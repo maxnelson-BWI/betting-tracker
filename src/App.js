@@ -49,6 +49,13 @@ const BarChart = () => (
   </svg>
 );
 
+const DollarSign = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="12" y1="1" x2="12" y2="23"></line>
+    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+  </svg>
+);
+
 const Edit = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -62,6 +69,9 @@ function App() {
   const [showResources, setShowResources] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingBet, setEditingBet] = useState(null);
+  const [displayMode, setDisplayMode] = useState(() => {
+    return localStorage.getItem('displayMode') || 'dollars';
+  });
   const [formData, setFormData] = useState({
     date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
     sport: '',
@@ -77,6 +87,10 @@ function App() {
   });
 
   const unitValue = 50;
+
+  useEffect(() => {
+    localStorage.setItem('displayMode', displayMode);
+  }, [displayMode]);
 
   useEffect(() => {
     const q = query(collection(db, 'bets'), orderBy('timestamp', 'desc'));
@@ -95,6 +109,33 @@ function App() {
 
     return () => unsubscribe();
   }, []);
+
+  const formatMoney = (dollarAmount) => {
+    if (displayMode === 'units') {
+      const units = dollarAmount / unitValue;
+      return `${units >= 0 ? '+' : ''}${units.toFixed(2)}u`;
+    } else {
+      return `${dollarAmount >= 0 ? '+' : ''}$${Math.abs(dollarAmount).toFixed(2)}`;
+    }
+  };
+
+  const formatMoneyNoSign = (dollarAmount) => {
+    if (displayMode === 'units') {
+      const units = Math.abs(dollarAmount) / unitValue;
+      return `${units.toFixed(2)}u`;
+    } else {
+      return `$${Math.abs(dollarAmount).toFixed(2)}`;
+    }
+  };
+
+  const toggleDisplayMode = () => {
+    setDisplayMode(prev => prev === 'dollars' ? 'units' : 'dollars');
+  };
+
+  const formatBetType = (type) => {
+    if (type === 'money-line') return 'ML';
+    return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
 
   const calculateRiskAndWin = (units, odds) => {
     const unitNum = parseFloat(units);
@@ -294,7 +335,7 @@ function App() {
     const favoriteTeamBets = settledBets.filter(b => b.favoriteTeam);
     const primeTimeBets = settledBets.filter(b => b.primeTime);
     
-    const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPlay !== 'not-system');
+    const systemBets = settledBets.filter(b => b.systemPlay === 'clear' || b.systemPlay === 'kind-of');
     const clearSystemBets = settledBets.filter(b => b.systemPlay === 'clear');
     const kindOfSystemBets = settledBets.filter(b => b.systemPlay === 'kind-of');
     const notSystemBets = settledBets.filter(b => b.systemPlay === 'not-system');
@@ -383,506 +424,516 @@ function App() {
 
   const getSystemColor = (systemPlay) => {
     const colors = {
-      'clear': 'bg-purple-100 text-purple-700',
-      'kind-of': 'bg-blue-100 text-blue-700',
-      'no-system': 'bg-gray-100 text-gray-600',
-      'not-system': 'bg-red-100 text-red-700'
+      'clear': 'bg-purple-500/20 text-purple-300 border border-purple-500/30',
+      'kind-of': 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
+      'no-system': 'bg-slate-500/20 text-slate-300 border border-slate-500/30',
+      'not-system': 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
     };
     return colors[systemPlay] || '';
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading your bets...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-xl text-gray-300">Loading your bets...</div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 bg-gray-50 min-h-screen">
-      <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Sports Betting Tracker</h1>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowResources(!showResources)}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base"
-            >
-              <BarChart />
-              Resources
-            </button>
-            <button
-              onClick={exportToCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm md:text-base"
-            >
-              <Download />
-              Export
-            </button>
-          </div>
-        </div>
-
-        {showResources && (
-          <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border-2 border-purple-200">
-            <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-              <BarChart />
-              Betting Intel Resources
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-              {resources.map((resource, idx) => (
-                <a
-                  key={idx}
-                  href={resource.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 p-3 bg-white rounded-lg hover:bg-purple-50 transition-colors border border-gray-200"
-                >
-                  <span className="text-2xl">{resource.icon}</span>
-                  <span className="text-sm font-medium flex-1">{resource.name}</span>
-                  <ExternalLink />
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {(stats.monthlyLossWarning || stats.totalLossWarning) && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-            <div className="flex-shrink-0 mt-0.5">
-              <AlertCircle />
-            </div>
-            <div>
-              {stats.monthlyLossWarning && (
-                <p className="text-red-800 font-medium text-sm md:text-base">⚠️ Monthly loss limit: ${Math.abs(stats.monthlyLoss)} / $1,500</p>
-              )}
-              {stats.totalLossWarning && (
-                <p className="text-red-800 font-medium text-sm md:text-base">⚠️ Total loss threshold: ${Math.abs(stats.totalDollars)} / $5,000</p>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
-          <div className="bg-blue-50 p-3 md:p-4 rounded-lg">
-            <div className="text-xs md:text-sm text-gray-600">Total P/L</div>
-            <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.totalDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${stats.totalDollars}
-            </div>
-          </div>
-          
-          <div className="bg-purple-50 p-3 md:p-4 rounded-lg">
-            <div className="text-xs md:text-sm text-gray-600 flex items-center gap-1">
-              This Month
-              {stats.monthlyLossWarning && <span className="text-red-600">⚠️</span>}
-            </div>
-            <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.monthlyLoss) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${stats.monthlyLoss}
-            </div>
-          </div>
-
-          <div className="bg-green-50 p-3 md:p-4 rounded-lg">
-            <div className="text-xs md:text-sm text-gray-600">Win Rate</div>
-            <div className="text-xl md:text-2xl font-bold text-gray-800">{stats.winRate}%</div>
-            <div className="text-xs md:text-sm text-gray-500">{stats.wins}W-{stats.losses}L</div>
-          </div>
-
-          <div className="bg-yellow-50 p-3 md:p-4 rounded-lg">
-            <div className="text-xs md:text-sm text-gray-600">Total Bets</div>
-            <div className="text-xl md:text-2xl font-bold text-gray-800">{stats.totalBets}</div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-lg mb-6 border-2 border-purple-200">
-          <div className="flex items-center gap-2 mb-3">
-            <TrendingUp />
-            <h3 className="font-bold text-base md:text-lg">THE SYSTEM (Fade the Public)</h3>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-            <div>
-              <div className="text-xs md:text-sm text-gray-600">All System</div>
-              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.systemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${stats.systemDollars}
-              </div>
-              <div className="text-xs text-gray-500">{stats.systemWinRate}%</div>
-            </div>
-            <div>
-              <div className="text-xs md:text-sm text-gray-600">Clear</div>
-              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.clearSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${stats.clearSystemDollars}
-              </div>
-              <div className="text-xs text-gray-500">{stats.clearSystemRecord}</div>
-            </div>
-            <div>
-              <div className="text-xs md:text-sm text-gray-600">Kind Of</div>
-              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.kindOfSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${stats.kindOfSystemDollars}
-                <div className="text-xs text-gray-500">{stats.kindOfSystemRecord}</div>
-              </div>
-            </div>
-            <div>
-              <div className="text-xs md:text-sm text-gray-600">Anti System</div>
-              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.notSystemDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${stats.notSystemDollars}
-                <div className="text-xs text-gray-500">{stats.notSystemRecord}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-semibold mb-2 text-sm md:text-base">By Bet Type</h3>
-            {Object.keys(stats.byType).length === 0 ? (
-              <p className="text-sm text-gray-500">No settled bets</p>
-            ) : (
-              Object.entries(stats.byType).map(([type, dollars]) => (
-                <div key={type} className="flex justify-between text-sm py-1">
-                  <span className="capitalize">{type}</span>
-                  <span className={dollars >= 0 ? 'text-green-600' : 'text-red-600'}>
-                    {dollars >= 0 ? '+' : ''}${dollars.toFixed(2)}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-semibold mb-2 text-sm md:text-base">By Sport</h3>
-            {Object.keys(stats.bySport).length === 0 ? (
-              <p className="text-sm text-gray-500">No settled bets</p>
-            ) : (
-              Object.entries(stats.bySport).map(([sport, dollars]) => (
-                <div key={sport} className="flex justify-between text-sm py-1">
-                  <span className="capitalize">{sport.toUpperCase()}</span>
-                  <span className={dollars >= 0 ? 'text-green-600' : 'text-red-600'}>
-                    {dollars >= 0 ? '+' : ''}${dollars.toFixed(2)}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-orange-50 p-3 rounded-lg">
-            <div className="text-xs md:text-sm text-gray-600">Favorite Team</div>
-            <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.favoriteTeamDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${stats.favoriteTeamDollars}
-            </div>
-            <div className="text-xs text-gray-500">{stats.favoriteTeamRecord}</div>
-          </div>
-          
-          <div className="bg-indigo-50 p-3 rounded-lg">
-            <div className="text-xs md:text-sm text-gray-600">Prime Time</div>
-            <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.primeTimeDollars) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${stats.primeTimeDollars}
-            </div>
-            <div className="text-xs text-gray-500">{stats.primeTimeRecord}</div>
-          </div>
-        </div>
-
-        <button
-          onClick={() => {
-            setEditingBet(null);
-            setShowForm(!showForm);
-          }}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-        >
-          <PlusCircle />
-          Add New Bet
-        </button>
-      </div>
-
-      {showForm && (
-        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4">{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Date</label>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({...formData, date: e.target.value})}
-                className="w-full p-2 border rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Sport</label>
-              <select
-                value={formData.sport}
-                onChange={(e) => setFormData({...formData, sport: e.target.value})}
-                className="w-full p-2 border rounded"
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="max-w-7xl mx-auto p-4 md:p-6">
+        <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-white">Sports Betting Tracker</h1>
+            <div className="flex gap-1 md:gap-2 flex-wrap">
+              <button
+                onClick={toggleDisplayMode}
+                className="flex items-center gap-1 px-2 py-2 md:px-4 md:py-2 bg-indigo-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-indigo-700/80 transition-all text-xs md:text-base shadow-lg"
               >
-                <option value="">Select...</option>
-                <option value="nfl">NFL</option>
-                <option value="nba">NBA</option>
-                <option value="mlb">MLB</option>
-                <option value="nhl">NHL</option>
-                <option value="ncaaf">NCAAF</option>
-                <option value="ncaab">NCAAB</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Bet Type</label>
-              <select
-                value={formData.betType}
-                onChange={(e) => setFormData({...formData, betType: e.target.value})}
-                className="w-full p-2 border rounded"
+                <DollarSign />
+                {displayMode === 'dollars' ? 'Dollars' : 'Units'}
+              </button>
+              <button
+                onClick={() => setShowResources(!showResources)}
+                className="flex items-center gap-1 px-2 py-2 md:px-4 md:py-2 bg-purple-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-purple-700/80 transition-all text-xs md:text-base shadow-lg"
               >
-                <option value="">Select...</option>
-                <option value="straight">Straight</option>
-                <option value="over-under">Over/Under</option>
-                <option value="teaser">Teaser</option>
-                <option value="parlay">Parlay</option>
-                <option value="longshot-parlay">Long Shot Parlay (+500)</option>
-                <option value="prop">Prop</option>
-                <option value="future">Future</option>
-              </select>
+                <BarChart />
+                Resources
+              </button>
+              <button
+                onClick={exportToCSV}
+                className="flex items-center gap-1 px-2 py-2 md:px-4 md:py-2 bg-emerald-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-emerald-700/80 transition-all text-xs md:text-base shadow-lg"
+              >
+                <Download />
+                Export
+              </button>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Units</label>
-              <input
-                type="number"
-                step="0.25"
-                value={formData.units}
-                onChange={(e) => setFormData({...formData, units: e.target.value})}
-                className="w-full p-2 border rounded mb-2"
-                placeholder="e.g., 1, 2, 0.5"
-              />
-              <div className="flex gap-1 flex-wrap">
-                {quickAddButtons.map(btn => (
-                  <button
-                    key={btn.value}
-                    type="button"
-                    onClick={() => setFormData({...formData, units: btn.value.toString()})}
-                    className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded"
+          {showResources && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl border border-purple-500/30 backdrop-blur-sm">
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-white">
+                <BarChart />
+                Betting Intel Resources
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                {resources.map((resource, idx) => (
+                  <a
+                    key={idx}
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 p-3 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all border border-white/20"
                   >
-                    {btn.label}
-                  </button>
+                    <span className="text-2xl">{resource.icon}</span>
+                    <span className="text-sm font-medium flex-1 text-white">{resource.name}</span>
+                    <ExternalLink />
+                  </a>
                 ))}
               </div>
-              {formData.units && formData.odds && (
-                <div className="text-xs text-gray-600 mt-2">
-                  Risk: ${calculateRiskAndWin(formData.units, formData.odds).risk.toFixed(2)} | 
-                  Win: ${calculateRiskAndWin(formData.units, formData.odds).win.toFixed(2)}
+            </div>
+          )}
+
+          {(stats.monthlyLossWarning || stats.totalLossWarning) && (
+            <div className="mb-4 p-4 bg-rose-500/20 border border-rose-500/50 rounded-xl flex items-start gap-3 backdrop-blur-sm">
+              <div className="flex-shrink-0 mt-0.5 text-rose-300">
+                <AlertCircle />
+              </div>
+              <div>
+                {stats.monthlyLossWarning && (
+                  <p className="text-rose-200 font-medium text-sm md:text-base">⚠️ Monthly loss limit: {formatMoneyNoSign(stats.monthlyLoss)} / $1,500</p>
+                )}
+                {stats.totalLossWarning && (
+                  <p className="text-rose-200 font-medium text-sm md:text-base">⚠️ Total loss threshold: {formatMoneyNoSign(stats.totalDollars)} / $5,000</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+            <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-4 rounded-xl backdrop-blur-sm border border-blue-500/30 shadow-lg">
+              <div className="text-xs md:text-sm text-blue-200 mb-1">Total P/L</div>
+              <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.totalDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {formatMoney(parseFloat(stats.totalDollars))}
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 p-4 rounded-xl backdrop-blur-sm border border-purple-500/30 shadow-lg">
+              <div className="text-xs md:text-sm text-purple-200 flex items-center gap-1 mb-1">
+                This Month
+                {stats.monthlyLossWarning && <span className="text-rose-400">⚠️</span>}
+              </div>
+              <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.monthlyLoss) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {formatMoney(parseFloat(stats.monthlyLoss))}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-4 rounded-xl backdrop-blur-sm border border-emerald-500/30 shadow-lg">
+              <div className="text-xs md:text-sm text-emerald-200 mb-1">Win Rate</div>
+              <div className="text-xl md:text-2xl font-bold text-white">{stats.winRate}%</div>
+              <div className="text-xs md:text-sm text-emerald-300">{stats.wins}W-{stats.losses}L</div>
+            </div>
+
+            <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 p-4 rounded-xl backdrop-blur-sm border border-amber-500/30 shadow-lg">
+              <div className="text-xs md:text-sm text-amber-200 mb-1">Total Bets</div>
+              <div className="text-xl md:text-2xl font-bold text-white">{stats.totalBets}</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-purple-500/20 to-indigo-500/20 p-4 rounded-xl mb-6 border border-purple-500/30 backdrop-blur-sm shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp />
+              <h3 className="font-bold text-base md:text-lg text-white">THE SYSTEM (Fade the Public)</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+              <div>
+                <div className="text-xs md:text-sm text-purple-200">All System</div>
+                <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.systemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {formatMoney(parseFloat(stats.systemDollars))}
                 </div>
+                <div className="text-xs text-purple-300">{stats.systemWinRate}%</div>
+              </div>
+              <div>
+                <div className="text-xs md:text-sm text-purple-200">Clear</div>
+                <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.clearSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {formatMoney(parseFloat(stats.clearSystemDollars))}
+                </div>
+                <div className="text-xs text-purple-300">{stats.clearSystemRecord}</div>
+              </div>
+              <div>
+                <div className="text-xs md:text-sm text-purple-200">Kind Of</div>
+                <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.kindOfSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {formatMoney(parseFloat(stats.kindOfSystemDollars))}
+                </div>
+                <div className="text-xs text-purple-300">{stats.kindOfSystemRecord}</div>
+              </div>
+              <div>
+                <div className="text-xs md:text-sm text-purple-200">Anti System</div>
+                <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.notSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {formatMoney(parseFloat(stats.notSystemDollars))}
+                </div>
+                <div className="text-xs text-purple-300">{stats.notSystemRecord}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="bg-slate-800/50 backdrop-blur-sm p-4 rounded-xl border border-slate-700/50 shadow-lg">
+              <h3 className="font-semibold mb-2 text-sm md:text-base text-white">By Bet Type</h3>
+              {Object.keys(stats.byType).length === 0 ? (
+                <p className="text-sm text-slate-400">No settled bets</p>
+              ) : (
+                Object.entries(stats.byType).map(([type, dollars]) => (
+                  <div key={type} className="flex justify-between text-sm py-1">
+                    <span className="text-slate-300">{formatBetType(type)}</span>
+                    <span className={dollars >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                      {formatMoney(dollars)}
+                    </span>
+                  </div>
+                ))
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Odds (American)</label>
-              <input
-                type="number"
-                value={formData.odds}
-                onChange={(e) => setFormData({...formData, odds: e.target.value})}
-                className="w-full p-2 border rounded"
-                placeholder="e.g., -110, +150"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Result</label>
-              <select
-                value={formData.result}
-                onChange={(e) => setFormData({...formData, result: e.target.value})}
-                className="w-full p-2 border rounded"
-              >
-                <option value="pending">Pending</option>
-                <option value="win">Win</option>
-                <option value="loss">Loss</option>
-                <option value="push">Push</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <input
-                type="text"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="w-full p-2 border rounded"
-                placeholder="e.g., Chiefs -3 vs Bills"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Notes (Optional)</label>
-              <textarea
-                value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                className="w-full p-2 border rounded"
-                placeholder="e.g., Reverse line movement from -7 to -6.5"
-                rows="2"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-2">System Play Classification</label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'clear'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'clear' ? 'border-purple-500 bg-purple-50' : 'border-gray-300'}`}
-                >
-                  Clear System
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'kind-of'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'kind-of' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
-                >
-                  Kind Of
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'no-system'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'no-system' ? 'border-gray-500 bg-gray-50' : 'border-gray-300'}`}
-                >
-                  No System
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, systemPlay: 'not-system'})}
-                  className={`p-2 border-2 rounded text-sm ${formData.systemPlay === 'not-system' ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
-                >
-                  Anti System
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.favoriteTeam}
-                  onChange={(e) => setFormData({...formData, favoriteTeam: e.target.checked})}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm">Favorite Team</span>
-              </label>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.primeTime}
-                  onChange={(e) => setFormData({...formData, primeTime: e.target.checked})}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm">Prime Time Game</span>
-              </label>
-            </div>
-
-            <div className="md:col-span-2 flex gap-2">
-              <button
-                onClick={editingBet ? saveEdit : addBet}
-                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-              >
-                {editingBet ? 'Save Changes' : 'Add Bet'}
-              </button>
-              <button
-                onClick={editingBet ? cancelEdit : () => setShowForm(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400"
-              >
-                Cancel
-              </button>
+            <div className="bg-slate-800/50 backdrop-blur-sm p-4 rounded-xl border border-slate-700/50 shadow-lg">
+              <h3 className="font-semibold mb-2 text-sm md:text-base text-white">By Sport</h3>
+              {Object.keys(stats.bySport).length === 0 ? (
+                <p className="text-sm text-slate-400">No settled bets</p>
+              ) : (
+                Object.entries(stats.bySport).map(([sport, dollars]) => (
+                  <div key={sport} className="flex justify-between text-sm py-1">
+                    <span className="text-slate-300">{sport.toUpperCase()}</span>
+                    <span className={dollars >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                      {formatMoney(dollars)}
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
-        </div>
-      )}
 
-      <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-        <h2 className="text-xl font-bold mb-4">Bet History</h2>
-        <div className="space-y-3">
-          {bets.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No bets yet. Add your first bet above!</p>
-          ) : (
-            bets.map(bet => (
-              <div key={bet.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="font-semibold">{bet.description}</span>
-                      {bet.favoriteTeam && <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">Fav Team</span>}
-                      {bet.primeTime && <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Prime Time</span>}
-                      {bet.systemPlay !== 'none' && (
-                        <span className={`text-xs px-2 py-0.5 rounded ${getSystemColor(bet.systemPlay)}`}>
-                          {getSystemLabel(bet.systemPlay)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {bet.date} • {bet.sport.toUpperCase()} • {bet.betType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
-                    </div>
-                    {bet.notes && (
-                      <div className="text-xs text-gray-600 mt-1 italic">
-                        Note: {bet.notes}
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    {bet.result === 'pending' ? (
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => updateBetResult(bet.id, 'win')}
-                          className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200"
-                        >
-                          Win
-                        </button>
-                        <button
-                          onClick={() => updateBetResult(bet.id, 'loss')}
-                          className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200"
-                        >
-                          Loss
-                        </button>
-                        <button
-                          onClick={() => updateBetResult(bet.id, 'push')}
-                          className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
-                        >
-                          Push
-                        </button>
-                      </div>
-                    ) : (
-                      <div className={`font-semibold ${bet.payout > 0 ? 'text-green-600' : bet.payout < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-                        {bet.payout > 0 ? '+' : ''}${bet.payout.toFixed(2)}
-                      </div>
-                    )}
-                  </div>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-orange-500/20 to-amber-500/20 p-3 rounded-xl backdrop-blur-sm border border-orange-500/30 shadow-lg">
+              <div className="text-xs md:text-sm text-orange-200">Favorite Team</div>
+              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.favoriteTeamDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {formatMoney(parseFloat(stats.favoriteTeamDollars))}
+              </div>
+              <div className="text-xs text-orange-300">{stats.favoriteTeamRecord}</div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-indigo-500/20 to-blue-500/20 p-3 rounded-xl backdrop-blur-sm border border-indigo-500/30 shadow-lg">
+              <div className="text-xs md:text-sm text-indigo-200">Prime Time</div>
+              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.primeTimeDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {formatMoney(parseFloat(stats.primeTimeDollars))}
+              </div>
+              <div className="text-xs text-indigo-300">{stats.primeTimeRecord}</div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              setEditingBet(null);
+              setShowForm(!showForm);
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 font-medium shadow-lg transition-all"
+          >
+            <PlusCircle />
+            Add New Bet
+          </button>
+        </div>
+
+        {showForm && (
+          <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
+            <h2 className="text-xl font-bold mb-4 text-white">{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1 text-slate-200">Date</label>
+                <input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData({...formData, date: e.target.value})}
+                  className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1 text-slate-200">Sport</label>
+                <select
+                  value={formData.sport}
+                  onChange={(e) => setFormData({...formData, sport: e.target.value})}
+                  className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="">Select...</option>
+                  <option value="nfl">NFL</option>
+                  <option value="nba">NBA</option>
+                  <option value="mlb">MLB</option>
+                  <option value="nhl">NHL</option>
+                  <option value="ncaaf">NCAAF</option>
+                  <option value="ncaab">NCAAB</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1 text-slate-200">Bet Type</label>
+                <select
+                  value={formData.betType}
+                  onChange={(e) => setFormData({...formData, betType: e.target.value})}
+                  className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="">Select...</option>
+                  <option value="straight">Straight</option>
+                  <option value="money-line">Money Line</option>
+                  <option value="over-under">Over/Under</option>
+                  <option value="teaser">Teaser</option>
+                  <option value="parlay">Parlay</option>
+                  <option value="longshot-parlay">Long Shot Parlay (+500)</option>
+                  <option value="prop">Prop</option>
+                  <option value="future">Future</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1 text-slate-200">Units</label>
+                <input
+                  type="number"
+                  step="0.25"
+                  value={formData.units}
+                  onChange={(e) => setFormData({...formData, units: e.target.value})}
+                  className="w-full p-2 border border-slate-600 rounded-lg mb-2 bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="e.g., 1, 2, 0.5"
+                />
+                <div className="flex gap-1 flex-wrap">
+                  {quickAddButtons.map(btn => (
+                    <button
+                      key={btn.value}
+                      type="button"
+                      onClick={() => setFormData({...formData, units: btn.value.toString()})}
+                      className="px-2 py-1 text-xs bg-slate-700/50 hover:bg-slate-600/50 rounded backdrop-blur-sm text-white transition-all"
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
                 </div>
-                <div className="flex justify-between items-center mt-2 pt-2 border-t">
-                  <span className={`text-xs font-medium px-2 py-1 rounded ${
-                    bet.result === 'win' ? 'bg-green-100 text-green-700' :
-                    bet.result === 'loss' ? 'bg-red-100 text-red-700' :
-                    bet.result === 'push' ? 'bg-gray-100 text-gray-700' :
-                    'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {bet.result.toUpperCase()}
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => startEdit(bet)}
-                      className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800"
-                    >
-                      <Edit />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => deleteBet(bet.id)}
-                      className="text-xs text-red-600 hover:text-red-800"
-                    >
-                      Delete
-                    </button>
+                {formData.units && formData.odds && (
+                  <div className="text-xs text-slate-300 mt-2">
+                    Risk: ${calculateRiskAndWin(formData.units, formData.odds).risk.toFixed(2)} | 
+                    Win: ${calculateRiskAndWin(formData.units, formData.odds).win.toFixed(2)}
                   </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1 text-slate-200">Odds (American)</label>
+                <input
+                  type="number"
+                  value={formData.odds}
+                  onChange={(e) => setFormData({...formData, odds: e.target.value})}
+                  className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="e.g., -110, +150"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1 text-slate-200">Result</label>
+                <select
+                  value={formData.result}
+                  onChange={(e) => setFormData({...formData, result: e.target.value})}
+                  className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="win">Win</option>
+                  <option value="loss">Loss</option>
+                  <option value="push">Push</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1 text-slate-200">Description</label>
+                <input
+                  type="text"
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="e.g., Chiefs -3 vs Bills"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1 text-slate-200">Notes (Optional)</label>
+                <textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                  className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="e.g., Reverse line movement from -7 to -6.5"
+                  rows="2"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-2 text-slate-200">System Play Classification</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, systemPlay: 'clear'})}
+                    className={`p-2 border-2 rounded-lg text-sm transition-all ${formData.systemPlay === 'clear' ? 'border-purple-500 bg-purple-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                  >
+                    Clear System
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, systemPlay: 'kind-of'})}
+                    className={`p-2 border-2 rounded-lg text-sm transition-all ${formData.systemPlay === 'kind-of' ? 'border-blue-500 bg-blue-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                  >
+                    Kind Of
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, systemPlay: 'no-system'})}
+                    className={`p-2 border-2 rounded-lg text-sm transition-all ${formData.systemPlay === 'no-system' ? 'border-slate-500 bg-slate-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                  >
+                    No System
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, systemPlay: 'not-system'})}
+                    className={`p-2 border-2 rounded-lg text-sm transition-all ${formData.systemPlay === 'not-system' ? 'border-rose-500 bg-rose-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                  >
+                    Anti System
+                  </button>
                 </div>
               </div>
-            ))
-          )}
+
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.favoriteTeam}
+                    onChange={(e) => setFormData({...formData, favoriteTeam: e.target.checked})}
+                    className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="text-sm text-slate-200">Favorite Team</span>
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.primeTime}
+                    onChange={(e) => setFormData({...formData, primeTime: e.target.checked})}
+                    className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="text-sm text-slate-200">Prime Time Game</span>
+                </label>
+              </div>
+
+              <div className="md:col-span-2 flex gap-2">
+                <button
+                  onClick={editingBet ? saveEdit : addBet}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg"
+                >
+                  {editingBet ? 'Save Changes' : 'Add Bet'}
+                </button>
+                <button
+                  onClick={editingBet ? cancelEdit : () => setShowForm(false)}
+                  className="flex-1 bg-slate-700/50 text-slate-200 py-2 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 border border-white/20">
+          <h2 className="text-xl font-bold mb-4 text-white">Bet History</h2>
+          <div className="space-y-3">
+            {bets.length === 0 ? (
+              <p className="text-slate-400 text-center py-8">No bets yet. Add your first bet above!</p>
+            ) : (
+              bets.map(bet => (
+                <div key={bet.id} className="border border-slate-700/50 rounded-xl p-4 hover:bg-white/5 transition-all backdrop-blur-sm bg-slate-800/30">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="font-semibold text-white">{bet.description}</span>
+                        {bet.favoriteTeam && <span className="text-xs bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded border border-orange-500/30">Fav Team</span>}
+                        {bet.primeTime && <span className="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">Prime Time</span>}
+                        {bet.systemPlay !== 'none' && (
+                          <span className={`text-xs px-2 py-0.5 rounded ${getSystemColor(bet.systemPlay)}`}>
+                            {getSystemLabel(bet.systemPlay)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-slate-300">
+                        {bet.date} • {bet.sport.toUpperCase()} • {formatBetType(bet.betType)} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
+                      </div>
+                      <div className="text-xs text-slate-400 mt-1">
+                        Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
+                      </div>
+                      {bet.notes && (
+                        <div className="text-xs text-slate-400 mt-1 italic">
+                          Note: {bet.notes}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      {bet.result === 'pending' ? (
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => updateBetResult(bet.id, 'win')}
+                            className="px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded hover:bg-emerald-500/30 border border-emerald-500/30 transition-all"
+                          >
+                            Win
+                          </button>
+                          <button
+                            onClick={() => updateBetResult(bet.id, 'loss')}
+                            className="px-2 py-1 bg-rose-500/20 text-rose-300 text-xs rounded hover:bg-rose-500/30 border border-rose-500/30 transition-all"
+                          >
+                            Loss
+                          </button>
+                          <button
+                            onClick={() => updateBetResult(bet.id, 'push')}
+                            className="px-2 py-1 bg-slate-500/20 text-slate-300 text-xs rounded hover:bg-slate-500/30 border border-slate-500/30 transition-all"
+                          >
+                            Push
+                          </button>
+                        </div>
+                      ) : (
+                        <div className={`font-semibold ${bet.payout > 0 ? 'text-emerald-400' : bet.payout < 0 ? 'text-rose-400' : 'text-slate-400'}`}>
+                          {formatMoney(bet.payout)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-700/50">
+                    <span className={`text-xs font-medium px-2 py-1 rounded ${
+                      bet.result === 'win' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                      bet.result === 'loss' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
+                      bet.result === 'push' ? 'bg-slate-500/20 text-slate-300 border border-slate-500/30' :
+                      'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    }`}>
+                      {bet.result.toUpperCase()}
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => startEdit(bet)}
+                        className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        <Edit />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteBet(bet.id)}
+                        className="text-xs text-rose-400 hover:text-rose-300 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
