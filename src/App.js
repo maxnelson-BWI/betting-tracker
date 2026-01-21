@@ -78,7 +78,7 @@ const GallopingHorse = () => (
 );
 
 const RearingHorse = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-spin-slow">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-spin">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🏇</text>
   </svg>
 );
@@ -91,7 +91,7 @@ const RacingHorse = () => (
 
 // SVG Bird Animations
 const SoaringBird = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-float">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-bounce">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🦅</text>
   </svg>
 );
@@ -103,7 +103,7 @@ const SwoopingBird = () => (
 );
 
 const FlyingBird = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-wiggle">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-pulse">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🐦</text>
   </svg>
 );
@@ -116,7 +116,7 @@ const ClickingLock = () => (
 );
 
 const SparkleLock = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-spin-slow">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-spin">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔐</text>
   </svg>
 );
@@ -692,10 +692,10 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Animation Overlay */}
       {animation.show && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300">
           <div className="text-center">
             {animation.contentType === 'emoji' ? (
-              <div className={`text-9xl mb-4 ${animation.type === 'win' ? 'animate-bounce' : 'animate-shake'}`}>
+              <div className={`text-9xl mb-4 ${animation.type === 'win' ? 'animate-bounce' : 'animate-ping'}`}>
                 {animation.content}
               </div>
             ) : (
@@ -1321,53 +1321,6 @@ function App() {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-10px) rotate(-5deg); }
-          75% { transform: translateX(10px) rotate(5deg); }
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        
-        @keyframes wiggle {
-          0%, 100% { transform: rotate(-3deg); }
-          50% { transform: rotate(3deg); }
-        }
-        
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-in;
-        }
-        
-        .animate-shake {
-          animation: shake 0.5s ease-in-out;
-        }
-        
-        .animate-float {
-          animation: float 2s ease-in-out infinite;
-        }
-        
-        .animate-wiggle {
-          animation: wiggle 1s ease-in-out infinite;
-        }
-        
-        .animate-spin-slow {
-          animation: spin-slow 3s linear infinite;
-        }
-      `}</style>
     </div>
   );
 }
