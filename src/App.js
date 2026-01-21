@@ -486,7 +486,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
             ) : (
               Object.entries(stats.byType).map(([type, dollars]) => (
                 <div key={type} className="flex justify-between text-sm py-1">
-                  <span className="capitalize">{type}</span>
+               <span className="capitalize">{type === 'ml' ? 'ML' : type}</span>
                   <span className={dollars >= 0 ? 'text-green-600' : 'text-red-600'}>
                     {formatMoney(dollars)}
                   </span>
