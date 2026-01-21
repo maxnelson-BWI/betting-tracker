@@ -183,7 +183,9 @@ function App() {
           return {
             show: true,
             message: 'Are you only doing this because your favorite team is playing?',
-            type: 'favorite-team'
+            type: 'favorite-team',
+            buttonYes: 'No. I want to keep it',
+            buttonNo: 'Yeah. I should lower it'
           };
         }
       }
@@ -201,7 +203,7 @@ function App() {
     if (monthlyLoss < -1500) {
       return {
         show: true,
-        message: 'You are down over your limit. Are you sure you want to put this in?',
+        message: 'You are down over your monthly limit. Are you sure you want to put this in?',
         type: 'monthly-limit'
       };
     }
@@ -529,13 +531,13 @@ function App() {
                 }}
                 className="flex-1 bg-gradient-to-r from-rose-600 to-orange-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-orange-700 transition-all font-medium shadow-lg"
               >
-                Yes, proceed anyway
+                {warningModal.buttonYes || 'Yes, proceed anyway'}
               </button>
               <button
                 onClick={() => setWarningModal({ show: false, message: '', type: '' })}
                 className="flex-1 bg-slate-700/50 text-slate-200 py-3 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all font-medium"
               >
-                No, let me change it
+                {warningModal.buttonNo || 'No, let me change it'}
               </button>
             </div>
           </div>
