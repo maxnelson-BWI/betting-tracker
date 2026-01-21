@@ -49,11 +49,21 @@ const BarChart = () => (
   </svg>
 );
 
+const DollarSign = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="12" y1="1" x2="12" y2="23"></line>
+    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+  </svg>
+);
+
 function App() {
   const [bets, setBets] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showResources, setShowResources] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [displayMode, setDisplayMode] = useState(() => {
+    return localStorage.getItem('displayMode') || 'dollars';
+  });
   const [formData, setFormData] = useState({
     date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
     sport: '',
@@ -69,6 +79,10 @@ function App() {
   });
 
   const unitValue = 50;
+
+  useEffect(() => {
+    localStorage.setItem('displayMode', displayMode);
+  }, [displayMode]);
 
   useEffect(() => {
     const q = query(collection(db, 'bets'), orderBy('timestamp', 'desc'));
@@ -87,6 +101,33 @@ function App() {
 
     return () => unsubscribe();
   }, []);
+
+  const formatMoney = (dollarAmount) => {
+    if (displayMode === 'units') {
+      const units = dollarAmount / unitValue;
+      return `${units >= 0 ? '+' : ''}${units.toFixed(2)}u`;
+    } else {
+      return `${dollarAmount >= 0 ? '+' : ''}$${Math.abs(dollarAmount).toFixed(2)}`;
+    }
+  };
+
+  const formatMoneyNoSign = (dollarAmount) => {
+    if (displayMode === 'units') {
+      const units = Math.abs(dollarAmount) / unitValue;
+      return `${units.toFixed(2)}u`;
+    } else {
+      return `$${Math.abs(dollarAmount).toFixed(2)}`;
+    }
+  };
+
+  const toggleDisplayMode = () => {
+    setDisplayMode(prev => prev === 'dollars' ? 'units' : 'dollars');
+  };
+
+  const formatBetType = (type) => {
+    if (type === 'money-line') return 'ML';
+    return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
 
   const calculateRiskAndWin = (units, odds) => {
     const unitNum = parseFloat(units);
@@ -201,7 +242,7 @@ function App() {
     const favoriteTeamBets = settledBets.filter(b => b.favoriteTeam);
     const primeTimeBets = settledBets.filter(b => b.primeTime);
     
-    const systemBets = settledBets.filter(b => b.systemPlay !== 'none' && b.systemPlay !== 'not-system');
+    const systemBets = settledBets.filter(b => b.systemPlay === 'clear' || b.systemPlay === 'kind-of');
     const clearSystemBets = settledBets.filter(b => b.systemPlay === 'clear');
     const kindOfSystemBets = settledBets.filter(b => b.systemPlay === 'kind-of');
     const notSystemBets = settledBets.filter(b => b.systemPlay === 'not-system');
@@ -312,17 +353,24 @@ function App() {
         <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <h1 className="text-2xl md:text-3xl font-bold text-white">Sports Betting Tracker</h1>
-            <div className="flex gap-2">
+            <div className="flex gap-1 md:gap-2 flex-wrap">
+              <button
+                onClick={toggleDisplayMode}
+                className="flex items-center gap-1 px-2 py-2 md:px-4 md:py-2 bg-indigo-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-indigo-700/80 transition-all text-xs md:text-base shadow-lg"
+              >
+                <DollarSign />
+                {displayMode === 'dollars' ? 'Dollars' : 'Units'}
+              </button>
               <button
                 onClick={() => setShowResources(!showResources)}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-purple-700/80 transition-all text-sm md:text-base shadow-lg"
+                className="flex items-center gap-1 px-2 py-2 md:px-4 md:py-2 bg-purple-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-purple-700/80 transition-all text-xs md:text-base shadow-lg"
               >
                 <BarChart />
                 Resources
               </button>
               <button
                 onClick={exportToCSV}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-emerald-700/80 transition-all text-sm md:text-base shadow-lg"
+                className="flex items-center gap-1 px-2 py-2 md:px-4 md:py-2 bg-emerald-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-emerald-700/80 transition-all text-xs md:text-base shadow-lg"
               >
                 <Download />
                 Export
@@ -361,10 +409,10 @@ function App() {
               </div>
               <div>
                 {stats.monthlyLossWarning && (
-                  <p className="text-rose-200 font-medium text-sm md:text-base">⚠️ Monthly loss limit: ${Math.abs(stats.monthlyLoss)} / $1,500</p>
+                  <p className="text-rose-200 font-medium text-sm md:text-base">⚠️ Monthly loss limit: {formatMoneyNoSign(stats.monthlyLoss)} / $1,500</p>
                 )}
                 {stats.totalLossWarning && (
-                  <p className="text-rose-200 font-medium text-sm md:text-base">⚠️ Total loss threshold: ${Math.abs(stats.totalDollars)} / $5,000</p>
+                  <p className="text-rose-200 font-medium text-sm md:text-base">⚠️ Total loss threshold: {formatMoneyNoSign(stats.totalDollars)} / $5,000</p>
                 )}
               </div>
             </div>
@@ -374,7 +422,7 @@ function App() {
             <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-4 rounded-xl backdrop-blur-sm border border-blue-500/30 shadow-lg">
               <div className="text-xs md:text-sm text-blue-200 mb-1">Total P/L</div>
               <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.totalDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                ${stats.totalDollars}
+                {formatMoney(parseFloat(stats.totalDollars))}
               </div>
             </div>
             
@@ -384,7 +432,7 @@ function App() {
                 {stats.monthlyLossWarning && <span className="text-rose-400">⚠️</span>}
               </div>
               <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.monthlyLoss) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                ${stats.monthlyLoss}
+                {formatMoney(parseFloat(stats.monthlyLoss))}
               </div>
             </div>
 
@@ -409,28 +457,28 @@ function App() {
               <div>
                 <div className="text-xs md:text-sm text-purple-200">All System</div>
                 <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.systemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  ${stats.systemDollars}
+                  {formatMoney(parseFloat(stats.systemDollars))}
                 </div>
                 <div className="text-xs text-purple-300">{stats.systemWinRate}%</div>
               </div>
               <div>
                 <div className="text-xs md:text-sm text-purple-200">Clear</div>
                 <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.clearSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  ${stats.clearSystemDollars}
+                  {formatMoney(parseFloat(stats.clearSystemDollars))}
                 </div>
                 <div className="text-xs text-purple-300">{stats.clearSystemRecord}</div>
               </div>
               <div>
                 <div className="text-xs md:text-sm text-purple-200">Kind Of</div>
                 <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.kindOfSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  ${stats.kindOfSystemDollars}
+                  {formatMoney(parseFloat(stats.kindOfSystemDollars))}
                 </div>
                 <div className="text-xs text-purple-300">{stats.kindOfSystemRecord}</div>
               </div>
               <div>
                 <div className="text-xs md:text-sm text-purple-200">Anti System</div>
                 <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.notSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  ${stats.notSystemDollars}
+                  {formatMoney(parseFloat(stats.notSystemDollars))}
                 </div>
                 <div className="text-xs text-purple-300">{stats.notSystemRecord}</div>
               </div>
@@ -445,9 +493,9 @@ function App() {
               ) : (
                 Object.entries(stats.byType).map(([type, dollars]) => (
                   <div key={type} className="flex justify-between text-sm py-1">
-                    <span className="capitalize text-slate-300">{type}</span>
+                    <span className="text-slate-300">{formatBetType(type)}</span>
                     <span className={dollars >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
-                      {dollars >= 0 ? '+' : ''}${dollars.toFixed(2)}
+                      {formatMoney(dollars)}
                     </span>
                   </div>
                 ))
@@ -461,9 +509,9 @@ function App() {
               ) : (
                 Object.entries(stats.bySport).map(([sport, dollars]) => (
                   <div key={sport} className="flex justify-between text-sm py-1">
-                    <span className="capitalize text-slate-300">{sport.toUpperCase()}</span>
+                    <span className="text-slate-300">{sport.toUpperCase()}</span>
                     <span className={dollars >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
-                      {dollars >= 0 ? '+' : ''}${dollars.toFixed(2)}
+                      {formatMoney(dollars)}
                     </span>
                   </div>
                 ))
@@ -475,7 +523,7 @@ function App() {
             <div className="bg-gradient-to-br from-orange-500/20 to-amber-500/20 p-3 rounded-xl backdrop-blur-sm border border-orange-500/30 shadow-lg">
               <div className="text-xs md:text-sm text-orange-200">Favorite Team</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.favoriteTeamDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                ${stats.favoriteTeamDollars}
+                {formatMoney(parseFloat(stats.favoriteTeamDollars))}
               </div>
               <div className="text-xs text-orange-300">{stats.favoriteTeamRecord}</div>
             </div>
@@ -483,7 +531,7 @@ function App() {
             <div className="bg-gradient-to-br from-indigo-500/20 to-blue-500/20 p-3 rounded-xl backdrop-blur-sm border border-indigo-500/30 shadow-lg">
               <div className="text-xs md:text-sm text-indigo-200">Prime Time</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.primeTimeDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                ${stats.primeTimeDollars}
+                {formatMoney(parseFloat(stats.primeTimeDollars))}
               </div>
               <div className="text-xs text-indigo-300">{stats.primeTimeRecord}</div>
             </div>
@@ -539,6 +587,7 @@ function App() {
                 >
                   <option value="">Select...</option>
                   <option value="straight">Straight</option>
+                  <option value="money-line">Money Line</option>
                   <option value="over-under">Over/Under</option>
                   <option value="teaser">Teaser</option>
                   <option value="parlay">Parlay</option>
@@ -720,7 +769,7 @@ function App() {
                         )}
                       </div>
                       <div className="text-sm text-slate-300">
-                        {bet.date} • {bet.sport.toUpperCase()} • {bet.betType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
+                        {bet.date} • {bet.sport.toUpperCase()} • {formatBetType(bet.betType)} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
                       </div>
                       <div className="text-xs text-slate-400 mt-1">
                         Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
@@ -755,7 +804,7 @@ function App() {
                         </div>
                       ) : (
                         <div className={`font-semibold ${bet.payout > 0 ? 'text-emerald-400' : bet.payout < 0 ? 'text-rose-400' : 'text-slate-400'}`}>
-                          {bet.payout > 0 ? '+' : ''}${bet.payout.toFixed(2)}
+                          {formatMoney(bet.payout)}
                         </div>
                       )}
                     </div>
