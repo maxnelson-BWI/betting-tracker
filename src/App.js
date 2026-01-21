@@ -346,13 +346,13 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
       <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Sports Betting Tracker</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <button
               onClick={toggleDisplayMode}
               className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm md:text-base"
             >
               <DollarSign />
-              {displayMode === 'dollars' ? 'Units' : 'Dollars'}
+              {displayMode === 'units' ? 'Dollars' : 'Units'}
             </button>
             <button
               onClick={() => setShowResources(!showResources)}
@@ -486,7 +486,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
             ) : (
               Object.entries(stats.byType).map(([type, dollars]) => (
                 <div key={type} className="flex justify-between text-sm py-1">
-               <span className="capitalize">{type === 'ml' ? 'ML' : type}</span>
+                  <span className="capitalize">{type}</span>
                   <span className={dollars >= 0 ? 'text-green-600' : 'text-red-600'}>
                     {formatMoney(dollars)}
                   </span>
@@ -580,7 +580,6 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
               >
                 <option value="">Select...</option>
                 <option value="straight">Straight</option>
-                <option value="ml">Money Line</option>
                 <option value="over-under">Over/Under</option>
                 <option value="teaser">Teaser</option>
                 <option value="parlay">Parlay</option>
@@ -762,7 +761,8 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
                   )}
                 </div>
                 <div className="text-sm text-gray-600">
-                {bet.date} • {bet.sport.toUpperCase()} • {bet.betType === 'ml' ? 'ML' : bet.betType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}                </div>
+               {bet.date} • {bet.sport.toUpperCase()} • {bet.betType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
+                </div>
                 <div className="text-xs text-gray-500 mt-1">
                   Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
                 </div>
