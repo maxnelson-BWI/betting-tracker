@@ -762,8 +762,7 @@ notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notS
                   )}
                 </div>
                 <div className="text-sm text-gray-600">
-               {bet.date} • {bet.sport.toUpperCase()} • {bet.betType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
-                </div>
+                {bet.date} • {bet.sport.toUpperCase()} • {bet.betType === 'ml' ? 'ML' : bet.betType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}                </div>
                 <div className="text-xs text-gray-500 mt-1">
                   Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
                 </div>
