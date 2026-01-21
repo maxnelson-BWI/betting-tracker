@@ -70,6 +70,63 @@ const PowerOff = () => (
   </svg>
 );
 
+// SVG Horse Animations
+const GallopingHorse = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-bounce">
+    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🐴</text>
+  </svg>
+);
+
+const RearingHorse = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-spin-slow">
+    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🏇</text>
+  </svg>
+);
+
+const RacingHorse = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-pulse">
+    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🐎</text>
+  </svg>
+);
+
+// SVG Bird Animations
+const SoaringBird = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-float">
+    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🦅</text>
+  </svg>
+);
+
+const SwoopingBird = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-bounce">
+    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🦜</text>
+  </svg>
+);
+
+const FlyingBird = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-wiggle">
+    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🐦</text>
+  </svg>
+);
+
+// SVG Lock Animations
+const ClickingLock = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-pulse">
+    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔒</text>
+  </svg>
+);
+
+const SparkleLock = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-spin-slow">
+    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔐</text>
+  </svg>
+);
+
+const VaultLock = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-bounce">
+    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔓</text>
+  </svg>
+);
+
 function App() {
   const [bets, setBets] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -99,6 +156,10 @@ function App() {
     systemPlay: 'none',
     notes: ''
   });
+
+  // Animation state
+  const [animation, setAnimation] = useState({ show: false, type: '', content: null, isStreak: false, streakText: '' });
+  const [winStreak, setWinStreak] = useState(0);
 
   const unitValue = 50;
 
@@ -396,6 +457,82 @@ function App() {
     setShowForm(false);
   };
 
+  const getRandomWinAnimation = () => {
+    const emojiAnimations = [
+      { type: 'emoji', content: '🐴' },
+      { type: 'emoji', content: '🏇' },
+      { type: 'emoji', content: '🐎' },
+      { type: 'emoji', content: '🦅' },
+      { type: 'emoji', content: '🐦' },
+      { type: 'emoji', content: '🦆' },
+      { type: 'emoji', content: '🦜' },
+      { type: 'emoji', content: '🐧' },
+      { type: 'emoji', content: '💰' },
+      { type: 'emoji', content: '💵' }
+    ];
+
+    const svgAnimations = [
+      { type: 'svg', content: <GallopingHorse /> },
+      { type: 'svg', content: <RearingHorse /> },
+      { type: 'svg', content: <RacingHorse /> },
+      { type: 'svg', content: <SoaringBird /> },
+      { type: 'svg', content: <SwoopingBird /> },
+      { type: 'svg', content: <FlyingBird /> },
+      { type: 'svg', content: <ClickingLock /> },
+      { type: 'svg', content: <SparkleLock /> },
+      { type: 'svg', content: <VaultLock /> }
+    ];
+
+    const allAnimations = [...emojiAnimations, ...svgAnimations];
+    return allAnimations[Math.floor(Math.random() * allAnimations.length)];
+  };
+
+  const getStreakText = () => {
+    const texts = [
+      "ON FIRE!",
+      "HE'S HEATING UP!",
+      "BOOMSHAKALAKA!",
+      "FROM DOWNTOWN!",
+      "CAN'T MISS!"
+    ];
+    return texts[Math.floor(Math.random() * texts.length)];
+  };
+
+  const triggerAnimation = (result) => {
+    if (result === 'win') {
+      const newStreak = winStreak + 1;
+      setWinStreak(newStreak);
+      
+      const winAnim = getRandomWinAnimation();
+      setAnimation({
+        show: true,
+        type: 'win',
+        content: winAnim.content,
+        contentType: winAnim.type,
+        isStreak: newStreak >= 3,
+        streakText: newStreak >= 3 ? getStreakText() : ''
+      });
+    } else if (result === 'loss') {
+      setWinStreak(0);
+      setAnimation({
+        show: true,
+        type: 'loss',
+        content: '❌',
+        contentType: 'emoji',
+        isStreak: false,
+        streakText: ''
+      });
+    } else {
+      // Push doesn't affect streak
+      return;
+    }
+
+    // Auto-hide after 2 seconds
+    setTimeout(() => {
+      setAnimation({ show: false, type: '', content: null, contentType: '', isStreak: false, streakText: '' });
+    }, 2000);
+  };
+
   const updateBetResult = async (id, result) => {
     const bet = bets.find(b => b.id === id);
     if (!bet) return;
@@ -408,6 +545,7 @@ function App() {
 
     try {
       await updateDoc(doc(db, 'bets', id), { result, payout });
+      triggerAnimation(result);
     } catch (error) {
       console.error("Error updating bet:", error);
     }
@@ -552,6 +690,32 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Animation Overlay */}
+      {animation.show && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+          <div className="text-center">
+            {animation.contentType === 'emoji' ? (
+              <div className={`text-9xl mb-4 ${animation.type === 'win' ? 'animate-bounce' : 'animate-shake'}`}>
+                {animation.content}
+              </div>
+            ) : (
+              <div className="mb-4">
+                {animation.content}
+              </div>
+            )}
+            {animation.isStreak && (
+              <div className="flex items-center justify-center gap-3 animate-pulse">
+                <span className="text-6xl">🔥</span>
+                <span className="text-5xl font-black text-orange-400 drop-shadow-2xl">
+                  {animation.streakText}
+                </span>
+                <span className="text-6xl">🔥</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Retirement Modal */}
       {showRetirementModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -1156,6 +1320,54 @@ function App() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-10px) rotate(-5deg); }
+          75% { transform: translateX(10px) rotate(5deg); }
+        }
+        
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes wiggle {
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(3deg); }
+        }
+        
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-in;
+        }
+        
+        .animate-shake {
+          animation: shake 0.5s ease-in-out;
+        }
+        
+        .animate-float {
+          animation: float 2s ease-in-out infinite;
+        }
+        
+        .animate-wiggle {
+          animation: wiggle 1s ease-in-out infinite;
+        }
+        
+        .animate-spin-slow {
+          animation: spin-slow 3s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
