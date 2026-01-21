@@ -63,6 +63,13 @@ const Edit = () => (
   </svg>
 );
 
+const PowerOff = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+    <line x1="12" y1="2" x2="12" y2="12"></line>
+  </svg>
+);
+
 function App() {
   const [bets, setBets] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -73,6 +80,12 @@ function App() {
   const [displayMode, setDisplayMode] = useState(() => {
     return localStorage.getItem('displayMode') || 'dollars';
   });
+  const [retirementEndDate, setRetirementEndDate] = useState(() => {
+    const saved = localStorage.getItem('retirementEndDate');
+    return saved ? new Date(saved) : null;
+  });
+  const [showRetirementModal, setShowRetirementModal] = useState(false);
+  const [retirementDays, setRetirementDays] = useState(7);
   const [formData, setFormData] = useState({
     date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
     sport: '',
@@ -92,6 +105,34 @@ function App() {
   useEffect(() => {
     localStorage.setItem('displayMode', displayMode);
   }, [displayMode]);
+
+  useEffect(() => {
+    if (retirementEndDate) {
+      localStorage.setItem('retirementEndDate', retirementEndDate.toISOString());
+    } else {
+      localStorage.removeItem('retirementEndDate');
+    }
+  }, [retirementEndDate]);
+
+  // Check if retirement has expired
+  useEffect(() => {
+    if (retirementEndDate && new Date() > retirementEndDate) {
+      setRetirementEndDate(null);
+    }
+  }, [retirementEndDate]);
+
+  const isRetired = retirementEndDate && new Date() < retirementEndDate;
+
+  const daysUntilRetirementEnds = isRetired 
+    ? Math.ceil((retirementEndDate - new Date()) / (1000 * 60 * 60 * 24))
+    : 0;
+
+  const handleRetirement = () => {
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + retirementDays);
+    setRetirementEndDate(endDate);
+    setShowRetirementModal(false);
+  };
 
   useEffect(() => {
     const q = query(collection(db, 'bets'), orderBy('timestamp', 'desc'));
@@ -511,6 +552,49 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Retirement Modal */}
+      {showRetirementModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 max-w-md w-full border border-rose-500/50 shadow-2xl">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="flex-shrink-0 text-rose-400">
+                <PowerOff />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Retirement Mode</h3>
+                <p className="text-slate-200">How many days do you need to take a break?</p>
+              </div>
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2 text-slate-200">Days</label>
+              <input
+                type="number"
+                min="1"
+                max="30"
+                value={retirementDays}
+                onChange={(e) => setRetirementDays(Math.max(1, Math.min(30, parseInt(e.target.value) || 1)))}
+                className="w-full p-3 border border-slate-600 rounded-lg bg-slate-800/50 text-white text-center text-2xl font-bold backdrop-blur-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+              />
+              <p className="text-xs text-slate-400 mt-2 text-center">Once you retire, you cannot add new bets until the period ends.</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleRetirement}
+                className="flex-1 bg-gradient-to-r from-rose-600 to-red-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-red-700 transition-all font-medium shadow-lg"
+              >
+                Start Retirement
+              </button>
+              <button
+                onClick={() => setShowRetirementModal(false)}
+                className="flex-1 bg-slate-700/50 text-slate-200 py-3 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Warning Modal */}
       {warningModal.show && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -544,7 +628,21 @@ function App() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto p-4 md:p-6">
+      {/* Retired Overlay */}
+      {isRetired && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-40 pointer-events-none">
+          <div className="text-center">
+            <div className="text-8xl md:text-9xl font-black text-rose-500 mb-4 opacity-90 drop-shadow-2xl">
+              RETIRED
+            </div>
+            <div className="text-2xl md:text-3xl text-white font-semibold opacity-90">
+              {daysUntilRetirementEnds} {daysUntilRetirementEnds === 1 ? 'day' : 'days'} remaining
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={`max-w-7xl mx-auto p-4 md:p-6 ${isRetired ? 'opacity-30' : ''}`}>
         <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <h1 className="text-2xl md:text-3xl font-bold text-white">Sports Betting Tracker</h1>
@@ -569,6 +667,13 @@ function App() {
               >
                 <Download />
                 Export
+              </button>
+              <button
+                onClick={() => setShowRetirementModal(true)}
+                className="flex items-center gap-1 px-3 py-2 md:px-5 md:py-2 bg-gradient-to-r from-rose-600 to-red-600 backdrop-blur-sm text-white rounded-lg hover:from-rose-700 hover:to-red-700 transition-all text-xs md:text-base shadow-lg font-semibold border-2 border-rose-500/50"
+              >
+                <PowerOff />
+                RETIRE
               </button>
             </div>
           </div>
@@ -732,19 +837,27 @@ function App() {
             </div>
           </div>
 
-          <button
-            onClick={() => {
-              setEditingBet(null);
-              setShowForm(!showForm);
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 font-medium shadow-lg transition-all"
-          >
-            <PlusCircle />
-            Add New Bet
-          </button>
+          {!isRetired && (
+            <button
+              onClick={() => {
+                setEditingBet(null);
+                setShowForm(!showForm);
+              }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 font-medium shadow-lg transition-all"
+            >
+              <PlusCircle />
+              Add New Bet
+            </button>
+          )}
+          {isRetired && (
+            <div className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-700/30 text-slate-500 rounded-xl font-medium cursor-not-allowed">
+              <PlusCircle />
+              Add New Bet (Retired)
+            </div>
+          )}
         </div>
 
-        {showForm && (
+        {showForm && !isRetired && (
           <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
             <h2 className="text-xl font-bold mb-4 text-white">{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -984,18 +1097,21 @@ function App() {
                           <button
                             onClick={() => updateBetResult(bet.id, 'win')}
                             className="px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded hover:bg-emerald-500/30 border border-emerald-500/30 transition-all"
+                            disabled={isRetired}
                           >
                             Win
                           </button>
                           <button
                             onClick={() => updateBetResult(bet.id, 'loss')}
                             className="px-2 py-1 bg-rose-500/20 text-rose-300 text-xs rounded hover:bg-rose-500/30 border border-rose-500/30 transition-all"
+                            disabled={isRetired}
                           >
                             Loss
                           </button>
                           <button
                             onClick={() => updateBetResult(bet.id, 'push')}
                             className="px-2 py-1 bg-slate-500/20 text-slate-300 text-xs rounded hover:bg-slate-500/30 border border-slate-500/30 transition-all"
+                            disabled={isRetired}
                           >
                             Push
                           </button>
@@ -1016,21 +1132,23 @@ function App() {
                     }`}>
                       {bet.result.toUpperCase()}
                     </span>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => startEdit(bet)}
-                        className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        <Edit />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deleteBet(bet.id)}
-                        className="text-xs text-rose-400 hover:text-rose-300 transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    {!isRetired && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => startEdit(bet)}
+                          className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          <Edit />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteBet(bet.id)}
+                          className="text-xs text-rose-400 hover:text-rose-300 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
