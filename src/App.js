@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
+import './animations.css';
 
 const PlusCircle = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -72,57 +73,57 @@ const PowerOff = () => (
 
 // SVG Horse Animations
 const GallopingHorse = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-bounce">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-bounce">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🐴</text>
   </svg>
 );
 
 const RearingHorse = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-spin">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-spin">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🏇</text>
   </svg>
 );
 
 const RacingHorse = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-pulse">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-pulse">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🐎</text>
   </svg>
 );
 
 // SVG Bird Animations
 const SoaringBird = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-bounce">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-bounce">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🦅</text>
   </svg>
 );
 
 const SwoopingBird = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-bounce">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-bounce">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🦜</text>
   </svg>
 );
 
 const FlyingBird = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-pulse">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-pulse">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🐦</text>
   </svg>
 );
 
 // SVG Lock Animations
 const ClickingLock = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-pulse">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-pulse">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔒</text>
   </svg>
 );
 
 const SparkleLock = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-spin">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-spin">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔐</text>
   </svg>
 );
 
 const VaultLock = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="animate-bounce">
+  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-bounce">
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔓</text>
   </svg>
 );
@@ -692,10 +693,10 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Animation Overlay */}
       {animation.show && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 custom-fadeIn">
           <div className="text-center">
             {animation.contentType === 'emoji' ? (
-              <div className={`text-9xl mb-4 ${animation.type === 'win' ? 'animate-bounce' : 'animate-ping'}`}>
+              <div className={`text-9xl mb-4 ${animation.type === 'win' ? 'custom-bounce' : 'custom-ping'}`}>
                 {animation.content}
               </div>
             ) : (
@@ -704,7 +705,7 @@ function App() {
               </div>
             )}
             {animation.isStreak && (
-              <div className="flex items-center justify-center gap-3 animate-pulse">
+              <div className="flex items-center justify-center gap-3 custom-pulse">
                 <span className="text-6xl">🔥</span>
                 <span className="text-5xl font-black text-orange-400 drop-shadow-2xl">
                   {animation.streakText}
