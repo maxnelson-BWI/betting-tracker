@@ -69,6 +69,7 @@ function App() {
   const [showResources, setShowResources] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingBet, setEditingBet] = useState(null);
+  const [warningModal, setWarningModal] = useState({ show: false, message: '', type: '' });
   const [displayMode, setDisplayMode] = useState(() => {
     return localStorage.getItem('displayMode') || 'dollars';
   });
@@ -152,7 +153,63 @@ function App() {
     }
   };
 
-  const addBet = async () => {
+  const checkWarnings = () => {
+    const units = parseFloat(formData.units);
+    
+    // Warning 1: Betting more than 4 units
+    if (units > 4) {
+      return {
+        show: true,
+        message: 'This is a really big bet. Are you sure?',
+        type: 'big-bet'
+      };
+    }
+
+    // Warning 2: Favorite team + larger than 75% of recent bets
+    if (formData.favoriteTeam) {
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const recentBets = bets.filter(bet => {
+        const betDate = new Date(bet.date);
+        return betDate.getMonth() === currentMonth && betDate.getFullYear() === currentYear;
+      });
+
+      if (recentBets.length > 0) {
+        const sortedUnits = recentBets.map(b => b.units).sort((a, b) => a - b);
+        const percentile75Index = Math.floor(sortedUnits.length * 0.75);
+        const percentile75Value = sortedUnits[percentile75Index];
+
+        if (units > percentile75Value) {
+          return {
+            show: true,
+            message: 'Are you only doing this because your favorite team is playing?',
+            type: 'favorite-team'
+          };
+        }
+      }
+    }
+
+    // Warning 3: Down more than $1500 this month
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const monthBets = bets.filter(bet => {
+      const betDate = new Date(bet.date);
+      return betDate.getMonth() === currentMonth && betDate.getFullYear() === currentYear && bet.result !== 'pending';
+    });
+    const monthlyLoss = monthBets.reduce((sum, bet) => sum + bet.payout, 0);
+
+    if (monthlyLoss < -1500) {
+      return {
+        show: true,
+        message: 'You are down over your limit. Are you sure you want to put this in?',
+        type: 'monthly-limit'
+      };
+    }
+
+    return { show: false, message: '', type: '' };
+  };
+
+  const handleAddBet = () => {
     if (!formData.sport || !formData.betType || !formData.description || !formData.units || !formData.odds) {
       alert('Please fill in all required fields');
       return;
@@ -163,6 +220,15 @@ function App() {
       return;
     }
 
+    const warning = checkWarnings();
+    if (warning.show) {
+      setWarningModal(warning);
+    } else {
+      addBet();
+    }
+  };
+
+  const addBet = async () => {
     const { risk, win } = calculateRiskAndWin(formData.units, formData.odds);
     
     const newBet = {
@@ -195,6 +261,7 @@ function App() {
         notes: ''
       });
       setShowForm(false);
+      setWarningModal({ show: false, message: '', type: '' });
     } catch (error) {
       console.error("Error adding bet:", error);
       alert("Error adding bet: " + error.message);
@@ -442,6 +509,39 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Warning Modal */}
+      {warningModal.show && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 max-w-md w-full border border-rose-500/50 shadow-2xl">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="flex-shrink-0 text-rose-400">
+                <AlertCircle />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Warning</h3>
+                <p className="text-slate-200">{warningModal.message}</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  addBet();
+                }}
+                className="flex-1 bg-gradient-to-r from-rose-600 to-orange-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-orange-700 transition-all font-medium shadow-lg"
+              >
+                Yes, proceed anyway
+              </button>
+              <button
+                onClick={() => setWarningModal({ show: false, message: '', type: '' })}
+                className="flex-1 bg-slate-700/50 text-slate-200 py-3 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all font-medium"
+              >
+                No, let me change it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto p-4 md:p-6">
         <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -828,7 +928,7 @@ function App() {
 
               <div className="md:col-span-2 flex gap-2">
                 <button
-                  onClick={editingBet ? saveEdit : addBet}
+                  onClick={editingBet ? saveEdit : handleAddBet}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg"
                 >
                   {editingBet ? 'Save Changes' : 'Add Bet'}
