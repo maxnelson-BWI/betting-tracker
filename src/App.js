@@ -181,6 +181,8 @@ function App() {
   const [editingBet, setEditingBet] = useState(null);
   const [warningModal, setWarningModal] = useState({ show: false, message: '', type: '' });
   const [deleteModal, setDeleteModal] = useState({ show: false, betId: null });
+  const [toast, setToast] = useState({ show: false, message: '', type: '' });
+  const [formError, setFormError] = useState('');
   
   // Settings state
   const [displayMode, setDisplayMode] = useState(() => {
@@ -275,6 +277,13 @@ function App() {
     ? Math.ceil((retirementEndDate - new Date()) / (1000 * 60 * 60 * 24))
     : 0;
 
+  const showToast = (message, type = 'error') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: '', type: '' });
+    }, 4000);
+  };
+
   const handleRetirement = () => {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + retirementDays);
@@ -294,7 +303,7 @@ function App() {
     }, (error) => {
       console.error("Error loading bets:", error);
       setLoading(false);
-      alert("Error connecting to database. Check your Firebase config in src/firebase.js");
+      showToast("Error connecting to database. Check your Firebase config in src/firebase.js");
     });
 
     return () => unsubscribe();
@@ -436,15 +445,16 @@ function App() {
 
   const handleAddBet = (dataToSubmit = formData) => {
     if (!dataToSubmit.sport || !dataToSubmit.betType || !dataToSubmit.description || !dataToSubmit.units || !dataToSubmit.odds) {
-      alert('Please fill in all required fields');
+      setFormError('Please fill in all required fields');
       return;
     }
     if (dataToSubmit.betType === 'longshot-parlay' && parseFloat(dataToSubmit.odds) < 500) {
-      alert('Long shot parlays must be +500 or greater. Converting to regular parlay.');
+      setFormError('Long shot parlays must be +500 or greater. Converting to regular parlay.');
       setFormData({...dataToSubmit, betType: 'parlay'});
       return;
     }
 
+    setFormError('');
     const warning = checkWarnings();
     if (warning.show) {
       setWarningModal(warning);
@@ -485,11 +495,12 @@ function App() {
         systemPlay: 'none',
         notes: ''
       });
+      setFormError('');
       setShowAddBetModal(false);
       setWarningModal({ show: false, message: '', type: '' });
     } catch (error) {
       console.error("Error adding bet:", error);
-      alert("Error adding bet: " + error.message);
+      showToast("Error adding bet: " + error.message);
     }
   };
 
@@ -513,15 +524,16 @@ function App() {
 
   const saveEdit = async (dataToSubmit = formData) => {
     if (!dataToSubmit.sport || !dataToSubmit.betType || !dataToSubmit.description || !dataToSubmit.units || !dataToSubmit.odds) {
-      alert('Please fill in all required fields');
+      setFormError('Please fill in all required fields');
       return;
     }
     if (dataToSubmit.betType === 'longshot-parlay' && parseFloat(dataToSubmit.odds) < 500) {
-      alert('Long shot parlays must be +500 or greater. Converting to regular parlay.');
+      setFormError('Long shot parlays must be +500 or greater. Converting to regular parlay.');
       setFormData({...dataToSubmit, betType: 'parlay'});
       return;
     }
 
+    setFormError('');
     const { risk, win } = calculateRiskAndWin(dataToSubmit.units, dataToSubmit.odds);
     
     const updatedBet = {
@@ -556,7 +568,7 @@ function App() {
       setEditingBet(null);
     } catch (error) {
       console.error("Error updating bet:", error);
-      alert("Error updating bet: " + error.message);
+      showToast("Error updating bet: " + error.message);
     }
   };
 
@@ -1443,6 +1455,7 @@ function App() {
         systemPlay: formData.systemPlay,
         notes: formData.notes
       });
+      setFormError(''); // Clear any previous errors when modal opens
     }, [showAddBetModal]);
 
     const handleSubmit = () => {
@@ -1667,6 +1680,15 @@ function App() {
               <span className="text-sm text-slate-200">Prime Time Game</span>
             </label>
           </div>
+
+          {formError && (
+            <div className="bg-rose-500/20 border border-rose-500/50 rounded-lg p-3 flex items-start gap-2">
+              <div className="flex-shrink-0 text-rose-400 mt-0.5">
+                <AlertCircle />
+              </div>
+              <p className="text-rose-200 text-sm">{formError}</p>
+            </div>
+          )}
 
           <div className="flex gap-2 pt-4">
             <button
@@ -1978,6 +2000,16 @@ function App() {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-fadeIn">
+          <div className="bg-gradient-to-r from-rose-600 to-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-rose-500/50 flex items-center gap-3 max-w-md">
+            <AlertCircle />
+            <p className="font-medium">{toast.message}</p>
           </div>
         </div>
       )}
