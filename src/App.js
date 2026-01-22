@@ -449,8 +449,7 @@ function App() {
       return;
     }
     if (dataToSubmit.betType === 'longshot-parlay' && parseFloat(dataToSubmit.odds) < 500) {
-      setFormError('Long shot parlays must be +500 or greater. Converting to regular parlay.');
-      setFormData({...dataToSubmit, betType: 'parlay'});
+      setFormError('Long shot parlays must be +500 or greater. Please change bet type to "Parlay" or adjust odds.');
       return;
     }
 
@@ -528,8 +527,7 @@ function App() {
       return;
     }
     if (dataToSubmit.betType === 'longshot-parlay' && parseFloat(dataToSubmit.odds) < 500) {
-      setFormError('Long shot parlays must be +500 or greater. Converting to regular parlay.');
-      setFormData({...dataToSubmit, betType: 'parlay'});
+      setFormError('Long shot parlays must be +500 or greater. Please change bet type to "Parlay" or adjust odds.');
       return;
     }
 
@@ -1424,7 +1422,7 @@ function App() {
   );
 
   // ADD BET MODAL COMPONENT
-  const AddBetModal = React.memo(() => {
+  const AddBetModal = () => {
     // Modal manages its own state to prevent parent re-renders
     const [localFormData, setLocalFormData] = useState({
       date: formData.date,
@@ -1708,7 +1706,7 @@ function App() {
       </div>
     </div>
     );
-  });
+  };
 
   // SETTINGS MENU COMPONENT
   const SettingsMenu = () => (
