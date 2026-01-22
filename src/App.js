@@ -1410,14 +1410,18 @@ function App() {
   // ADD BET MODAL COMPONENT
   const AddBetModal = () => (
     <div 
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
       onClick={cancelEdit}
+      style={{ position: 'fixed' }}
     >
       <div 
-        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-t-3xl w-full max-w-2xl h-[80vh] overflow-y-auto border-t border-white/20 shadow-2xl fixed bottom-0 left-1/2 -translate-x-1/2"
+        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-t-3xl w-full max-w-2xl h-[80vh] overflow-y-auto border-t border-white/20 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
+        style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)' }}
       >
-        <div className="sticky top-0 bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-700/50 p-3 flex justify-between items-center z-10">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-700/50 p-3 flex justify-between items-center"
+          style={{ position: 'sticky', top: 0, zIndex: 10 }}
+        >
           <h2 className="text-lg font-bold text-white">{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
           <button
             onClick={cancelEdit}
