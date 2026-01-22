@@ -182,7 +182,6 @@ function App() {
   const [warningModal, setWarningModal] = useState({ show: false, message: '', type: '' });
   const [deleteModal, setDeleteModal] = useState({ show: false, betId: null });
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
-  const [formError, setFormError] = useState('');
   
   // Settings state
   const [displayMode, setDisplayMode] = useState(() => {
@@ -445,21 +444,19 @@ function App() {
 
   const handleAddBet = (dataToSubmit = formData) => {
     if (!dataToSubmit.sport || !dataToSubmit.betType || !dataToSubmit.description || !dataToSubmit.units || !dataToSubmit.odds) {
-      setFormError('Please fill in all required fields');
-      return;
+      return 'Please fill in all required fields';
     }
     if (dataToSubmit.betType === 'longshot-parlay' && parseFloat(dataToSubmit.odds) < 500) {
-      setFormError('Long shot parlays must be +500 or greater. Please change bet type to "Parlay" or adjust odds.');
-      return;
+      return 'Long shot parlays must be +500 or greater. Please change bet type to "Parlay" or adjust odds.';
     }
 
-    setFormError('');
     const warning = checkWarnings();
     if (warning.show) {
       setWarningModal(warning);
     } else {
       addBet(dataToSubmit);
     }
+    return null;
   };
 
   const addBet = async (dataToSubmit = formData) => {
@@ -494,7 +491,6 @@ function App() {
         systemPlay: 'none',
         notes: ''
       });
-      setFormError('');
       setShowAddBetModal(false);
       setWarningModal({ show: false, message: '', type: '' });
     } catch (error) {
@@ -523,15 +519,12 @@ function App() {
 
   const saveEdit = async (dataToSubmit = formData) => {
     if (!dataToSubmit.sport || !dataToSubmit.betType || !dataToSubmit.description || !dataToSubmit.units || !dataToSubmit.odds) {
-      setFormError('Please fill in all required fields');
-      return;
+      return 'Please fill in all required fields';
     }
     if (dataToSubmit.betType === 'longshot-parlay' && parseFloat(dataToSubmit.odds) < 500) {
-      setFormError('Long shot parlays must be +500 or greater. Please change bet type to "Parlay" or adjust odds.');
-      return;
+      return 'Long shot parlays must be +500 or greater. Please change bet type to "Parlay" or adjust odds.';
     }
 
-    setFormError('');
     const { risk, win } = calculateRiskAndWin(dataToSubmit.units, dataToSubmit.odds);
     
     const updatedBet = {
@@ -564,9 +557,11 @@ function App() {
       });
       setShowAddBetModal(false);
       setEditingBet(null);
+      return null;
     } catch (error) {
       console.error("Error updating bet:", error);
       showToast("Error updating bet: " + error.message);
+      return null;
     }
   };
 
@@ -1437,33 +1432,42 @@ function App() {
       systemPlay: formData.systemPlay,
       notes: formData.notes
     });
+    const [localFormError, setLocalFormError] = useState('');
 
     // Sync with parent formData when modal opens
     useEffect(() => {
-      setLocalFormData({
-        date: formData.date,
-        sport: formData.sport,
-        betType: formData.betType,
-        description: formData.description,
-        units: formData.units,
-        odds: formData.odds,
-        result: formData.result,
-        favoriteTeam: formData.favoriteTeam,
-        primeTime: formData.primeTime,
-        systemPlay: formData.systemPlay,
-        notes: formData.notes
-      });
-      setFormError(''); // Clear any previous errors when modal opens
+      if (showAddBetModal) {
+        setLocalFormData({
+          date: formData.date,
+          sport: formData.sport,
+          betType: formData.betType,
+          description: formData.description,
+          units: formData.units,
+          odds: formData.odds,
+          result: formData.result,
+          favoriteTeam: formData.favoriteTeam,
+          primeTime: formData.primeTime,
+          systemPlay: formData.systemPlay,
+          notes: formData.notes
+        });
+        setLocalFormError(''); // Clear any previous errors when modal opens
+      }
     }, [showAddBetModal]);
 
     const handleSubmit = () => {
       // Update parent formData and trigger save with the local data
       setFormData(localFormData);
       // Pass the localFormData directly to avoid state update timing issues
+      let errorMsg;
       if (editingBet) {
-        saveEdit(localFormData);
+        errorMsg = saveEdit(localFormData);
       } else {
-        handleAddBet(localFormData);
+        errorMsg = handleAddBet(localFormData);
+      }
+      if (errorMsg) {
+        setLocalFormError(errorMsg);
+      } else {
+        setLocalFormError('');
       }
     };
 
@@ -1679,12 +1683,12 @@ function App() {
             </label>
           </div>
 
-          {formError && (
+          {localFormError && (
             <div className="bg-rose-500/20 border border-rose-500/50 rounded-lg p-3 flex items-start gap-2">
               <div className="flex-shrink-0 text-rose-400 mt-0.5">
                 <AlertCircle />
               </div>
-              <p className="text-rose-200 text-sm">{formError}</p>
+              <p className="text-rose-200 text-sm">{localFormError}</p>
             </div>
           )}
 
