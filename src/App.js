@@ -223,7 +223,7 @@ function App() {
 
   // History page filters
   const [historyFilter, setHistoryFilter] = useState({
-    timeRange: '7days',
+    timeRange: '30days',
     sport: 'all',
     betType: 'all',
     result: 'all',
@@ -790,10 +790,10 @@ function App() {
     let filtered = [...bets];
 
     // Time range filter
-    if (historyFilter.timeRange === '7days' && !showAllBets) {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      filtered = filtered.filter(bet => new Date(bet.date) >= sevenDaysAgo);
+    if (historyFilter.timeRange === '30days' && !showAllBets) {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      filtered = filtered.filter(bet => new Date(bet.date) >= thirtyDaysAgo);
     }
 
     // Sport filter
@@ -898,7 +898,9 @@ function App() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-4 rounded-xl backdrop-blur-sm border border-emerald-500/30 shadow-lg">
+  // ===== END OF PART 1 =====
+  // NEXT: Paste Part 2 starting on line 901
+  <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-4 rounded-xl backdrop-blur-sm border border-emerald-500/30 shadow-lg">
             <div className="text-xs md:text-sm text-emerald-200 mb-1">Win Rate</div>
             <div className="text-xl md:text-2xl font-bold text-white">{stats.winRate}%</div>
             <div className="text-xs md:text-sm text-emerald-300">{stats.wins}W-{stats.losses}L</div>
@@ -1190,9 +1192,63 @@ function App() {
           </div>
         </div>
 
+        {/* Time Range Toggle - Bigger and More Prominent */}
+        <div className="flex gap-3 mb-4">
+          <button
+            onClick={() => setShowAllBets(false)}
+            className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${
+              !showAllBets
+                ? 'bg-purple-600 text-white shadow-lg'
+                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
+            }`}
+          >
+            Last 30 Days
+          </button>
+          <button
+            onClick={() => setShowAllBets(true)}
+            className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${
+              showAllBets
+                ? 'bg-purple-600 text-white shadow-lg'
+                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
+            }`}
+          >
+            All Time
+          </button>
+        </div>
+
+        {/* Filter Stats Box */}
+        {filteredBets.length > 0 && (
+          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 p-4 rounded-xl mb-4 border border-purple-500/30 backdrop-blur-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs text-purple-200 mb-1">Current Filter</div>
+                <div className="text-sm font-medium text-white">
+                  {historyFilter.sport !== 'all' && `${historyFilter.sport.toUpperCase()} • `}
+                  {historyFilter.betType !== 'all' && `${formatBetType(historyFilter.betType)} • `}
+                  {historyFilter.result !== 'all' && `${historyFilter.result.charAt(0).toUpperCase() + historyFilter.result.slice(1)} • `}
+                  {historyFilter.favoriteUnderdog !== 'all' && `${historyFilter.favoriteUnderdog === 'favorite' ? 'Favorites' : 'Underdogs'} • `}
+                  {historyFilter.overUnder !== 'all' && `${historyFilter.overUnder === 'over' ? 'Overs' : 'Unders'} • `}
+                  {historyFilter.sport === 'all' && historyFilter.betType === 'all' && historyFilter.result === 'all' && historyFilter.favoriteUnderdog === 'all' && historyFilter.overUnder === 'all' && 'All Bets'}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-purple-200 mb-1">Record & P/L</div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-white">
+                    {filteredBets.filter(b => b.result === 'win').length}-{filteredBets.filter(b => b.result === 'loss').length}
+                  </span>
+                  <span className={`text-lg font-bold ${filteredBets.reduce((sum, b) => sum + b.payout, 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {formatMoney(filteredBets.reduce((sum, b) => sum + b.payout, 0))}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="text-sm text-slate-300 mb-4">
           Showing {filteredBets.length} {filteredBets.length === 1 ? 'bet' : 'bets'}
-          {!showAllBets && ' (Last 7 days)'}
+          {!showAllBets && ' (Last 30 days)'}
         </div>
 
         <div className="space-y-3">
@@ -1204,24 +1260,6 @@ function App() {
             ))
           )}
         </div>
-
-        {!showAllBets && filteredBets.length >= 7 && (
-          <button
-            onClick={() => setShowAllBets(true)}
-            className="w-full mt-4 py-3 bg-slate-700/50 text-slate-200 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all"
-          >
-            Show All Bets
-          </button>
-        )}
-
-        {showAllBets && (
-          <button
-            onClick={() => setShowAllBets(false)}
-            className="w-full mt-4 py-3 bg-slate-700/50 text-slate-200 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all"
-          >
-            Show Last 7 Days
-          </button>
-        )}
       </div>
     </div>
   );
@@ -1362,9 +1400,15 @@ function App() {
 
   // ADD BET MODAL COMPONENT
   const AddBetModal = () => (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end justify-center z-50">
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-t-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border-t border-white/20 shadow-2xl">
-        <div className="sticky top-0 bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-700/50 p-4 flex justify-between items-center">
+    <div 
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end justify-center z-50 animate-fadeIn"
+      onClick={cancelEdit}
+    >
+      <div 
+        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-t-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border-t border-white/20 shadow-2xl animate-slideUp"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sticky top-0 bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-700/50 p-4 flex justify-between items-center z-10">
           <h2 className="text-xl font-bold text-white">{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
           <button
             onClick={cancelEdit}
@@ -1874,7 +1918,7 @@ function App() {
             onClick={toggleDisplayMode}
             className="px-3 py-2 bg-indigo-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-indigo-700/80 transition-all shadow-lg font-medium"
           >
-            {displayMode === 'dollars' ? '$' : 'u'}
+            {displayMode === 'dollars' ? '$' : 'U'}
           </button>
         </div>
 
@@ -1907,7 +1951,7 @@ function App() {
               }`}
               disabled={isRetired}
             >
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-full shadow-lg">
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-full shadow-lg">
                 <PlusCircle />
               </div>
               <span className="text-xs font-medium">Add Bet</span>
