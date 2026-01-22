@@ -433,14 +433,14 @@ function App() {
     return { show: false, message: '', type: '' };
   };
 
-  const handleAddBet = () => {
-    if (!formData.sport || !formData.betType || !formData.description || !formData.units || !formData.odds) {
+  const handleAddBet = (dataToSubmit = formData) => {
+    if (!dataToSubmit.sport || !dataToSubmit.betType || !dataToSubmit.description || !dataToSubmit.units || !dataToSubmit.odds) {
       alert('Please fill in all required fields');
       return;
     }
-    if (formData.betType === 'longshot-parlay' && parseFloat(formData.odds) < 500) {
+    if (dataToSubmit.betType === 'longshot-parlay' && parseFloat(dataToSubmit.odds) < 500) {
       alert('Long shot parlays must be +500 or greater. Converting to regular parlay.');
-      setFormData({...formData, betType: 'parlay'});
+      setFormData({...dataToSubmit, betType: 'parlay'});
       return;
     }
 
@@ -448,23 +448,23 @@ function App() {
     if (warning.show) {
       setWarningModal(warning);
     } else {
-      addBet();
+      addBet(dataToSubmit);
     }
   };
 
-  const addBet = async () => {
-    const { risk, win } = calculateRiskAndWin(formData.units, formData.odds);
+  const addBet = async (dataToSubmit = formData) => {
+    const { risk, win } = calculateRiskAndWin(dataToSubmit.units, dataToSubmit.odds);
     
     const newBet = {
-      ...formData,
-      units: parseFloat(formData.units),
-      odds: parseFloat(formData.odds),
+      ...dataToSubmit,
+      units: parseFloat(dataToSubmit.units),
+      odds: parseFloat(dataToSubmit.odds),
       riskAmount: risk,
       winAmount: win,
       timestamp: new Date(),
-      payout: formData.result === 'win' 
+      payout: dataToSubmit.result === 'win' 
         ? win
-        : formData.result === 'loss'
+        : dataToSubmit.result === 'loss'
         ? -risk
         : 0
     };
@@ -510,28 +510,28 @@ function App() {
     setShowAddBetModal(true);
   };
 
-  const saveEdit = async () => {
-    if (!formData.sport || !formData.betType || !formData.description || !formData.units || !formData.odds) {
+  const saveEdit = async (dataToSubmit = formData) => {
+    if (!dataToSubmit.sport || !dataToSubmit.betType || !dataToSubmit.description || !dataToSubmit.units || !dataToSubmit.odds) {
       alert('Please fill in all required fields');
       return;
     }
-    if (formData.betType === 'longshot-parlay' && parseFloat(formData.odds) < 500) {
+    if (dataToSubmit.betType === 'longshot-parlay' && parseFloat(dataToSubmit.odds) < 500) {
       alert('Long shot parlays must be +500 or greater. Converting to regular parlay.');
-      setFormData({...formData, betType: 'parlay'});
+      setFormData({...dataToSubmit, betType: 'parlay'});
       return;
     }
 
-    const { risk, win } = calculateRiskAndWin(formData.units, formData.odds);
+    const { risk, win } = calculateRiskAndWin(dataToSubmit.units, dataToSubmit.odds);
     
     const updatedBet = {
-      ...formData,
-      units: parseFloat(formData.units),
-      odds: parseFloat(formData.odds),
+      ...dataToSubmit,
+      units: parseFloat(dataToSubmit.units),
+      odds: parseFloat(dataToSubmit.odds),
       riskAmount: risk,
       winAmount: win,
-      payout: formData.result === 'win' 
+      payout: dataToSubmit.result === 'win' 
         ? win
-        : formData.result === 'loss'
+        : dataToSubmit.result === 'loss'
         ? -risk
         : 0
     };
@@ -1442,11 +1442,14 @@ function App() {
     }, [showAddBetModal]);
 
     const handleSubmit = () => {
-      // Update parent formData and trigger save
+      // Update parent formData and trigger save with the local data
       setFormData(localFormData);
-      setTimeout(() => {
-        editingBet ? saveEdit() : handleAddBet();
-      }, 0);
+      // Pass the localFormData directly to avoid state update timing issues
+      if (editingBet) {
+        saveEdit(localFormData);
+      } else {
+        handleAddBet(localFormData);
+      }
     };
 
     return (
