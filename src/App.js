@@ -453,7 +453,7 @@ function App() {
   };
 
   const addBet = async () => {
-    const { risk, win } = calculateRiskAndWin(localFormData.units, localFormData.odds);
+    const { risk, win } = calculateRiskAndWin(formData.units, formData.odds);
     
     const newBet = {
       ...formData,
@@ -521,7 +521,7 @@ function App() {
       return;
     }
 
-    const { risk, win } = calculateRiskAndWin(localFormData.units, localFormData.odds);
+    const { risk, win } = calculateRiskAndWin(formData.units, formData.odds);
     
     const updatedBet = {
       ...formData,
@@ -1537,7 +1537,7 @@ function App() {
                 <button
                   key={btn.value}
                   type="button"
-                  onClick={() => setFormData({...formData, units: btn.value.toString()})}
+                  onClick={() => setLocalFormData({...localFormData, units: btn.value.toString()})}
                   className="px-2 py-1 text-xs bg-slate-700/50 hover:bg-slate-600/50 rounded backdrop-blur-sm text-white transition-all"
                 >
                   {btn.label}
