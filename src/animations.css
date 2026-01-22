@@ -1,3 +1,39 @@
+/* ==============================================
+   IMPORTANT: Add these animations to your animations.css file
+   ============================================== */
+
+/* Slide up animation for modal */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Fade in animation for backdrop */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Keep your existing animations below this line */
+
 /* Animation keyframes for betting tracker */
 
 @keyframes bounceAnimation {
