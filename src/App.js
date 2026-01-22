@@ -180,6 +180,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [editingBet, setEditingBet] = useState(null);
   const [warningModal, setWarningModal] = useState({ show: false, message: '', type: '' });
+  const [deleteModal, setDeleteModal] = useState({ show: false, betId: null });
   
   // Settings state
   const [displayMode, setDisplayMode] = useState(() => {
@@ -670,12 +671,15 @@ function App() {
   };
 
   const deleteBet = async (id) => {
-    if (window.confirm('Are you sure you want to delete this bet?')) {
-      try {
-        await deleteDoc(doc(db, 'bets', id));
-      } catch (error) {
-        console.error("Error deleting bet:", error);
-      }
+    setDeleteModal({ show: true, betId: id });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteDoc(doc(db, 'bets', deleteModal.betId));
+      setDeleteModal({ show: false, betId: null });
+    } catch (error) {
+      console.error("Error deleting bet:", error);
     }
   };
 
@@ -1941,6 +1945,37 @@ function App() {
                 className="flex-1 bg-slate-700/50 text-slate-200 py-3 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all font-medium"
               >
                 {warningModal.buttonNo || 'No, let me change it'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 max-w-md w-full border border-rose-500/50 shadow-2xl">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="flex-shrink-0 text-rose-400">
+                <AlertCircle />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Delete Bet</h3>
+                <p className="text-slate-200">Are you sure you want to delete this bet? This action cannot be undone.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmDelete}
+                className="flex-1 bg-gradient-to-r from-rose-600 to-red-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-red-700 transition-all font-medium shadow-xl"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setDeleteModal({ show: false, betId: null })}
+                className="flex-1 bg-slate-700/50 text-slate-200 py-3 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all font-medium"
+              >
+                Cancel
               </button>
             </div>
           </div>
