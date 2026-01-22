@@ -1410,11 +1410,11 @@ function App() {
   // ADD BET MODAL COMPONENT
   const AddBetModal = () => (
     <div 
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end justify-center z-50"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center"
       onClick={cancelEdit}
     >
       <div 
-        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-t-3xl w-full max-w-2xl max-h-[80vh] overflow-y-auto border-t border-white/20 shadow-2xl transition-all duration-300"
+        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-t-3xl w-full max-w-2xl h-[80vh] overflow-y-auto border-t border-white/20 shadow-2xl fixed bottom-0 left-1/2 -translate-x-1/2"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-700/50 p-3 flex justify-between items-center z-10">
