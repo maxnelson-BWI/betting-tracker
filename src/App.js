@@ -1408,7 +1408,7 @@ function App() {
   );
 
   // ADD BET MODAL COMPONENT
-  const AddBetModal = () => (
+  const AddBetModal = React.memo(() => (
     <div 
       className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center"
       onClick={cancelEdit}
@@ -1514,11 +1514,13 @@ function App() {
           <div>
             <label className="block text-sm font-medium mb-1 text-slate-200">Odds (American)</label>
             <input
+              id="bet-odds"
               type="number"
               value={formData.odds}
               onChange={(e) => setFormData({...formData, odds: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="e.g., -110, +150"
+              autoComplete="off"
             />
           </div>
 
@@ -1539,22 +1541,26 @@ function App() {
           <div>
             <label className="block text-sm font-medium mb-1 text-slate-200">Description</label>
             <input
+              id="bet-description"
               type="text"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="e.g., Chiefs -3 vs Bills"
+              autoComplete="off"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1 text-slate-200">Notes (Optional)</label>
             <textarea
+              id="bet-notes"
               value={formData.notes}
               onChange={(e) => setFormData({...formData, notes: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="e.g., Reverse line movement from -7 to -6.5"
               rows="2"
+              autoComplete="off"
             />
           </div>
 
@@ -1631,7 +1637,7 @@ function App() {
         </div>
       </div>
     </div>
-  );
+  ));
 
   // SETTINGS MENU COMPONENT
   const SettingsMenu = () => (
