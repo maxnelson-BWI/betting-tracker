@@ -844,8 +844,6 @@ function App() {
     );
   }
 
-  // ===== END OF PART 1 =====
-  // NEXT: Paste Part 2 starting on the next line
   // Render different pages based on currentPage state
   const renderPage = () => {
     switch (currentPage) {
@@ -898,9 +896,7 @@ function App() {
             </div>
           </div>
 
-  // ===== END OF PART 1 =====
-  // NEXT: Paste Part 2 starting on line 901
-  <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-4 rounded-xl backdrop-blur-sm border border-emerald-500/30 shadow-lg">
+          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-4 rounded-xl backdrop-blur-sm border border-emerald-500/30 shadow-lg">
             <div className="text-xs md:text-sm text-emerald-200 mb-1">Win Rate</div>
             <div className="text-xl md:text-2xl font-bold text-white">{stats.winRate}%</div>
             <div className="text-xs md:text-sm text-emerald-300">{stats.wins}W-{stats.losses}L</div>
@@ -1405,11 +1401,11 @@ function App() {
       onClick={cancelEdit}
     >
       <div 
-        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-t-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border-t border-white/20 shadow-2xl animate-slideUp"
+        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-t-3xl w-full max-w-2xl max-h-[80vh] overflow-y-auto border-t border-white/20 shadow-2xl animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-700/50 p-4 flex justify-between items-center z-10">
-          <h2 className="text-xl font-bold text-white">{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
+        <div className="sticky top-0 bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-700/50 p-3 flex justify-between items-center z-10">
+          <h2 className="text-lg font-bold text-white">{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
           <button
             onClick={cancelEdit}
             className="text-slate-400 hover:text-white transition-colors"
