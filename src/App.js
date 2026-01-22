@@ -453,7 +453,7 @@ function App() {
   };
 
   const addBet = async () => {
-    const { risk, win } = calculateRiskAndWin(formData.units, formData.odds);
+    const { risk, win } = calculateRiskAndWin(localFormData.units, localFormData.odds);
     
     const newBet = {
       ...formData,
@@ -521,7 +521,7 @@ function App() {
       return;
     }
 
-    const { risk, win } = calculateRiskAndWin(formData.units, formData.odds);
+    const { risk, win } = calculateRiskAndWin(localFormData.units, localFormData.odds);
     
     const updatedBet = {
       ...formData,
@@ -1408,7 +1408,48 @@ function App() {
   );
 
   // ADD BET MODAL COMPONENT
-  const AddBetModal = React.memo(() => (
+  const AddBetModal = React.memo(() => {
+    // Modal manages its own state to prevent parent re-renders
+    const [localFormData, setLocalFormData] = useState({
+      date: formData.date,
+      sport: formData.sport,
+      betType: formData.betType,
+      description: formData.description,
+      units: formData.units,
+      odds: formData.odds,
+      result: formData.result,
+      favoriteTeam: formData.favoriteTeam,
+      primeTime: formData.primeTime,
+      systemPlay: formData.systemPlay,
+      notes: formData.notes
+    });
+
+    // Sync with parent formData when modal opens
+    useEffect(() => {
+      setLocalFormData({
+        date: formData.date,
+        sport: formData.sport,
+        betType: formData.betType,
+        description: formData.description,
+        units: formData.units,
+        odds: formData.odds,
+        result: formData.result,
+        favoriteTeam: formData.favoriteTeam,
+        primeTime: formData.primeTime,
+        systemPlay: formData.systemPlay,
+        notes: formData.notes
+      });
+    }, [showAddBetModal]);
+
+    const handleSubmit = () => {
+      // Update parent formData and trigger save
+      setFormData(localFormData);
+      setTimeout(() => {
+        editingBet ? saveEdit() : handleAddBet();
+      }, 0);
+    };
+
+    return (
     <div 
       className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center"
       onClick={cancelEdit}
@@ -1438,8 +1479,8 @@ function App() {
             <label className="block text-sm font-medium mb-1 text-slate-200">Date</label>
             <input
               type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({...formData, date: e.target.value})}
+              value={localFormData.date}
+              onChange={(e) => setLocalFormData({...localFormData, date: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
@@ -1447,8 +1488,8 @@ function App() {
           <div>
             <label className="block text-sm font-medium mb-1 text-slate-200">Sport</label>
             <select
-              value={formData.sport}
-              onChange={(e) => setFormData({...formData, sport: e.target.value})}
+              value={localFormData.sport}
+              onChange={(e) => setLocalFormData({...localFormData, sport: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="">Select...</option>
@@ -1465,8 +1506,8 @@ function App() {
           <div>
             <label className="block text-sm font-medium mb-1 text-slate-200">Bet Type</label>
             <select
-              value={formData.betType}
-              onChange={(e) => setFormData({...formData, betType: e.target.value})}
+              value={localFormData.betType}
+              onChange={(e) => setLocalFormData({...localFormData, betType: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="">Select...</option>
@@ -1486,8 +1527,8 @@ function App() {
             <input
               type="number"
               step="0.25"
-              value={formData.units}
-              onChange={(e) => setFormData({...formData, units: e.target.value})}
+              value={localFormData.units}
+              onChange={(e) => setLocalFormData({...localFormData, units: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg mb-2 bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="e.g., 1, 2, 0.5"
             />
@@ -1503,10 +1544,10 @@ function App() {
                 </button>
               ))}
             </div>
-            {formData.units && formData.odds && (
+            {localFormData.units && localFormData.odds && (
               <div className="text-xs text-slate-300 mt-2">
-                Risk: ${calculateRiskAndWin(formData.units, formData.odds).risk.toFixed(2)} | 
-                Win: ${calculateRiskAndWin(formData.units, formData.odds).win.toFixed(2)}
+                Risk: ${calculateRiskAndWin(localFormData.units, localFormData.odds).risk.toFixed(2)} | 
+                Win: ${calculateRiskAndWin(localFormData.units, localFormData.odds).win.toFixed(2)}
               </div>
             )}
           </div>
@@ -1516,8 +1557,8 @@ function App() {
             <input
               id="bet-odds"
               type="number"
-              value={formData.odds}
-              onChange={(e) => setFormData({...formData, odds: e.target.value})}
+              value={localFormData.odds}
+              onChange={(e) => setLocalFormData({...localFormData, odds: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="e.g., -110, +150"
               autoComplete="off"
@@ -1527,8 +1568,8 @@ function App() {
           <div>
             <label className="block text-sm font-medium mb-1 text-slate-200">Result</label>
             <select
-              value={formData.result}
-              onChange={(e) => setFormData({...formData, result: e.target.value})}
+              value={localFormData.result}
+              onChange={(e) => setLocalFormData({...localFormData, result: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="pending">Pending</option>
@@ -1543,8 +1584,8 @@ function App() {
             <input
               id="bet-description"
               type="text"
-              value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              value={localFormData.description}
+              onChange={(e) => setLocalFormData({...localFormData, description: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="e.g., Chiefs -3 vs Bills"
               autoComplete="off"
@@ -1555,8 +1596,8 @@ function App() {
             <label className="block text-sm font-medium mb-1 text-slate-200">Notes (Optional)</label>
             <textarea
               id="bet-notes"
-              value={formData.notes}
-              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              value={localFormData.notes}
+              onChange={(e) => setLocalFormData({...localFormData, notes: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="e.g., Reverse line movement from -7 to -6.5"
               rows="2"
@@ -1569,29 +1610,29 @@ function App() {
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => setFormData({...formData, systemPlay: 'clear'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all ${formData.systemPlay === 'clear' ? 'border-purple-500 bg-purple-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                onClick={() => setLocalFormData({...localFormData, systemPlay: 'clear'})}
+                className={`p-2 border-2 rounded-lg text-sm transition-all ${localFormData.systemPlay === 'clear' ? 'border-purple-500 bg-purple-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
               >
                 Clear System
               </button>
               <button
                 type="button"
-                onClick={() => setFormData({...formData, systemPlay: 'kind-of'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all ${formData.systemPlay === 'kind-of' ? 'border-blue-500 bg-blue-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                onClick={() => setLocalFormData({...localFormData, systemPlay: 'kind-of'})}
+                className={`p-2 border-2 rounded-lg text-sm transition-all ${localFormData.systemPlay === 'kind-of' ? 'border-blue-500 bg-blue-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
               >
                 Kind Of
               </button>
               <button
                 type="button"
-                onClick={() => setFormData({...formData, systemPlay: 'no-system'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all ${formData.systemPlay === 'no-system' ? 'border-slate-500 bg-slate-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                onClick={() => setLocalFormData({...localFormData, systemPlay: 'no-system'})}
+                className={`p-2 border-2 rounded-lg text-sm transition-all ${localFormData.systemPlay === 'no-system' ? 'border-slate-500 bg-slate-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
               >
                 No System
               </button>
               <button
                 type="button"
-                onClick={() => setFormData({...formData, systemPlay: 'not-system'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all ${formData.systemPlay === 'not-system' ? 'border-rose-500 bg-rose-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                onClick={() => setLocalFormData({...localFormData, systemPlay: 'not-system'})}
+                className={`p-2 border-2 rounded-lg text-sm transition-all ${localFormData.systemPlay === 'not-system' ? 'border-rose-500 bg-rose-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
               >
                 Anti System
               </button>
@@ -1602,8 +1643,8 @@ function App() {
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                checked={formData.favoriteTeam}
-                onChange={(e) => setFormData({...formData, favoriteTeam: e.target.checked})}
+                checked={localFormData.favoriteTeam}
+                onChange={(e) => setLocalFormData({...localFormData, favoriteTeam: e.target.checked})}
                 className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-purple-600 focus:ring-purple-500"
               />
               <span className="text-sm text-slate-200">Favorite Team</span>
@@ -1612,8 +1653,8 @@ function App() {
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                checked={formData.primeTime}
-                onChange={(e) => setFormData({...formData, primeTime: e.target.checked})}
+                checked={localFormData.primeTime}
+                onChange={(e) => setLocalFormData({...localFormData, primeTime: e.target.checked})}
                 className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-purple-600 focus:ring-purple-500"
               />
               <span className="text-sm text-slate-200">Prime Time Game</span>
@@ -1622,7 +1663,7 @@ function App() {
 
           <div className="flex gap-2 pt-4">
             <button
-              onClick={editingBet ? saveEdit : handleAddBet}
+              onClick={handleSubmit}
               className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl font-medium"
             >
               {editingBet ? 'Save Changes' : 'Add Bet'}
@@ -1637,7 +1678,8 @@ function App() {
         </div>
       </div>
     </div>
-  ));
+    );
+  });
 
   // SETTINGS MENU COMPONENT
   const SettingsMenu = () => (
