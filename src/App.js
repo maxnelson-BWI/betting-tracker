@@ -326,6 +326,19 @@ function App() {
     return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
+  const getSportEmoji = (sport) => {
+    const emojis = {
+      'nfl': '🏈',
+      'nba': '🏀',
+      'mlb': '⚾',
+      'nhl': '🏒',
+      'ncaaf': '🏈',
+      'ncaab': '🏀',
+      'other': '🎯'
+    };
+    return emojis[sport?.toLowerCase()] || '🎯';
+  };
+
   const calculateRiskAndWin = (units, odds) => {
     const unitNum = parseFloat(units);
     const oddsNum = parseFloat(odds);
@@ -777,7 +790,7 @@ function App() {
 
   const getSystemColor = (systemPlay) => {
     const colors = {
-      'clear': 'bg-purple-500/20 text-purple-300 border border-purple-500/30',
+      'clear': 'bg-purple-500/20 text-emerald-300 border border-emerald-500/30',
       'kind-of': 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
       'no-system': 'bg-slate-500/20 text-slate-300 border border-slate-500/30',
       'not-system': 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
@@ -838,7 +851,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950 flex items-center justify-center">
         <div className="text-xl text-gray-300">Loading your bets...</div>
       </div>
     );
@@ -860,10 +873,10 @@ function App() {
 
   // HOME PAGE COMPONENT
   const HomePage = () => (
-    <div className="pb-20">
+    <div className="pb-20 animate-fadeIn">
       <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
         {(stats.monthlyLossWarning || stats.totalLossWarning) && (
-          <div className="mb-4 p-4 bg-rose-500/20 border border-rose-500/50 rounded-xl flex items-start gap-3 backdrop-blur-sm">
+          <div className="mb-4 p-4 bg-rose-500/20 border border-rose-500/50 rounded-2xl flex items-start gap-3 backdrop-blur-sm">
             <div className="flex-shrink-0 mt-0.5 text-rose-300">
               <AlertCircle />
             </div>
@@ -878,16 +891,15 @@ function App() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
-          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-4 rounded-xl backdrop-blur-sm border border-blue-500/30 shadow-lg">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-4 rounded-2xl backdrop-blur-sm border border-blue-500/30 shadow-xl">
             <div className="text-xs md:text-sm text-blue-200 mb-1">Total P/L</div>
             <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.totalDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
               {formatMoney(parseFloat(stats.totalDollars))}
             </div>
           </div>
-          
-          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 p-4 rounded-xl backdrop-blur-sm border border-purple-500/30 shadow-lg">
-            <div className="text-xs md:text-sm text-purple-200 flex items-center gap-1 mb-1">
+          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-4 rounded-2xl backdrop-blur-sm border border-emerald-500/30 shadow-xl">
+            <div className="text-xs md:text-sm text-emerald-200 flex items-center gap-1 mb-1">
               This Month
               {stats.monthlyLossWarning && <span className="text-rose-400">⚠️</span>}
             </div>
@@ -896,57 +908,57 @@ function App() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-4 rounded-xl backdrop-blur-sm border border-emerald-500/30 shadow-lg">
+          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-4 rounded-2xl backdrop-blur-sm border border-emerald-500/30 shadow-xl">
             <div className="text-xs md:text-sm text-emerald-200 mb-1">Win Rate</div>
             <div className="text-xl md:text-2xl font-bold text-white">{stats.winRate}%</div>
             <div className="text-xs md:text-sm text-emerald-300">{stats.wins}W-{stats.losses}L</div>
           </div>
 
-          <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 p-4 rounded-xl backdrop-blur-sm border border-amber-500/30 shadow-lg">
+          <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 p-4 rounded-2xl backdrop-blur-sm border border-amber-500/30 shadow-xl">
             <div className="text-xs md:text-sm text-amber-200 mb-1">Total Bets</div>
             <div className="text-xl md:text-2xl font-bold text-white">{stats.totalBets}</div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-purple-500/20 to-indigo-500/20 p-4 rounded-xl mb-6 border border-purple-500/30 backdrop-blur-sm shadow-lg">
+        <div className="bg-gradient-to-r from-emerald-600/20 to-green-600/20 p-4 rounded-2xl mb-6 border border-emerald-500/30 backdrop-blur-sm shadow-xl">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp />
             <h3 className="font-bold text-base md:text-lg text-white">THE SYSTEM (Fade the Public)</h3>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
             <div>
-              <div className="text-xs md:text-sm text-purple-200">All System</div>
+              <div className="text-xs md:text-sm text-emerald-200">All System</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.systemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {formatMoney(parseFloat(stats.systemDollars))}
               </div>
-              <div className="text-xs text-purple-300">{stats.systemWinRate}%</div>
+              <div className="text-xs text-emerald-300">{stats.systemWinRate}%</div>
             </div>
             <div>
-              <div className="text-xs md:text-sm text-purple-200">Clear</div>
+              <div className="text-xs md:text-sm text-emerald-200">Clear</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.clearSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {formatMoney(parseFloat(stats.clearSystemDollars))}
               </div>
-              <div className="text-xs text-purple-300">{stats.clearSystemRecord}</div>
+              <div className="text-xs text-emerald-300">{stats.clearSystemRecord}</div>
             </div>
             <div>
-              <div className="text-xs md:text-sm text-purple-200">Kind Of</div>
+              <div className="text-xs md:text-sm text-emerald-200">Kind Of</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.kindOfSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {formatMoney(parseFloat(stats.kindOfSystemDollars))}
               </div>
-              <div className="text-xs text-purple-300">{stats.kindOfSystemRecord}</div>
+              <div className="text-xs text-emerald-300">{stats.kindOfSystemRecord}</div>
             </div>
             <div>
-              <div className="text-xs md:text-sm text-purple-200">Anti System</div>
+              <div className="text-xs md:text-sm text-emerald-200">Anti System</div>
               <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.notSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {formatMoney(parseFloat(stats.notSystemDollars))}
               </div>
-              <div className="text-xs text-purple-300">{stats.notSystemRecord}</div>
+              <div className="text-xs text-emerald-300">{stats.notSystemRecord}</div>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-slate-800/50 backdrop-blur-sm p-4 rounded-xl border border-slate-700/50 shadow-lg">
+          <div className="bg-slate-800/50 backdrop-blur-sm p-4 rounded-2xl border border-slate-700/50 shadow-xl">
             <h3 className="font-semibold mb-2 text-sm md:text-base text-white">By Bet Type</h3>
             {Object.keys(stats.byType).length === 0 ? (
               <p className="text-sm text-slate-400">No settled bets</p>
@@ -962,7 +974,7 @@ function App() {
             )}
           </div>
 
-          <div className="bg-slate-800/50 backdrop-blur-sm p-4 rounded-xl border border-slate-700/50 shadow-lg">
+          <div className="bg-slate-800/50 backdrop-blur-sm p-4 rounded-2xl border border-slate-700/50 shadow-xl">
             <h3 className="font-semibold mb-2 text-sm md:text-base text-white">By Sport</h3>
             {Object.keys(stats.bySport).length === 0 ? (
               <p className="text-sm text-slate-400">No settled bets</p>
@@ -980,7 +992,7 @@ function App() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-orange-500/20 to-amber-500/20 p-3 rounded-xl backdrop-blur-sm border border-orange-500/30 shadow-lg">
+          <div className="bg-gradient-to-br from-orange-500/20 to-amber-500/20 p-3 rounded-2xl backdrop-blur-sm border border-orange-500/30 shadow-xl">
             <div className="text-xs md:text-sm text-orange-200">Favorite Team</div>
             <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.favoriteTeamDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
               {formatMoney(parseFloat(stats.favoriteTeamDollars))}
@@ -988,7 +1000,7 @@ function App() {
             <div className="text-xs text-orange-300">{stats.favoriteTeamRecord}</div>
           </div>
           
-          <div className="bg-gradient-to-br from-indigo-500/20 to-blue-500/20 p-3 rounded-xl backdrop-blur-sm border border-indigo-500/30 shadow-lg">
+          <div className="bg-gradient-to-br from-indigo-500/20 to-blue-500/20 p-3 rounded-2xl backdrop-blur-sm border border-indigo-500/30 shadow-xl">
             <div className="text-xs md:text-sm text-indigo-200">Prime Time</div>
             <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.primeTimeDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
               {formatMoney(parseFloat(stats.primeTimeDollars))}
@@ -1016,7 +1028,7 @@ function App() {
           <h2 className="text-xl font-bold text-white">Recent Bets</h2>
           <button
             onClick={() => setCurrentPage('history')}
-            className="text-sm text-purple-400 hover:text-purple-300 transition-colors"
+            className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
           >
             View All →
           </button>
@@ -1036,7 +1048,7 @@ function App() {
 
   // HISTORY PAGE COMPONENT
   const HistoryPage = () => (
-    <div className="pb-20">
+    <div className="pb-20 animate-fadeIn">
       <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 border border-white/20">
         <h2 className="text-xl font-bold mb-4 text-white">Bet History</h2>
         
@@ -1048,7 +1060,7 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, sport: 'all'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                 historyFilter.sport === 'all' 
-                  ? 'bg-purple-600 text-white' 
+                  ? 'bg-emerald-600 text-white' 
                   : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
               }`}
             >
@@ -1060,7 +1072,7 @@ function App() {
                 onClick={() => setHistoryFilter({...historyFilter, sport})}
                 className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                   historyFilter.sport === sport 
-                    ? 'bg-purple-600 text-white' 
+                    ? 'bg-emerald-600 text-white' 
                     : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
                 }`}
               >
@@ -1074,7 +1086,7 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, betType: 'all'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                 historyFilter.betType === 'all' 
-                  ? 'bg-purple-600 text-white' 
+                  ? 'bg-emerald-600 text-white' 
                   : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
               }`}
             >
@@ -1086,7 +1098,7 @@ function App() {
                 onClick={() => setHistoryFilter({...historyFilter, betType: type})}
                 className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                   historyFilter.betType === type 
-                    ? 'bg-purple-600 text-white' 
+                    ? 'bg-emerald-600 text-white' 
                     : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
                 }`}
               >
@@ -1100,7 +1112,7 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, result: 'all'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                 historyFilter.result === 'all' 
-                  ? 'bg-purple-600 text-white' 
+                  ? 'bg-emerald-600 text-white' 
                   : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
               }`}
             >
@@ -1112,7 +1124,7 @@ function App() {
                 onClick={() => setHistoryFilter({...historyFilter, result})}
                 className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                   historyFilter.result === result 
-                    ? 'bg-purple-600 text-white' 
+                    ? 'bg-emerald-600 text-white' 
                     : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
                 }`}
               >
@@ -1126,7 +1138,7 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'all'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                 historyFilter.favoriteUnderdog === 'all' 
-                  ? 'bg-purple-600 text-white' 
+                  ? 'bg-emerald-600 text-white' 
                   : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
               }`}
             >
@@ -1136,7 +1148,7 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'favorite'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                 historyFilter.favoriteUnderdog === 'favorite' 
-                  ? 'bg-purple-600 text-white' 
+                  ? 'bg-emerald-600 text-white' 
                   : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
               }`}
             >
@@ -1146,7 +1158,7 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'underdog'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                 historyFilter.favoriteUnderdog === 'underdog' 
-                  ? 'bg-purple-600 text-white' 
+                  ? 'bg-emerald-600 text-white' 
                   : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
               }`}
             >
@@ -1159,7 +1171,7 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, overUnder: 'all'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                 historyFilter.overUnder === 'all' 
-                  ? 'bg-purple-600 text-white' 
+                  ? 'bg-emerald-600 text-white' 
                   : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
               }`}
             >
@@ -1169,7 +1181,7 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, overUnder: 'over'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                 historyFilter.overUnder === 'over' 
-                  ? 'bg-purple-600 text-white' 
+                  ? 'bg-emerald-600 text-white' 
                   : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
               }`}
             >
@@ -1179,7 +1191,7 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, overUnder: 'under'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                 historyFilter.overUnder === 'under' 
-                  ? 'bg-purple-600 text-white' 
+                  ? 'bg-emerald-600 text-white' 
                   : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
               }`}
             >
@@ -1192,9 +1204,9 @@ function App() {
         <div className="flex gap-3 mb-4">
           <button
             onClick={() => setShowAllBets(false)}
-            className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${
+            className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all ${
               !showAllBets
-                ? 'bg-purple-600 text-white shadow-lg'
+                ? 'bg-emerald-600 text-white shadow-xl'
                 : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
             }`}
           >
@@ -1202,9 +1214,9 @@ function App() {
           </button>
           <button
             onClick={() => setShowAllBets(true)}
-            className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${
+            className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all ${
               showAllBets
-                ? 'bg-purple-600 text-white shadow-lg'
+                ? 'bg-emerald-600 text-white shadow-xl'
                 : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
             }`}
           >
@@ -1214,10 +1226,10 @@ function App() {
 
         {/* Filter Stats Box */}
         {filteredBets.length > 0 && (
-          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 p-4 rounded-xl mb-4 border border-purple-500/30 backdrop-blur-sm">
+          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 p-4 rounded-2xl mb-4 border border-emerald-500/30 backdrop-blur-sm">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs text-purple-200 mb-1">Current Filter</div>
+                <div className="text-xs text-emerald-200 mb-1">Current Filter</div>
                 <div className="text-sm font-medium text-white">
                   {historyFilter.sport !== 'all' && `${historyFilter.sport.toUpperCase()} • `}
                   {historyFilter.betType !== 'all' && `${formatBetType(historyFilter.betType)} • `}
@@ -1228,7 +1240,7 @@ function App() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xs text-purple-200 mb-1">Record & P/L</div>
+                <div className="text-xs text-emerald-200 mb-1">Record & P/L</div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium text-white">
                     {filteredBets.filter(b => b.result === 'win').length}-{filteredBets.filter(b => b.result === 'loss').length}
@@ -1262,7 +1274,7 @@ function App() {
 
   // MORE PAGE COMPONENT
   const MorePage = () => (
-    <div className="pb-20">
+    <div className="pb-20 animate-fadeIn">
       <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
         <h2 className="text-xl font-bold mb-4 text-white">Resources</h2>
         <div className="grid grid-cols-1 gap-3">
@@ -1272,7 +1284,7 @@ function App() {
               href={resource.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all border border-white/20"
+              className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-2xl hover:bg-white/20 transition-all border border-white/20"
             >
               <span className="text-3xl">{resource.icon}</span>
               <span className="text-base font-medium flex-1 text-white">{resource.name}</span>
@@ -1287,7 +1299,7 @@ function App() {
         <div className="space-y-3">
           <button
             onClick={exportToCSV}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600/80 backdrop-blur-sm text-white rounded-xl hover:bg-emerald-700/80 transition-all shadow-lg"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600/80 backdrop-blur-sm text-white rounded-2xl hover:bg-emerald-700/80 transition-all shadow-xl"
           >
             <Download />
             Export Bet History
@@ -1295,7 +1307,7 @@ function App() {
           
           <button
             onClick={() => setShowRetirementModal(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-600 to-red-600 backdrop-blur-sm text-white rounded-xl hover:from-rose-700 hover:to-red-700 transition-all shadow-lg font-semibold border-2 border-rose-500/50"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-600 to-red-600 backdrop-blur-sm text-white rounded-2xl hover:from-rose-700 hover:to-red-700 transition-all shadow-xl font-semibold border-2 border-rose-500/50"
           >
             <PowerOff />
             RETIRE
@@ -1307,15 +1319,16 @@ function App() {
 
   // BET CARD COMPONENT
   const BetCard = ({ bet, showActions = false }) => (
-    <div className="border border-slate-700/50 rounded-xl p-4 hover:bg-white/5 transition-all backdrop-blur-sm bg-slate-800/30">
+    <div className="border border-slate-700/50 rounded-2xl p-4 hover:bg-white/5 hover:shadow-xl transition-all duration-200 backdrop-blur-sm bg-slate-800/40 shadow-xl">
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="text-2xl">{getSportEmoji(bet.sport)}</span>
             <span className="font-semibold text-white">{bet.description}</span>
-            {bet.favoriteTeam && <span className="text-xs bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded border border-orange-500/30">Fav Team</span>}
-            {bet.primeTime && <span className="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">Prime Time</span>}
+            {bet.favoriteTeam && <span className="text-xs bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full border border-orange-500/30">Fav Team</span>}
+            {bet.primeTime && <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">Prime Time</span>}
             {bet.systemPlay !== 'none' && (
-              <span className={`text-xs px-2 py-0.5 rounded ${getSystemColor(bet.systemPlay)}`}>
+              <span className={`text-xs px-2 py-0.5 rounded-full ${getSystemColor(bet.systemPlay)}`}>
                 {getSystemLabel(bet.systemPlay)}
               </span>
             )}
@@ -1337,14 +1350,14 @@ function App() {
             <div className="flex gap-1">
               <button
                 onClick={() => updateBetResult(bet.id, 'win')}
-                className="px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded hover:bg-emerald-500/30 border border-emerald-500/30 transition-all"
+                className="px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-lg hover:bg-emerald-500/30 border border-emerald-500/30 transition-all"
                 disabled={isRetired}
               >
                 Win
               </button>
               <button
                 onClick={() => updateBetResult(bet.id, 'loss')}
-                className="px-2 py-1 bg-rose-500/20 text-rose-300 text-xs rounded hover:bg-rose-500/30 border border-rose-500/30 transition-all"
+                className="px-2 py-1 bg-rose-500/20 text-rose-300 text-xs rounded-lg hover:bg-rose-500/30 border border-rose-500/30 transition-all"
                 disabled={isRetired}
               >
                 Loss
@@ -1598,7 +1611,7 @@ function App() {
           <div className="flex gap-2 pt-4">
             <button
               onClick={editingBet ? saveEdit : handleAddBet}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg font-medium"
+              className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl font-medium"
             >
               {editingBet ? 'Save Changes' : 'Add Bet'}
             </button>
@@ -1750,7 +1763,7 @@ function App() {
                 onClick={() => setDisplayMode('dollars')}
                 className={`flex-1 p-2 rounded-lg text-sm transition-all ${
                   displayMode === 'dollars'
-                    ? 'bg-purple-600 text-white'
+                    ? 'bg-emerald-600 text-white'
                     : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
                 }`}
               >
@@ -1760,7 +1773,7 @@ function App() {
                 onClick={() => setDisplayMode('units')}
                 className={`flex-1 p-2 rounded-lg text-sm transition-all ${
                   displayMode === 'units'
-                    ? 'bg-purple-600 text-white'
+                    ? 'bg-emerald-600 text-white'
                     : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
                 }`}
               >
@@ -1774,7 +1787,7 @@ function App() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950">
       {/* Animation Overlay */}
       {animation.show && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 custom-fadeIn">
@@ -1829,7 +1842,7 @@ function App() {
             <div className="flex gap-3">
               <button
                 onClick={handleRetirement}
-                className="flex-1 bg-gradient-to-r from-rose-600 to-red-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-red-700 transition-all font-medium shadow-lg"
+                className="flex-1 bg-gradient-to-r from-rose-600 to-red-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-red-700 transition-all font-medium shadow-xl"
               >
                 Start Retirement
               </button>
@@ -1862,7 +1875,7 @@ function App() {
                 onClick={() => {
                   addBet();
                 }}
-                className="flex-1 bg-gradient-to-r from-rose-600 to-orange-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-orange-700 transition-all font-medium shadow-lg"
+                className="flex-1 bg-gradient-to-r from-rose-600 to-orange-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-orange-700 transition-all font-medium shadow-xl"
               >
                 {warningModal.buttonYes || 'Yes, proceed anyway'}
               </button>
@@ -1912,7 +1925,7 @@ function App() {
           
           <button
             onClick={toggleDisplayMode}
-            className="px-3 py-2 bg-indigo-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-indigo-700/80 transition-all shadow-lg font-medium"
+            className="px-3 py-2 bg-emerald-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-emerald-700/80 transition-all shadow-xl font-medium"
           >
             {displayMode === 'dollars' ? '$' : 'U'}
           </button>
@@ -1930,7 +1943,7 @@ function App() {
               onClick={() => setCurrentPage('home')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
                 currentPage === 'home' 
-                  ? 'text-purple-400' 
+                  ? 'text-emerald-400' 
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -1947,7 +1960,7 @@ function App() {
               }`}
               disabled={isRetired}
             >
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-full shadow-lg">
+              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-2 rounded-full shadow-xl">
                 <PlusCircle />
               </div>
               <span className="text-xs font-medium">Add Bet</span>
@@ -1957,7 +1970,7 @@ function App() {
               onClick={() => setCurrentPage('history')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
                 currentPage === 'history' 
-                  ? 'text-purple-400' 
+                  ? 'text-emerald-400' 
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -1969,7 +1982,7 @@ function App() {
               onClick={() => setCurrentPage('more')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
                 currentPage === 'more' 
-                  ? 'text-purple-400' 
+                  ? 'text-emerald-400' 
                   : 'text-slate-400 hover:text-white'
               }`}
             >
