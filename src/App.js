@@ -1911,10 +1911,10 @@ function App() {
       )}
 
       {/* Add Bet Modal */}
-      {showAddBetModal && !isRetired && <AddBetModal />}
+      {showAddBetModal && !isRetired && <AddBetModal key="add-bet-modal" />}
 
       {/* Settings Menu */}
-      {showSettingsMenu && <SettingsMenu />}
+      {showSettingsMenu && <SettingsMenu key="settings-menu" />}
 
       {/* Main Content */}
       <div className={`max-w-7xl mx-auto p-4 md:p-6 ${isRetired ? 'opacity-30' : ''}`}>
