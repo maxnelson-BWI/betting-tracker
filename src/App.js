@@ -1995,7 +1995,7 @@ function App() {
 
       {/* Toast Notification */}
       {toast.show && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-fadeIn">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] animate-fadeIn">
           <div className="bg-gradient-to-r from-rose-600 to-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-rose-500/50 flex items-center gap-3 max-w-md">
             <AlertCircle />
             <p className="font-medium">{toast.message}</p>
