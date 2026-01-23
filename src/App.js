@@ -860,8 +860,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950 flex items-center justify-center">
-        <div className="text-xl text-gray-300">Loading your bets...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FFF8F0' }}>
+        <div className="text-xl" style={{ color: '#5D6D7E' }}>Loading your bets...</div>
       </div>
     );
   }
@@ -883,18 +883,18 @@ function App() {
   // HOME PAGE COMPONENT
   const HomePage = () => (
     <div className="pb-20 animate-fadeIn">
-      <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
+      <div className="rounded-2xl shadow-2xl p-4 md:p-6 mb-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
         {(stats.monthlyLossWarning || stats.totalLossWarning) && (
-          <div className="mb-4 p-4 bg-rose-500/20 border border-rose-500/50 rounded-2xl flex items-start gap-3 backdrop-blur-sm">
-            <div className="flex-shrink-0 mt-0.5 text-rose-300">
+          <div className="mb-4 p-4 rounded-2xl flex items-start gap-3" style={{ background: 'rgba(231, 76, 60, 0.1)', border: '1px solid rgba(231, 76, 60, 0.3)' }}>
+            <div className="flex-shrink-0 mt-0.5" style={{ color: '#E74C3C' }}>
               <AlertCircle />
             </div>
             <div>
               {stats.monthlyLossWarning && (
-                <p className="text-rose-200 font-medium text-sm md:text-base">⚠️ Monthly loss limit: {formatMoneyNoSign(stats.monthlyLoss)} / ${monthlyLimit}</p>
+                <p className="font-medium text-sm md:text-base" style={{ color: '#E74C3C' }}>⚠️ Monthly loss limit: {formatMoneyNoSign(stats.monthlyLoss)} / ${monthlyLimit}</p>
               )}
               {stats.totalLossWarning && (
-                <p className="text-rose-200 font-medium text-sm md:text-base">⚠️ Total loss threshold: {formatMoneyNoSign(stats.totalDollars)} / $5,000</p>
+                <p className="font-medium text-sm md:text-base" style={{ color: '#E74C3C' }}>⚠️ Total loss threshold: {formatMoneyNoSign(stats.totalDollars)} / $5,000</p>
               )}
             </div>
           </div>
@@ -1859,7 +1859,7 @@ function App() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950">
+    <div className="min-h-screen" style={{ background: '#FFF8F0' }}>
       {/* Animation Overlay */}
       {animation.show && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 custom-fadeIn">
