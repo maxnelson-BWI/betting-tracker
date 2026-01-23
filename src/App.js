@@ -1689,16 +1689,17 @@ function App() {
             </label>
           </div>
 
-          {localFormError && (
-            <div className="bg-rose-500/20 border border-rose-500/50 rounded-lg p-3 flex items-start gap-2">
-              <div className="flex-shrink-0 text-rose-400 mt-0.5">
-                <AlertCircle />
+          <div className="sticky bottom-0 bg-gradient-to-br from-slate-800 to-slate-900 pt-2 pb-4 px-4 -mx-4 space-y-3">
+            {localFormError && (
+              <div className="bg-rose-500/20 border border-rose-500/50 rounded-lg p-3 flex items-start gap-2 animate-fadeIn">
+                <div className="flex-shrink-0 text-rose-400 mt-0.5">
+                  <AlertCircle />
+                </div>
+                <p className="text-rose-200 text-sm font-medium">{localFormError}</p>
               </div>
-              <p className="text-rose-200 text-sm">{localFormError}</p>
-            </div>
-          )}
+            )}
 
-          <div className="flex gap-2 pt-4">
+            <div className="flex gap-2">
             <button
               onClick={handleSubmit}
               className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl font-medium"
@@ -1711,6 +1712,7 @@ function App() {
             >
               Cancel
             </button>
+          </div>
           </div>
         </div>
       </div>
