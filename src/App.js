@@ -1584,7 +1584,7 @@ function App() {
             <label className="block text-sm font-medium mb-1 text-slate-200">Odds (American)</label>
             <input
               id="bet-odds"
-              type="number"
+              type="text"
               value={localFormData.odds}
               onChange={(e) => setLocalFormData({...localFormData, odds: e.target.value})}
               className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -1690,14 +1690,12 @@ function App() {
           </div>
 
           <div className="sticky bottom-0 bg-gradient-to-br from-slate-800 to-slate-900 pt-2 pb-4 px-4 -mx-4 space-y-3">
-            {localFormError && (
-              <div className="bg-rose-500/20 border border-rose-500/50 rounded-lg p-3 flex items-start gap-2 animate-fadeIn">
-                <div className="flex-shrink-0 text-rose-400 mt-0.5">
-                  <AlertCircle />
-                </div>
-                <p className="text-rose-200 text-sm font-medium">{localFormError}</p>
+            <div className={`bg-rose-500/20 border border-rose-500/50 rounded-lg p-3 flex items-start gap-2 transition-all ${localFormError ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden p-0 border-0'}`}>
+              <div className="flex-shrink-0 text-rose-400 mt-0.5">
+                <AlertCircle />
               </div>
-            )}
+              <p className="text-rose-200 text-sm font-medium">{localFormError || 'No error'}</p>
+            </div>
 
             <div className="flex gap-2">
             <button
