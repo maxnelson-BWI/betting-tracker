@@ -443,13 +443,17 @@ function App() {
   };
 
   const handleAddBet = (dataToSubmit = formData) => {
+    console.log('handleAddBet called with:', dataToSubmit);
     if (!dataToSubmit.sport || !dataToSubmit.betType || !dataToSubmit.description || !dataToSubmit.units || !dataToSubmit.odds) {
+      console.log('Missing required fields');
       return 'Please fill in all required fields';
     }
     if (dataToSubmit.betType === 'longshot-parlay' && parseFloat(dataToSubmit.odds) < 500) {
+      console.log('Longshot parlay validation failed');
       return 'Long shot parlays must be +500 or greater. Please change bet type to "Parlay" or adjust odds.';
     }
 
+    console.log('Validation passed');
     const warning = checkWarnings();
     if (warning.show) {
       setWarningModal(warning);
@@ -1454,16 +1458,18 @@ function App() {
       }
     }, [showAddBetModal]);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+      console.log('handleSubmit called with localFormData:', localFormData);
       // Update parent formData and trigger save with the local data
       setFormData(localFormData);
       // Pass the localFormData directly to avoid state update timing issues
       let errorMsg;
       if (editingBet) {
-        errorMsg = saveEdit(localFormData);
+        errorMsg = await saveEdit(localFormData);
       } else {
         errorMsg = handleAddBet(localFormData);
       }
+      console.log('Error message returned:', errorMsg);
       if (errorMsg) {
         setLocalFormError(errorMsg);
       } else {
