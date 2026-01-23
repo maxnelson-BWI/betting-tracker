@@ -443,17 +443,13 @@ function App() {
   };
 
   const handleAddBet = (dataToSubmit = formData) => {
-    console.log('handleAddBet called with:', dataToSubmit);
     if (!dataToSubmit.sport || !dataToSubmit.betType || !dataToSubmit.description || !dataToSubmit.units || !dataToSubmit.odds) {
-      console.log('Missing required fields');
       return 'Please fill in all required fields';
     }
     if (dataToSubmit.betType === 'longshot-parlay' && parseFloat(dataToSubmit.odds) < 500) {
-      console.log('Longshot parlay validation failed');
       return 'Long shot parlays must be +500 or greater. Please change bet type to "Parlay" or adjust odds.';
     }
 
-    console.log('Validation passed');
     const warning = checkWarnings();
     if (warning.show) {
       setWarningModal(warning);
@@ -1436,7 +1432,6 @@ function App() {
       systemPlay: formData.systemPlay,
       notes: formData.notes
     });
-    const [localFormError, setLocalFormError] = useState('');
 
     // Sync with parent formData when modal opens
     useEffect(() => {
@@ -1454,12 +1449,10 @@ function App() {
           systemPlay: formData.systemPlay,
           notes: formData.notes
         });
-        setLocalFormError(''); // Clear any previous errors when modal opens
       }
     }, [showAddBetModal]);
 
     const handleSubmit = async () => {
-      console.log('handleSubmit called with localFormData:', localFormData);
       // Update parent formData and trigger save with the local data
       setFormData(localFormData);
       // Pass the localFormData directly to avoid state update timing issues
@@ -1469,11 +1462,8 @@ function App() {
       } else {
         errorMsg = handleAddBet(localFormData);
       }
-      console.log('Error message returned:', errorMsg);
       if (errorMsg) {
-        setLocalFormError(errorMsg);
-      } else {
-        setLocalFormError('');
+        showToast(errorMsg, 'error');
       }
     };
 
@@ -1689,15 +1679,7 @@ function App() {
             </label>
           </div>
 
-          <div className="sticky bottom-0 bg-gradient-to-br from-slate-800 to-slate-900 pt-2 pb-4 px-4 -mx-4 space-y-3">
-            <div className={`bg-rose-500/20 border border-rose-500/50 rounded-lg p-3 flex items-start gap-2 transition-all ${localFormError ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden p-0 border-0'}`}>
-              <div className="flex-shrink-0 text-rose-400 mt-0.5">
-                <AlertCircle />
-              </div>
-              <p className="text-rose-200 text-sm font-medium">{localFormError || 'No error'}</p>
-            </div>
-
-            <div className="flex gap-2">
+          <div className="flex gap-2 pt-4">
             <button
               onClick={handleSubmit}
               className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl font-medium"
@@ -1710,7 +1692,6 @@ function App() {
             >
               Cancel
             </button>
-          </div>
           </div>
         </div>
       </div>
