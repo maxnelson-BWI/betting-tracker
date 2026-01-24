@@ -901,81 +901,81 @@ function App() {
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-4 rounded-2xl backdrop-blur-sm border border-blue-500/30 shadow-xl">
-            <div className="text-xs md:text-sm text-blue-200 mb-1">Total P/L</div>
-            <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.totalDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div className="p-4 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(52, 152, 219, 0.15) 0%, rgba(41, 128, 185, 0.15) 100%)', border: '1px solid rgba(52, 152, 219, 0.3)' }}>
+            <div className="text-xs md:text-sm mb-1" style={{ color: '#2C3E50' }}>Total P/L</div>
+            <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.totalDollars) >= 0 ? '' : ''}`} style={{ color: parseFloat(stats.totalDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
               {formatMoney(parseFloat(stats.totalDollars))}
             </div>
           </div>
-          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-4 rounded-2xl backdrop-blur-sm border border-emerald-500/30 shadow-xl">
-            <div className="text-xs md:text-sm text-emerald-200 flex items-center gap-1 mb-1">
+          <div className="p-4 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(39, 174, 96, 0.15) 0%, rgba(22, 160, 133, 0.15) 100%)', border: '1px solid rgba(39, 174, 96, 0.3)' }}>
+            <div className="text-xs md:text-sm flex items-center gap-1 mb-1" style={{ color: '#2C3E50' }}>
               This Month
-              {stats.monthlyLossWarning && <span className="text-rose-400">⚠️</span>}
+              {stats.monthlyLossWarning && <span style={{ color: '#E74C3C' }}>⚠️</span>}
             </div>
-            <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.monthlyLoss) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+            <div className={`text-xl md:text-2xl font-bold`} style={{ color: parseFloat(stats.monthlyLoss) >= 0 ? '#27AE60' : '#E74C3C' }}>
               {formatMoney(parseFloat(stats.monthlyLoss))}
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 p-4 rounded-2xl backdrop-blur-sm border border-emerald-500/30 shadow-xl">
-            <div className="text-xs md:text-sm text-emerald-200 mb-1">Win Rate</div>
-            <div className="text-xl md:text-2xl font-bold text-white">{stats.winRate}%</div>
-            <div className="text-xs md:text-sm text-emerald-300">{stats.wins}W-{stats.losses}L</div>
+          <div className="p-4 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(39, 174, 96, 0.15) 0%, rgba(22, 160, 133, 0.15) 100%)', border: '1px solid rgba(39, 174, 96, 0.3)' }}>
+            <div className="text-xs md:text-sm mb-1" style={{ color: '#2C3E50' }}>Win Rate</div>
+            <div className="text-xl md:text-2xl font-bold" style={{ color: '#2C3E50' }}>{stats.winRate}%</div>
+            <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>{stats.wins}W-{stats.losses}L</div>
           </div>
 
-          <div className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 p-4 rounded-2xl backdrop-blur-sm border border-amber-500/30 shadow-xl">
-            <div className="text-xs md:text-sm text-amber-200 mb-1">Total Bets</div>
-            <div className="text-xl md:text-2xl font-bold text-white">{stats.totalBets}</div>
+          <div className="p-4 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(243, 156, 18, 0.15) 0%, rgba(230, 126, 34, 0.15) 100%)', border: '1px solid rgba(243, 156, 18, 0.3)' }}>
+            <div className="text-xs md:text-sm mb-1" style={{ color: '#2C3E50' }}>Total Bets</div>
+            <div className="text-xl md:text-2xl font-bold" style={{ color: '#2C3E50' }}>{stats.totalBets}</div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-emerald-600/20 to-green-600/20 p-4 rounded-2xl mb-6 border border-emerald-500/30 backdrop-blur-sm shadow-xl">
+        <div className="p-4 rounded-2xl mb-6 shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(39, 174, 96, 0.15) 0%, rgba(34, 153, 84, 0.15) 100%)', border: '1px solid rgba(39, 174, 96, 0.3)' }}>
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp />
-            <h3 className="font-bold text-base md:text-lg text-white">THE SYSTEM (Fade the Public)</h3>
+            <h3 className="font-bold text-base md:text-lg" style={{ color: '#2C3E50' }}>THE SYSTEM (Fade the Public)</h3>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
             <div>
-              <div className="text-xs md:text-sm text-emerald-200">All System</div>
-              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.systemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>All System</div>
+              <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.systemDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
                 {formatMoney(parseFloat(stats.systemDollars))}
               </div>
-              <div className="text-xs text-emerald-300">{stats.systemWinRate}%</div>
+              <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.systemWinRate}%</div>
             </div>
             <div>
-              <div className="text-xs md:text-sm text-emerald-200">Clear</div>
-              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.clearSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>Clear</div>
+              <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.clearSystemDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
                 {formatMoney(parseFloat(stats.clearSystemDollars))}
               </div>
-              <div className="text-xs text-emerald-300">{stats.clearSystemRecord}</div>
+              <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.clearSystemRecord}</div>
             </div>
             <div>
-              <div className="text-xs md:text-sm text-emerald-200">Kind Of</div>
-              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.kindOfSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>Kind Of</div>
+              <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.kindOfSystemDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
                 {formatMoney(parseFloat(stats.kindOfSystemDollars))}
               </div>
-              <div className="text-xs text-emerald-300">{stats.kindOfSystemRecord}</div>
+              <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.kindOfSystemRecord}</div>
             </div>
             <div>
-              <div className="text-xs md:text-sm text-emerald-200">Anti System</div>
-              <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.notSystemDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>Anti System</div>
+              <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.notSystemDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
                 {formatMoney(parseFloat(stats.notSystemDollars))}
               </div>
-              <div className="text-xs text-emerald-300">{stats.notSystemRecord}</div>
+              <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.notSystemRecord}</div>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-slate-800/50 backdrop-blur-sm p-4 rounded-2xl border border-slate-700/50 shadow-xl">
-            <h3 className="font-semibold mb-2 text-sm md:text-base text-white">By Bet Type</h3>
+          <div className="p-4 rounded-2xl shadow-xl" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
+            <h3 className="font-semibold mb-2 text-sm md:text-base" style={{ color: '#2C3E50' }}>By Bet Type</h3>
             {Object.keys(stats.byType).length === 0 ? (
-              <p className="text-sm text-slate-400">No settled bets</p>
+              <p className="text-sm" style={{ color: '#95A5A6' }}>No settled bets</p>
             ) : (
               Object.entries(stats.byType).map(([type, dollars]) => (
                 <div key={type} className="flex justify-between text-sm py-1">
-                  <span className="text-slate-300">{formatBetType(type)}</span>
-                  <span className={dollars >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                  <span style={{ color: '#5D6D7E' }}>{formatBetType(type)}</span>
+                  <span style={{ color: dollars >= 0 ? '#27AE60' : '#E74C3C' }}>
                     {formatMoney(dollars)}
                   </span>
                 </div>
@@ -983,15 +983,15 @@ function App() {
             )}
           </div>
 
-          <div className="bg-slate-800/50 backdrop-blur-sm p-4 rounded-2xl border border-slate-700/50 shadow-xl">
-            <h3 className="font-semibold mb-2 text-sm md:text-base text-white">By Sport</h3>
+          <div className="p-4 rounded-2xl shadow-xl" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
+            <h3 className="font-semibold mb-2 text-sm md:text-base" style={{ color: '#2C3E50' }}>By Sport</h3>
             {Object.keys(stats.bySport).length === 0 ? (
-              <p className="text-sm text-slate-400">No settled bets</p>
+              <p className="text-sm" style={{ color: '#95A5A6' }}>No settled bets</p>
             ) : (
               Object.entries(stats.bySport).map(([sport, dollars]) => (
                 <div key={sport} className="flex justify-between text-sm py-1">
-                  <span className="text-slate-300">{sport.toUpperCase()}</span>
-                  <span className={dollars >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                  <span style={{ color: '#5D6D7E' }}>{sport.toUpperCase()}</span>
+                  <span style={{ color: dollars >= 0 ? '#27AE60' : '#E74C3C' }}>
                     {formatMoney(dollars)}
                   </span>
                 </div>
@@ -1001,28 +1001,28 @@ function App() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-orange-500/20 to-amber-500/20 p-3 rounded-2xl backdrop-blur-sm border border-orange-500/30 shadow-xl">
-            <div className="text-xs md:text-sm text-orange-200">Favorite Team</div>
-            <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.favoriteTeamDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div className="p-3 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(230, 126, 34, 0.15) 0%, rgba(211, 84, 0, 0.15) 100%)', border: '1px solid rgba(230, 126, 34, 0.3)' }}>
+            <div className="text-xs md:text-sm" style={{ color: '#2C3E50' }}>Favorite Team</div>
+            <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.favoriteTeamDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
               {formatMoney(parseFloat(stats.favoriteTeamDollars))}
             </div>
-            <div className="text-xs text-orange-300">{stats.favoriteTeamRecord}</div>
+            <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.favoriteTeamRecord}</div>
           </div>
           
-          <div className="bg-gradient-to-br from-indigo-500/20 to-blue-500/20 p-3 rounded-2xl backdrop-blur-sm border border-indigo-500/30 shadow-xl">
-            <div className="text-xs md:text-sm text-indigo-200">Prime Time</div>
-            <div className={`text-lg md:text-xl font-bold ${parseFloat(stats.primeTimeDollars) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div className="p-3 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(93, 173, 226, 0.15) 0%, rgba(52, 152, 219, 0.15) 100%)', border: '1px solid rgba(93, 173, 226, 0.3)' }}>
+            <div className="text-xs md:text-sm" style={{ color: '#2C3E50' }}>Prime Time</div>
+            <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.primeTimeDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
               {formatMoney(parseFloat(stats.primeTimeDollars))}
             </div>
-            <div className="text-xs text-indigo-300">{stats.primeTimeRecord}</div>
+            <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.primeTimeRecord}</div>
           </div>
         </div>
       </div>
 
       {/* Pending Bets Section */}
       {pendingBets.length > 0 && (
-        <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
-          <h2 className="text-xl font-bold mb-4 text-white">Pending Bets ({pendingBets.length})</h2>
+        <div className="rounded-2xl shadow-2xl p-4 md:p-6 mb-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
+          <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50' }}>Pending Bets ({pendingBets.length})</h2>
           <div className="space-y-3">
             {pendingBets.map(bet => (
               <BetCard key={bet.id} bet={bet} />
@@ -1032,19 +1032,20 @@ function App() {
       )}
 
       {/* Recent Bets Section */}
-      <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 border border-white/20">
+      <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">Recent Bets</h2>
+          <h2 className="text-xl font-bold" style={{ color: '#2C3E50' }}>Recent Bets</h2>
           <button
             onClick={() => setCurrentPage('history')}
-            className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
+            className="text-sm transition-colors"
+            style={{ color: '#D4A574' }}
           >
             View All →
           </button>
         </div>
         <div className="space-y-3">
           {recentBets.length === 0 ? (
-            <p className="text-slate-400 text-center py-8">No bets yet. Add your first bet!</p>
+            <p className="text-center py-8" style={{ color: '#95A5A6' }}>No bets yet. Add your first bet!</p>
           ) : (
             recentBets.map(bet => (
               <BetCard key={bet.id} bet={bet} />
@@ -1058,8 +1059,8 @@ function App() {
   // HISTORY PAGE COMPONENT
   const HistoryPage = () => (
     <div className="pb-20 animate-fadeIn">
-      <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 border border-white/20">
-        <h2 className="text-xl font-bold mb-4 text-white">Bet History</h2>
+      <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
+        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50' }}>Bet History</h2>
         
         {/* Filter Pills */}
         <div className="mb-4 space-y-3">
@@ -1067,11 +1068,11 @@ function App() {
             <Filter />
             <button
               onClick={() => setHistoryFilter({...historyFilter, sport: 'all'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                historyFilter.sport === 'all' 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-              }`}
+              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+              style={{
+                background: historyFilter.sport === 'all' ? '#D4A574' : '#F5E6D3',
+                color: historyFilter.sport === 'all' ? '#FFFFFF' : '#2C3E50'
+              }}
             >
               All Sports
             </button>
@@ -1079,11 +1080,11 @@ function App() {
               <button
                 key={sport}
                 onClick={() => setHistoryFilter({...historyFilter, sport})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                  historyFilter.sport === sport 
-                    ? 'bg-emerald-600 text-white' 
-                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-                }`}
+                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                style={{
+                  background: historyFilter.sport === sport ? '#D4A574' : '#F5E6D3',
+                  color: historyFilter.sport === sport ? '#FFFFFF' : '#2C3E50'
+                }}
               >
                 {sport.toUpperCase()}
               </button>
@@ -1213,21 +1214,23 @@ function App() {
         <div className="flex gap-3 mb-4">
           <button
             onClick={() => setShowAllBets(false)}
-            className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all ${
-              !showAllBets
-                ? 'bg-emerald-600 text-white shadow-xl'
-                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-            }`}
+            className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all`}
+            style={{
+              background: !showAllBets ? '#D4A574' : '#F5E6D3',
+              color: !showAllBets ? '#FFFFFF' : '#5D6D7E',
+              boxShadow: !showAllBets ? '0 4px 12px rgba(212, 165, 116, 0.3)' : 'none'
+            }}
           >
             Last 30 Days
           </button>
           <button
             onClick={() => setShowAllBets(true)}
-            className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all ${
-              showAllBets
-                ? 'bg-emerald-600 text-white shadow-xl'
-                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-            }`}
+            className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all`}
+            style={{
+              background: showAllBets ? '#D4A574' : '#F5E6D3',
+              color: showAllBets ? '#FFFFFF' : '#5D6D7E',
+              boxShadow: showAllBets ? '0 4px 12px rgba(212, 165, 116, 0.3)' : 'none'
+            }}
           >
             All Time
           </button>
@@ -1235,11 +1238,11 @@ function App() {
 
         {/* Filter Stats Box */}
         {filteredBets.length > 0 && (
-          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 p-4 rounded-2xl mb-4 border border-emerald-500/30 backdrop-blur-sm">
+          <div className="p-4 rounded-2xl mb-4" style={{ background: 'linear-gradient(135deg, rgba(52, 152, 219, 0.15) 0%, rgba(155, 89, 182, 0.15) 100%)', border: '1px solid rgba(52, 152, 219, 0.3)' }}>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs text-emerald-200 mb-1">Current Filter</div>
-                <div className="text-sm font-medium text-white">
+                <div className="text-xs mb-1" style={{ color: '#5D6D7E' }}>Current Filter</div>
+                <div className="text-sm font-medium" style={{ color: '#2C3E50' }}>
                   {historyFilter.sport !== 'all' && `${historyFilter.sport.toUpperCase()} • `}
                   {historyFilter.betType !== 'all' && `${formatBetType(historyFilter.betType)} • `}
                   {historyFilter.result !== 'all' && `${historyFilter.result.charAt(0).toUpperCase() + historyFilter.result.slice(1)} • `}
@@ -1249,12 +1252,12 @@ function App() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xs text-emerald-200 mb-1">Record & P/L</div>
+                <div className="text-xs mb-1" style={{ color: '#5D6D7E' }}>Record & P/L</div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-white">
+                  <span className="text-sm font-medium" style={{ color: '#2C3E50' }}>
                     {filteredBets.filter(b => b.result === 'win').length}-{filteredBets.filter(b => b.result === 'loss').length}
                   </span>
-                  <span className={`text-lg font-bold ${filteredBets.reduce((sum, b) => sum + b.payout, 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <span className={`text-lg font-bold`} style={{ color: filteredBets.reduce((sum, b) => sum + b.payout, 0) >= 0 ? '#27AE60' : '#E74C3C' }}>
                     {formatMoney(filteredBets.reduce((sum, b) => sum + b.payout, 0))}
                   </span>
                 </div>
@@ -1263,14 +1266,14 @@ function App() {
           </div>
         )}
 
-        <div className="text-sm text-slate-300 mb-4">
+        <div className="text-sm mb-4" style={{ color: '#5D6D7E' }}>
           Showing {filteredBets.length} {filteredBets.length === 1 ? 'bet' : 'bets'}
           {!showAllBets && ' (Last 30 days)'}
         </div>
 
         <div className="space-y-3">
           {filteredBets.length === 0 ? (
-            <p className="text-slate-400 text-center py-8">No bets match your filters</p>
+            <p className="text-center py-8" style={{ color: '#95A5A6' }}>No bets match your filters</p>
           ) : (
             filteredBets.map(bet => (
               <BetCard key={bet.id} bet={bet} showActions />
@@ -1284,8 +1287,8 @@ function App() {
   // MORE PAGE COMPONENT
   const MorePage = () => (
     <div className="pb-20 animate-fadeIn">
-      <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 mb-6 border border-white/20">
-        <h2 className="text-xl font-bold mb-4 text-white">Resources</h2>
+      <div className="rounded-2xl shadow-2xl p-4 md:p-6 mb-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
+        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50' }}>Resources</h2>
         <div className="grid grid-cols-1 gap-3">
           {resources.map((resource, idx) => (
             <a
@@ -1293,22 +1296,24 @@ function App() {
               href={resource.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-2xl hover:bg-white/20 transition-all border border-white/20"
+              className="flex items-center gap-3 p-4 rounded-2xl transition-all"
+              style={{ background: '#F5E6D3', border: '1px solid #E8DCC8' }}
             >
               <span className="text-3xl">{resource.icon}</span>
-              <span className="text-base font-medium flex-1 text-white">{resource.name}</span>
+              <span className="text-base font-medium flex-1" style={{ color: '#2C3E50' }}>{resource.name}</span>
               <ExternalLink />
             </a>
           ))}
         </div>
       </div>
 
-      <div className="backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl p-4 md:p-6 border border-white/20">
-        <h2 className="text-xl font-bold mb-4 text-white">Actions</h2>
+      <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
+        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50' }}>Actions</h2>
         <div className="space-y-3">
           <button
             onClick={exportToCSV}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600/80 backdrop-blur-sm text-white rounded-2xl hover:bg-emerald-700/80 transition-all shadow-xl"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all shadow-xl"
+            style={{ background: '#D4A574', color: '#FFFFFF' }}
           >
             <Download />
             Export Bet History
@@ -1316,7 +1321,8 @@ function App() {
           
           <button
             onClick={() => setShowRetirementModal(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-600 to-red-600 backdrop-blur-sm text-white rounded-2xl hover:from-rose-700 hover:to-red-700 transition-all shadow-xl font-semibold border-2 border-rose-500/50"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all shadow-xl font-semibold"
+            style={{ background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)', color: '#FFFFFF', border: '2px solid rgba(231, 76, 60, 0.5)' }}
           >
             <PowerOff />
             RETIRE
@@ -1328,28 +1334,28 @@ function App() {
 
   // BET CARD COMPONENT
   const BetCard = ({ bet, showActions = false }) => (
-    <div className="border border-slate-700/50 rounded-2xl p-4 hover:bg-white/5 hover:shadow-xl transition-all duration-200 backdrop-blur-sm bg-slate-800/40 shadow-xl">
+    <div className="rounded-2xl p-4 transition-all duration-200 shadow-xl" style={{ border: '1px solid #E8DCC8', background: '#FFFFFF' }}>
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="text-2xl">{getSportEmoji(bet.sport)}</span>
-            <span className="font-semibold text-white">{bet.description}</span>
-            {bet.favoriteTeam && <span className="text-xs bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-full border border-orange-500/30">Fav Team</span>}
-            {bet.primeTime && <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">Prime Time</span>}
+            <span className="font-semibold" style={{ color: '#2C3E50' }}>{bet.description}</span>
+            {bet.favoriteTeam && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(230, 126, 34, 0.15)', color: '#E67E22', border: '1px solid rgba(230, 126, 34, 0.3)' }}>Fav Team</span>}
+            {bet.primeTime && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(93, 173, 226, 0.15)', color: '#5DADE2', border: '1px solid rgba(93, 173, 226, 0.3)' }}>Prime Time</span>}
             {bet.systemPlay !== 'none' && (
               <span className={`text-xs px-2 py-0.5 rounded-full ${getSystemColor(bet.systemPlay)}`}>
                 {getSystemLabel(bet.systemPlay)}
               </span>
             )}
           </div>
-          <div className="text-sm text-slate-300">
+          <div className="text-sm" style={{ color: '#5D6D7E' }}>
             {bet.date} • {bet.sport.toUpperCase()} • {formatBetType(bet.betType)} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
           </div>
-          <div className="text-xs text-slate-400 mt-1">
+          <div className="text-xs mt-1" style={{ color: '#95A5A6' }}>
             Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
           </div>
           {bet.notes && (
-            <div className="text-xs text-slate-400 mt-1 italic">
+            <div className="text-xs mt-1 italic" style={{ color: '#95A5A6' }}>
               Note: {bet.notes}
             </div>
           )}
@@ -1359,54 +1365,63 @@ function App() {
             <div className="flex gap-1">
               <button
                 onClick={() => updateBetResult(bet.id, 'win')}
-                className="px-2 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-lg hover:bg-emerald-500/30 border border-emerald-500/30 transition-all"
+                className="px-2 py-1 text-xs rounded-lg transition-all"
+                style={{ background: 'rgba(39, 174, 96, 0.15)', color: '#27AE60', border: '1px solid rgba(39, 174, 96, 0.3)' }}
                 disabled={isRetired}
               >
                 Win
               </button>
               <button
                 onClick={() => updateBetResult(bet.id, 'loss')}
-                className="px-2 py-1 bg-rose-500/20 text-rose-300 text-xs rounded-lg hover:bg-rose-500/30 border border-rose-500/30 transition-all"
+                className="px-2 py-1 text-xs rounded-lg transition-all"
+                style={{ background: 'rgba(231, 76, 60, 0.15)', color: '#E74C3C', border: '1px solid rgba(231, 76, 60, 0.3)' }}
                 disabled={isRetired}
               >
                 Loss
               </button>
               <button
                 onClick={() => updateBetResult(bet.id, 'push')}
-                className="px-2 py-1 bg-slate-500/20 text-slate-300 text-xs rounded hover:bg-slate-500/30 border border-slate-500/30 transition-all"
+                className="px-2 py-1 text-xs rounded transition-all"
+                style={{ background: 'rgba(149, 165, 166, 0.15)', color: '#95A5A6', border: '1px solid rgba(149, 165, 166, 0.3)' }}
                 disabled={isRetired}
               >
                 Push
               </button>
             </div>
           ) : (
-            <div className={`font-semibold ${bet.payout > 0 ? 'text-emerald-400' : bet.payout < 0 ? 'text-rose-400' : 'text-slate-400'}`}>
+            <div className="font-semibold" style={{ color: bet.payout > 0 ? '#27AE60' : bet.payout < 0 ? '#E74C3C' : '#95A5A6' }}>
               {formatMoney(bet.payout)}
             </div>
           )}
         </div>
       </div>
-      <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-700/50">
+      <div className="flex justify-between items-center mt-2 pt-2" style={{ borderTop: '1px solid #E8DCC8' }}>
         <span className={`text-xs font-medium px-2 py-1 rounded ${
-          bet.result === 'win' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
-          bet.result === 'loss' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
-          bet.result === 'push' ? 'bg-slate-500/20 text-slate-300 border border-slate-500/30' :
-          'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-        }`}>
+          bet.result === 'win' ? '' :
+          bet.result === 'loss' ? '' :
+          bet.result === 'push' ? '' :
+          ''
+        }`} style={{
+          background: bet.result === 'win' ? 'rgba(39, 174, 96, 0.15)' : bet.result === 'loss' ? 'rgba(231, 76, 60, 0.15)' : bet.result === 'push' ? 'rgba(149, 165, 166, 0.15)' : 'rgba(243, 156, 18, 0.15)',
+          color: bet.result === 'win' ? '#27AE60' : bet.result === 'loss' ? '#E74C3C' : bet.result === 'push' ? '#95A5A6' : '#F39C12',
+          border: bet.result === 'win' ? '1px solid rgba(39, 174, 96, 0.3)' : bet.result === 'loss' ? '1px solid rgba(231, 76, 60, 0.3)' : bet.result === 'push' ? '1px solid rgba(149, 165, 166, 0.3)' : '1px solid rgba(243, 156, 18, 0.3)'
+        }}>
           {bet.result.toUpperCase()}
         </span>
         {showActions && !isRetired && (
           <div className="flex gap-2">
             <button
               onClick={() => startEdit(bet)}
-              className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+              className="flex items-center gap-1 text-xs transition-colors"
+              style={{ color: '#3498DB' }}
             >
               <Edit />
               Edit
             </button>
             <button
               onClick={() => deleteBet(bet.id)}
-              className="text-xs text-rose-400 hover:text-rose-300 transition-colors"
+              className="text-xs transition-colors"
+              style={{ color: '#E74C3C' }}
             >
               Delete
             </button>
@@ -1469,24 +1484,34 @@ function App() {
 
     return (
     <div 
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center"
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
       onClick={cancelEdit}
     >
       <div 
-        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-t-3xl w-full max-w-2xl overflow-y-auto border-t border-white/20 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        className="rounded-t-3xl w-full max-w-2xl overflow-y-auto shadow-2xl"
         style={{ 
+          background: '#FFFFFF',
+          borderTop: '1px solid #E8DCC8',
           minHeight: '80vh',
           maxHeight: '80vh'
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-700/50 p-3 flex justify-between items-center"
-          style={{ position: 'sticky', top: 0, zIndex: 10 }}
+        <div className="border-b p-3 flex justify-between items-center"
+          style={{ 
+            position: 'sticky', 
+            top: 0, 
+            zIndex: 10,
+            background: '#FFFFFF',
+            borderBottom: '1px solid #E8DCC8'
+          }}
         >
-          <h2 className="text-lg font-bold text-white">{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
+          <h2 className="text-lg font-bold" style={{ color: '#2C3E50' }}>{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
           <button
             onClick={cancelEdit}
-            className="text-slate-400 hover:text-white transition-colors"
+            className="transition-colors"
+            style={{ color: '#95A5A6' }}
           >
             <X />
           </button>
@@ -1494,21 +1519,31 @@ function App() {
         
         <div className="p-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1 text-slate-200">Date</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Date</label>
             <input
               type="date"
               value={localFormData.date}
               onChange={(e) => setLocalFormData({...localFormData, date: e.target.value})}
-              className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full p-2 rounded-lg"
+              style={{ 
+                border: '1px solid #E8DCC8', 
+                background: '#FFFFFF', 
+                color: '#2C3E50'
+              }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-slate-200">Sport</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Sport</label>
             <select
               value={localFormData.sport}
               onChange={(e) => setLocalFormData({...localFormData, sport: e.target.value})}
-              className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full p-2 rounded-lg"
+              style={{ 
+                border: '1px solid #E8DCC8', 
+                background: '#FFFFFF', 
+                color: '#2C3E50'
+              }}
             >
               <option value="">Select...</option>
               <option value="nfl">NFL</option>
@@ -1522,11 +1557,16 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-slate-200">Bet Type</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Bet Type</label>
             <select
               value={localFormData.betType}
               onChange={(e) => setLocalFormData({...localFormData, betType: e.target.value})}
-              className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full p-2 rounded-lg"
+              style={{ 
+                border: '1px solid #E8DCC8', 
+                background: '#FFFFFF', 
+                color: '#2C3E50'
+              }}
             >
               <option value="">Select...</option>
               <option value="straight">Straight</option>
@@ -1541,13 +1581,18 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-slate-200">Units</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Units</label>
             <input
               type="number"
               step="0.25"
               value={localFormData.units}
               onChange={(e) => setLocalFormData({...localFormData, units: e.target.value})}
-              className="w-full p-2 border border-slate-600 rounded-lg mb-2 bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full p-2 rounded-lg mb-2"
+              style={{ 
+                border: '1px solid #E8DCC8', 
+                background: '#FFFFFF', 
+                color: '#2C3E50'
+              }}
               placeholder="e.g., 1, 2, 0.5"
             />
             <div className="flex gap-1 flex-wrap">
@@ -1556,14 +1601,15 @@ function App() {
                   key={btn.value}
                   type="button"
                   onClick={() => setLocalFormData({...localFormData, units: btn.value.toString()})}
-                  className="px-2 py-1 text-xs bg-slate-700/50 hover:bg-slate-600/50 rounded backdrop-blur-sm text-white transition-all"
+                  className="px-2 py-1 text-xs rounded transition-all"
+                  style={{ background: '#F5E6D3', color: '#2C3E50' }}
                 >
                   {btn.label}
                 </button>
               ))}
             </div>
             {localFormData.units && localFormData.odds && (
-              <div className="text-xs text-slate-300 mt-2">
+              <div className="text-xs mt-2" style={{ color: '#5D6D7E' }}>
                 Risk: ${calculateRiskAndWin(localFormData.units, localFormData.odds).risk.toFixed(2)} | 
                 Win: ${calculateRiskAndWin(localFormData.units, localFormData.odds).win.toFixed(2)}
               </div>
@@ -1571,24 +1617,34 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-slate-200">Odds (American)</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Odds (American)</label>
             <input
               id="bet-odds"
               type="text"
               value={localFormData.odds}
               onChange={(e) => setLocalFormData({...localFormData, odds: e.target.value})}
-              className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full p-2 rounded-lg"
+              style={{ 
+                border: '1px solid #E8DCC8', 
+                background: '#FFFFFF', 
+                color: '#2C3E50'
+              }}
               placeholder="e.g., -110, +150"
               autoComplete="off"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-slate-200">Result</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Result</label>
             <select
               value={localFormData.result}
               onChange={(e) => setLocalFormData({...localFormData, result: e.target.value})}
-              className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full p-2 rounded-lg"
+              style={{ 
+                border: '1px solid #E8DCC8', 
+                background: '#FFFFFF', 
+                color: '#2C3E50'
+              }}
             >
               <option value="pending">Pending</option>
               <option value="win">Win</option>
@@ -1598,25 +1654,35 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-slate-200">Description</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Description</label>
             <input
               id="bet-description"
               type="text"
               value={localFormData.description}
               onChange={(e) => setLocalFormData({...localFormData, description: e.target.value})}
-              className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full p-2 rounded-lg"
+              style={{ 
+                border: '1px solid #E8DCC8', 
+                background: '#FFFFFF', 
+                color: '#2C3E50'
+              }}
               placeholder="e.g., Chiefs -3 vs Bills"
               autoComplete="off"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-slate-200">Notes (Optional)</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Notes (Optional)</label>
             <textarea
               id="bet-notes"
               value={localFormData.notes}
               onChange={(e) => setLocalFormData({...localFormData, notes: e.target.value})}
-              className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full p-2 rounded-lg"
+              style={{ 
+                border: '1px solid #E8DCC8', 
+                background: '#FFFFFF', 
+                color: '#2C3E50'
+              }}
               placeholder="e.g., Reverse line movement from -7 to -6.5"
               rows="2"
               autoComplete="off"
@@ -1624,33 +1690,53 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-slate-200">System Play Classification</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#2C3E50' }}>System Play Classification</label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setLocalFormData({...localFormData, systemPlay: 'clear'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all ${localFormData.systemPlay === 'clear' ? 'border-purple-500 bg-purple-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                className={`p-2 border-2 rounded-lg text-sm transition-all`}
+                style={{
+                  borderColor: localFormData.systemPlay === 'clear' ? '#9B59B6' : '#E8DCC8',
+                  background: localFormData.systemPlay === 'clear' ? 'rgba(155, 89, 182, 0.15)' : '#FFFFFF',
+                  color: localFormData.systemPlay === 'clear' ? '#9B59B6' : '#5D6D7E'
+                }}
               >
                 Clear System
               </button>
               <button
                 type="button"
                 onClick={() => setLocalFormData({...localFormData, systemPlay: 'kind-of'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all ${localFormData.systemPlay === 'kind-of' ? 'border-blue-500 bg-blue-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                className={`p-2 border-2 rounded-lg text-sm transition-all`}
+                style={{
+                  borderColor: localFormData.systemPlay === 'kind-of' ? '#3498DB' : '#E8DCC8',
+                  background: localFormData.systemPlay === 'kind-of' ? 'rgba(52, 152, 219, 0.15)' : '#FFFFFF',
+                  color: localFormData.systemPlay === 'kind-of' ? '#3498DB' : '#5D6D7E'
+                }}
               >
                 Kind Of
               </button>
               <button
                 type="button"
                 onClick={() => setLocalFormData({...localFormData, systemPlay: 'no-system'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all ${localFormData.systemPlay === 'no-system' ? 'border-slate-500 bg-slate-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                className={`p-2 border-2 rounded-lg text-sm transition-all`}
+                style={{
+                  borderColor: localFormData.systemPlay === 'no-system' ? '#95A5A6' : '#E8DCC8',
+                  background: localFormData.systemPlay === 'no-system' ? 'rgba(149, 165, 166, 0.15)' : '#FFFFFF',
+                  color: localFormData.systemPlay === 'no-system' ? '#95A5A6' : '#5D6D7E'
+                }}
               >
                 No System
               </button>
               <button
                 type="button"
                 onClick={() => setLocalFormData({...localFormData, systemPlay: 'not-system'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all ${localFormData.systemPlay === 'not-system' ? 'border-rose-500 bg-rose-500/30 text-white' : 'border-slate-600 bg-slate-800/30 text-slate-300'}`}
+                className={`p-2 border-2 rounded-lg text-sm transition-all`}
+                style={{
+                  borderColor: localFormData.systemPlay === 'not-system' ? '#E74C3C' : '#E8DCC8',
+                  background: localFormData.systemPlay === 'not-system' ? 'rgba(231, 76, 60, 0.15)' : '#FFFFFF',
+                  color: localFormData.systemPlay === 'not-system' ? '#E74C3C' : '#5D6D7E'
+                }}
               >
                 Anti System
               </button>
@@ -1663,9 +1749,10 @@ function App() {
                 type="checkbox"
                 checked={localFormData.favoriteTeam}
                 onChange={(e) => setLocalFormData({...localFormData, favoriteTeam: e.target.checked})}
-                className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-purple-600 focus:ring-purple-500"
+                className="w-4 h-4 rounded"
+                style={{ accentColor: '#D4A574' }}
               />
-              <span className="text-sm text-slate-200">Favorite Team</span>
+              <span className="text-sm" style={{ color: '#2C3E50' }}>Favorite Team</span>
             </label>
 
             <label className="flex items-center gap-2">
@@ -1673,22 +1760,25 @@ function App() {
                 type="checkbox"
                 checked={localFormData.primeTime}
                 onChange={(e) => setLocalFormData({...localFormData, primeTime: e.target.checked})}
-                className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-purple-600 focus:ring-purple-500"
+                className="w-4 h-4 rounded"
+                style={{ accentColor: '#D4A574' }}
               />
-              <span className="text-sm text-slate-200">Prime Time Game</span>
+              <span className="text-sm" style={{ color: '#2C3E50' }}>Prime Time Game</span>
             </label>
           </div>
 
           <div className="flex gap-2 pt-4">
             <button
               onClick={handleSubmit}
-              className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl font-medium"
+              className="flex-1 py-3 rounded-lg transition-all shadow-xl font-medium"
+              style={{ background: 'linear-gradient(135deg, #D4A574 0%, #E8B887 100%)', color: '#FFFFFF' }}
             >
               {editingBet ? 'Save Changes' : 'Add Bet'}
             </button>
             <button
               onClick={cancelEdit}
-              className="flex-1 bg-slate-700/50 text-slate-200 py-3 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all font-medium"
+              className="flex-1 py-3 rounded-lg transition-all font-medium"
+              style={{ background: '#F5E6D3', color: '#5D6D7E' }}
             >
               Cancel
             </button>
@@ -1701,13 +1791,14 @@ function App() {
 
   // SETTINGS MENU COMPONENT
   const SettingsMenu = () => (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start justify-start z-50" onClick={() => setShowSettingsMenu(false)}>
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 w-80 h-full overflow-y-auto border-r border-white/20 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="sticky top-0 bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-700/50 p-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-white">Settings</h2>
+    <div className="fixed inset-0 flex items-start justify-start z-50" style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowSettingsMenu(false)}>
+      <div className="w-80 h-full overflow-y-auto shadow-2xl" style={{ background: '#FFFFFF', borderRight: '1px solid #E8DCC8' }} onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 p-4 flex justify-between items-center" style={{ background: '#FFFFFF', borderBottom: '1px solid #E8DCC8' }}>
+          <h2 className="text-xl font-bold" style={{ color: '#2C3E50' }}>Settings</h2>
           <button
             onClick={() => setShowSettingsMenu(false)}
-            className="text-slate-400 hover:text-white transition-colors"
+            className="transition-colors"
+            style={{ color: '#95A5A6' }}
           >
             <X />
           </button>
@@ -1716,32 +1807,42 @@ function App() {
         <div className="p-4 space-y-6">
           {/* Unit Value */}
           <div>
-            <label className="block text-sm font-medium mb-2 text-slate-200">Unit Value ($)</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#2C3E50' }}>Unit Value ($)</label>
             <input
               type="number"
               step="1"
               value={unitValue}
               onChange={(e) => setUnitValue(parseFloat(e.target.value) || 50)}
-              className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full p-2 rounded-lg"
+              style={{ 
+                border: '1px solid #E8DCC8', 
+                background: '#FFFFFF', 
+                color: '#2C3E50'
+              }}
             />
-            <p className="text-xs text-slate-400 mt-1">Applies to future bets only</p>
+            <p className="text-xs mt-1" style={{ color: '#95A5A6' }}>Applies to future bets only</p>
           </div>
 
           {/* Monthly Limit */}
           <div>
-            <label className="block text-sm font-medium mb-2 text-slate-200">Monthly Loss Limit ($)</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#2C3E50' }}>Monthly Loss Limit ($)</label>
             <input
               type="number"
               step="100"
               value={monthlyLimit}
               onChange={(e) => setMonthlyLimit(parseFloat(e.target.value) || 1500)}
-              className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full p-2 rounded-lg"
+              style={{ 
+                border: '1px solid #E8DCC8', 
+                background: '#FFFFFF', 
+                color: '#2C3E50'
+              }}
             />
           </div>
 
           {/* Notifications */}
           <div>
-            <h3 className="text-lg font-bold text-white mb-3">Notifications</h3>
+            <h3 className="text-lg font-bold mb-3" style={{ color: '#2C3E50' }}>Notifications</h3>
             
             <div className="space-y-4">
               {/* Big Bet Notification */}
@@ -1829,25 +1930,25 @@ function App() {
 
           {/* Display Mode */}
           <div>
-            <h3 className="text-lg font-bold text-white mb-3">Display</h3>
+            <h3 className="text-lg font-bold mb-3" style={{ color: '#2C3E50' }}>Display</h3>
             <div className="flex gap-2">
               <button
                 onClick={() => setDisplayMode('dollars')}
-                className={`flex-1 p-2 rounded-lg text-sm transition-all ${
-                  displayMode === 'dollars'
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-                }`}
+                className={`flex-1 p-2 rounded-lg text-sm transition-all`}
+                style={{
+                  background: displayMode === 'dollars' ? '#D4A574' : '#F5E6D3',
+                  color: displayMode === 'dollars' ? '#FFFFFF' : '#5D6D7E'
+                }}
               >
                 Dollars ($)
               </button>
               <button
                 onClick={() => setDisplayMode('units')}
-                className={`flex-1 p-2 rounded-lg text-sm transition-all ${
-                  displayMode === 'units'
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-                }`}
+                className={`flex-1 p-2 rounded-lg text-sm transition-all`}
+                style={{
+                  background: displayMode === 'units' ? '#D4A574' : '#F5E6D3',
+                  color: displayMode === 'units' ? '#FFFFFF' : '#5D6D7E'
+                }}
               >
                 Units (u)
               </button>
@@ -1888,39 +1989,46 @@ function App() {
 
       {/* Retirement Modal */}
       {showRetirementModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 max-w-md w-full border border-rose-500/50 shadow-2xl">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}>
+          <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl" style={{ background: '#FFFFFF', border: '2px solid rgba(231, 76, 60, 0.5)' }}>
             <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 text-rose-400">
+              <div className="flex-shrink-0" style={{ color: '#E74C3C' }}>
                 <PowerOff />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white mb-2">Retirement Mode</h3>
-                <p className="text-slate-200">How many days do you need to take a break?</p>
+                <h3 className="text-xl font-bold mb-2" style={{ color: '#2C3E50' }}>Retirement Mode</h3>
+                <p style={{ color: '#5D6D7E' }}>How many days do you need to take a break?</p>
               </div>
             </div>
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2 text-slate-200">Days</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#2C3E50' }}>Days</label>
               <input
                 type="number"
                 min="1"
                 max="30"
                 value={retirementDays}
                 onChange={(e) => setRetirementDays(Math.max(1, Math.min(30, parseInt(e.target.value) || 1)))}
-                className="w-full p-3 border border-slate-600 rounded-lg bg-slate-800/50 text-white text-center text-2xl font-bold backdrop-blur-sm focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                className="w-full p-3 rounded-lg text-center text-2xl font-bold"
+                style={{ 
+                  border: '1px solid #E8DCC8', 
+                  background: '#FFFFFF', 
+                  color: '#2C3E50'
+                }}
               />
-              <p className="text-xs text-slate-400 mt-2 text-center">Once you retire, you cannot add new bets until the period ends.</p>
+              <p className="text-xs mt-2 text-center" style={{ color: '#95A5A6' }}>Once you retire, you cannot add new bets until the period ends.</p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleRetirement}
-                className="flex-1 bg-gradient-to-r from-rose-600 to-red-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-red-700 transition-all font-medium shadow-xl"
+                className="flex-1 py-3 rounded-lg transition-all font-medium shadow-xl"
+                style={{ background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)', color: '#FFFFFF' }}
               >
                 Start Retirement
               </button>
               <button
                 onClick={() => setShowRetirementModal(false)}
-                className="flex-1 bg-slate-700/50 text-slate-200 py-3 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all font-medium"
+                className="flex-1 py-3 rounded-lg transition-all font-medium"
+                style={{ background: '#F5E6D3', color: '#5D6D7E' }}
               >
                 Cancel
               </button>
@@ -1931,15 +2039,15 @@ function App() {
 
       {/* Warning Modal */}
       {warningModal.show && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 max-w-md w-full border border-rose-500/50 shadow-2xl">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}>
+          <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl" style={{ background: '#FFFFFF', border: '2px solid rgba(231, 76, 60, 0.5)' }}>
             <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 text-rose-400">
+              <div className="flex-shrink-0" style={{ color: '#E74C3C' }}>
                 <AlertCircle />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white mb-2">Warning</h3>
-                <p className="text-slate-200">{warningModal.message}</p>
+                <h3 className="text-xl font-bold mb-2" style={{ color: '#2C3E50' }}>Warning</h3>
+                <p style={{ color: '#5D6D7E' }}>{warningModal.message}</p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -1947,13 +2055,15 @@ function App() {
                 onClick={() => {
                   addBet();
                 }}
-                className="flex-1 bg-gradient-to-r from-rose-600 to-orange-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-orange-700 transition-all font-medium shadow-xl"
+                className="flex-1 py-3 rounded-lg transition-all font-medium shadow-xl"
+                style={{ background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)', color: '#FFFFFF' }}
               >
                 {warningModal.buttonYes || 'Yes, proceed anyway'}
               </button>
               <button
                 onClick={() => setWarningModal({ show: false, message: '', type: '' })}
-                className="flex-1 bg-slate-700/50 text-slate-200 py-3 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all font-medium"
+                className="flex-1 py-3 rounded-lg transition-all font-medium"
+                style={{ background: '#F5E6D3', color: '#5D6D7E' }}
               >
                 {warningModal.buttonNo || 'No, let me change it'}
               </button>
@@ -1964,27 +2074,29 @@ function App() {
 
       {/* Delete Confirmation Modal */}
       {deleteModal.show && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 max-w-md w-full border border-rose-500/50 shadow-2xl">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}>
+          <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl" style={{ background: '#FFFFFF', border: '2px solid rgba(231, 76, 60, 0.5)' }}>
             <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 text-rose-400">
+              <div className="flex-shrink-0" style={{ color: '#E74C3C' }}>
                 <AlertCircle />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white mb-2">Delete Bet</h3>
-                <p className="text-slate-200">Are you sure you want to delete this bet? This action cannot be undone.</p>
+                <h3 className="text-xl font-bold mb-2" style={{ color: '#2C3E50' }}>Delete Bet</h3>
+                <p style={{ color: '#5D6D7E' }}>Are you sure you want to delete this bet? This action cannot be undone.</p>
               </div>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={confirmDelete}
-                className="flex-1 bg-gradient-to-r from-rose-600 to-red-600 text-white py-3 rounded-lg hover:from-rose-700 hover:to-red-700 transition-all font-medium shadow-xl"
+                className="flex-1 py-3 rounded-lg transition-all font-medium shadow-xl"
+                style={{ background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)', color: '#FFFFFF' }}
               >
                 Delete
               </button>
               <button
                 onClick={() => setDeleteModal({ show: false, betId: null })}
-                className="flex-1 bg-slate-700/50 text-slate-200 py-3 rounded-lg hover:bg-slate-600/50 backdrop-blur-sm transition-all font-medium"
+                className="flex-1 py-3 rounded-lg transition-all font-medium"
+                style={{ background: '#F5E6D3', color: '#5D6D7E' }}
               >
                 Cancel
               </button>
@@ -1996,7 +2108,7 @@ function App() {
       {/* Toast Notification */}
       {toast.show && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] animate-fadeIn">
-          <div className="bg-gradient-to-r from-rose-600 to-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-rose-500/50 flex items-center gap-3 max-w-md">
+          <div className="px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 max-w-md" style={{ background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)', color: '#FFFFFF', border: '1px solid rgba(231, 76, 60, 0.5)' }}>
             <AlertCircle />
             <p className="font-medium">{toast.message}</p>
           </div>
@@ -2005,12 +2117,12 @@ function App() {
 
       {/* Retired Overlay */}
       {isRetired && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-40 pointer-events-none">
+        <div className="fixed inset-0 flex items-center justify-center z-40 pointer-events-none" style={{ background: 'rgba(255, 248, 240, 0.7)', backdropFilter: 'blur(4px)' }}>
           <div className="text-center">
-            <div className="text-8xl md:text-9xl font-black text-rose-500 mb-4 opacity-90 drop-shadow-2xl">
+            <div className="text-8xl md:text-9xl font-black mb-4 opacity-90 drop-shadow-2xl" style={{ color: '#E74C3C' }}>
               RETIRED
             </div>
-            <div className="text-2xl md:text-3xl text-white font-semibold opacity-90">
+            <div className="text-2xl md:text-3xl font-semibold opacity-90" style={{ color: '#2C3E50' }}>
               {daysUntilRetirementEnds} {daysUntilRetirementEnds === 1 ? 'day' : 'days'} remaining
             </div>
           </div>
@@ -2029,16 +2141,18 @@ function App() {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setShowSettingsMenu(true)}
-            className="p-2 text-white hover:bg-white/10 rounded-lg transition-all"
+            className="p-2 rounded-lg transition-all"
+            style={{ color: '#2C3E50' }}
           >
             <Menu />
           </button>
           
-          <h1 className="text-2xl md:text-3xl font-bold text-white">Betting Tracker</h1>
+          <h1 className="text-2xl md:text-3xl font-bold" style={{ color: '#2C3E50' }}>Betting Tracker</h1>
           
           <button
             onClick={toggleDisplayMode}
-            className="px-3 py-2 bg-emerald-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-emerald-700/80 transition-all shadow-xl font-medium"
+            className="px-3 py-2 rounded-lg transition-all shadow-xl font-medium"
+            style={{ background: '#D4A574', color: '#FFFFFF' }}
           >
             {displayMode === 'dollars' ? '$' : 'U'}
           </button>
@@ -2049,16 +2163,13 @@ function App() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 shadow-2xl">
+      <div className="fixed bottom-0 left-0 right-0 shadow-2xl" style={{ background: '#FFFFFF', borderTop: '1px solid #E8DCC8' }}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-around py-3">
             <button
               onClick={() => setCurrentPage('home')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
-                currentPage === 'home' 
-                  ? 'text-emerald-400' 
-                  : 'text-slate-400 hover:text-white'
-              }`}
+              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all`}
+              style={{ color: currentPage === 'home' ? '#D4A574' : '#95A5A6' }}
             >
               <Home />
               <span className="text-xs font-medium">Home</span>
@@ -2068,12 +2179,13 @@ function App() {
               onClick={() => !isRetired && setShowAddBetModal(true)}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
                 isRetired 
-                  ? 'text-slate-600 cursor-not-allowed' 
-                  : 'text-slate-400 hover:text-white'
+                  ? 'cursor-not-allowed' 
+                  : ''
               }`}
+              style={{ color: isRetired ? '#BDC3C7' : '#95A5A6' }}
               disabled={isRetired}
             >
-              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-2 rounded-full shadow-xl">
+              <div className="p-2 rounded-full shadow-xl" style={{ background: isRetired ? '#BDC3C7' : 'linear-gradient(135deg, #D4A574 0%, #E8B887 100%)' }}>
                 <PlusCircle />
               </div>
               <span className="text-xs font-medium">Add Bet</span>
@@ -2081,11 +2193,8 @@ function App() {
 
             <button
               onClick={() => setCurrentPage('history')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
-                currentPage === 'history' 
-                  ? 'text-emerald-400' 
-                  : 'text-slate-400 hover:text-white'
-              }`}
+              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all`}
+              style={{ color: currentPage === 'history' ? '#D4A574' : '#95A5A6' }}
             >
               <Clock />
               <span className="text-xs font-medium">History</span>
@@ -2093,11 +2202,8 @@ function App() {
 
             <button
               onClick={() => setCurrentPage('more')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
-                currentPage === 'more' 
-                  ? 'text-emerald-400' 
-                  : 'text-slate-400 hover:text-white'
-              }`}
+              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all`}
+              style={{ color: currentPage === 'more' ? '#D4A574' : '#95A5A6' }}
             >
               <MoreHorizontal />
               <span className="text-xs font-medium">More</span>
