@@ -1192,11 +1192,11 @@ function App() {
               <button
                 key={type}
                 onClick={() => setHistoryFilter({...historyFilter, betType: type})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                  historyFilter.betType === type 
-                    ? 'bg-emerald-600 text-white' 
-                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-                }`}
+                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                style={{
+                  background: historyFilter.betType === type ? '#D4A574' : '#F5E6D3',
+                  color: historyFilter.betType === type ? '#FFFFFF' : '#2C3E50'
+                }}
               >
                 {formatBetType(type)}
               </button>
@@ -1206,11 +1206,11 @@ function App() {
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setHistoryFilter({...historyFilter, result: 'all'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                historyFilter.result === 'all' 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-              }`}
+              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+              style={{
+                background: historyFilter.result === 'all' ? '#D4A574' : '#F5E6D3',
+                color: historyFilter.result === 'all' ? '#FFFFFF' : '#2C3E50'
+              }}
             >
               All Results
             </button>
@@ -1218,11 +1218,11 @@ function App() {
               <button
                 key={result}
                 onClick={() => setHistoryFilter({...historyFilter, result})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                  historyFilter.result === result 
-                    ? 'bg-emerald-600 text-white' 
-                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-                }`}
+                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                style={{
+                  background: historyFilter.result === result ? '#D4A574' : '#F5E6D3',
+                  color: historyFilter.result === result ? '#FFFFFF' : '#2C3E50'
+                }}
               >
                 {result.charAt(0).toUpperCase() + result.slice(1)}
               </button>
@@ -1232,31 +1232,31 @@ function App() {
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'all'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                historyFilter.favoriteUnderdog === 'all' 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-              }`}
+              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+              style={{
+                background: historyFilter.favoriteUnderdog === 'all' ? '#D4A574' : '#F5E6D3',
+                color: historyFilter.favoriteUnderdog === 'all' ? '#FFFFFF' : '#2C3E50'
+              }}
             >
               Fav/Dog
             </button>
             <button
               onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'favorite'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                historyFilter.favoriteUnderdog === 'favorite' 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-              }`}
+              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+              style={{
+                background: historyFilter.favoriteUnderdog === 'favorite' ? '#D4A574' : '#F5E6D3',
+                color: historyFilter.favoriteUnderdog === 'favorite' ? '#FFFFFF' : '#2C3E50'
+              }}
             >
               Favorites
             </button>
             <button
               onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'underdog'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                historyFilter.favoriteUnderdog === 'underdog' 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-              }`}
+              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+              style={{
+                background: historyFilter.favoriteUnderdog === 'underdog' ? '#D4A574' : '#F5E6D3',
+                color: historyFilter.favoriteUnderdog === 'underdog' ? '#FFFFFF' : '#2C3E50'
+              }}
             >
               Underdogs
             </button>
@@ -1265,31 +1265,31 @@ function App() {
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setHistoryFilter({...historyFilter, overUnder: 'all'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                historyFilter.overUnder === 'all' 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-              }`}
+              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+              style={{
+                background: historyFilter.overUnder === 'all' ? '#D4A574' : '#F5E6D3',
+                color: historyFilter.overUnder === 'all' ? '#FFFFFF' : '#2C3E50'
+              }}
             >
               O/U
             </button>
             <button
               onClick={() => setHistoryFilter({...historyFilter, overUnder: 'over'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                historyFilter.overUnder === 'over' 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-              }`}
+              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+              style={{
+                background: historyFilter.overUnder === 'over' ? '#D4A574' : '#F5E6D3',
+                color: historyFilter.overUnder === 'over' ? '#FFFFFF' : '#2C3E50'
+              }}
             >
               Overs
             </button>
             <button
               onClick={() => setHistoryFilter({...historyFilter, overUnder: 'under'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                historyFilter.overUnder === 'under' 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-              }`}
+              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+              style={{
+                background: historyFilter.overUnder === 'under' ? '#D4A574' : '#F5E6D3',
+                color: historyFilter.overUnder === 'under' ? '#FFFFFF' : '#2C3E50'
+              }}
             >
               Unders
             </button>
