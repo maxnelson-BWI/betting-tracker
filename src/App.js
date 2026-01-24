@@ -115,6 +115,45 @@ const Filter = () => (
   </svg>
 );
 
+const ChevronDown = ({ isOpen }) => (
+  <svg 
+    width="20" 
+    height="20" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2"
+    style={{ 
+      transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+      transition: 'transform 0.2s ease'
+    }}
+  >
+    <polyline points="6 9 12 15 18 9"></polyline>
+  </svg>
+);
+
+// The Cindy Logo Component
+const CindyLogo = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+    <div style={{ 
+      fontFamily: "'Brush Script MT', cursive",
+      fontSize: '32px',
+      fontWeight: '400',
+      color: '#2C3E50',
+      lineHeight: '1',
+      fontStyle: 'italic'
+    }}>
+      The Cindy
+    </div>
+    <div style={{
+      width: '100%',
+      height: '3px',
+      background: 'linear-gradient(90deg, #D4A574 0%, #E8B887 50%, #D4A574 100%)',
+      borderRadius: '2px'
+    }} />
+  </div>
+);
+
 // SVG Horse Animations
 const GallopingHorse = () => (
   <svg width="200" height="200" viewBox="0 0 200 200" className="custom-bounce">
@@ -234,6 +273,20 @@ function App() {
   });
   const [showAllBets, setShowAllBets] = useState(false);
 
+  // Collapsible sections state
+  const [collapsedSections, setCollapsedSections] = useState({
+    system: false,
+    breakdown: false,
+    teamTime: false
+  });
+
+  const toggleSection = (section) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   // Animation state
   const [animation, setAnimation] = useState({ show: false, type: '', content: null, isStreak: false, streakText: '' });
   const [winStreak, setWinStreak] = useState(0);
@@ -335,17 +388,17 @@ function App() {
     return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
-  const getSportEmoji = (sport) => {
-    const emojis = {
-      'nfl': '🏈',
-      'nba': '🏀',
-      'mlb': '⚾',
-      'nhl': '🏒',
-      'ncaaf': '🏈',
-      'ncaab': '🏀',
-      'other': '🎯'
+  const getSportLabel = (sport) => {
+    const labels = {
+      'nfl': 'NFL',
+      'nba': 'NBA',
+      'mlb': 'MLB',
+      'nhl': 'NHL',
+      'ncaaf': 'NCAAF',
+      'ncaab': 'NCAAB',
+      'other': 'OTHER'
     };
-    return emojis[sport?.toLowerCase()] || '🎯';
+    return labels[sport?.toLowerCase()] || 'OTHER';
   };
 
   const calculateRiskAndWin = (units, odds) => {
@@ -930,11 +983,19 @@ function App() {
         </div>
 
         <div className="p-4 rounded-2xl mb-6 shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(39, 174, 96, 0.15) 0%, rgba(34, 153, 84, 0.15) 100%)', border: '1px solid rgba(39, 174, 96, 0.3)' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <TrendingUp />
-            <h3 className="font-bold text-base md:text-lg" style={{ color: '#2C3E50' }}>THE SYSTEM (Fade the Public)</h3>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+          <button 
+            onClick={() => toggleSection('system')}
+            className="w-full flex items-center justify-between mb-3"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            <div className="flex items-center gap-2">
+              <TrendingUp />
+              <h3 className="font-bold text-base md:text-lg" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>THE SYSTEM (Fade the Public)</h3>
+            </div>
+            <ChevronDown isOpen={!collapsedSections.system} />
+          </button>
+          {!collapsedSections.system && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
             <div>
               <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>All System</div>
               <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.systemDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
@@ -964,65 +1025,90 @@ function App() {
               <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.notSystemRecord}</div>
             </div>
           </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="p-4 rounded-2xl shadow-xl" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-            <h3 className="font-semibold mb-2 text-sm md:text-base" style={{ color: '#2C3E50' }}>By Bet Type</h3>
-            {Object.keys(stats.byType).length === 0 ? (
-              <p className="text-sm" style={{ color: '#95A5A6' }}>No settled bets</p>
-            ) : (
-              Object.entries(stats.byType).map(([type, dollars]) => (
-                <div key={type} className="flex justify-between text-sm py-1">
-                  <span style={{ color: '#5D6D7E' }}>{formatBetType(type)}</span>
-                  <span style={{ color: dollars >= 0 ? '#27AE60' : '#E74C3C' }}>
-                    {formatMoney(dollars)}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
+        <div className="rounded-2xl mb-6 p-4 shadow-xl" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
+          <button 
+            onClick={() => toggleSection('breakdown')}
+            className="w-full flex items-center justify-between mb-4"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            <h3 className="font-bold text-base md:text-lg" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Performance Breakdown</h3>
+            <ChevronDown isOpen={!collapsedSections.breakdown} />
+          </button>
+          {!collapsedSections.breakdown && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl shadow-xl" style={{ background: '#F5E6D3', border: '1px solid #E8DCC8' }}>
+                <h3 className="font-semibold mb-2 text-sm md:text-base" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>By Bet Type</h3>
+                {Object.keys(stats.byType).length === 0 ? (
+                  <p className="text-sm" style={{ color: '#95A5A6' }}>No settled bets</p>
+                ) : (
+                  Object.entries(stats.byType).map(([type, dollars]) => (
+                    <div key={type} className="flex justify-between text-sm py-1">
+                      <span style={{ color: '#5D6D7E' }}>{formatBetType(type)}</span>
+                      <span style={{ color: dollars >= 0 ? '#27AE60' : '#E74C3C' }}>
+                        {formatMoney(dollars)}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
 
-          <div className="p-4 rounded-2xl shadow-xl" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-            <h3 className="font-semibold mb-2 text-sm md:text-base" style={{ color: '#2C3E50' }}>By Sport</h3>
-            {Object.keys(stats.bySport).length === 0 ? (
-              <p className="text-sm" style={{ color: '#95A5A6' }}>No settled bets</p>
-            ) : (
-              Object.entries(stats.bySport).map(([sport, dollars]) => (
-                <div key={sport} className="flex justify-between text-sm py-1">
-                  <span style={{ color: '#5D6D7E' }}>{sport.toUpperCase()}</span>
-                  <span style={{ color: dollars >= 0 ? '#27AE60' : '#E74C3C' }}>
-                    {formatMoney(dollars)}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
+              <div className="p-4 rounded-2xl shadow-xl" style={{ background: '#F5E6D3', border: '1px solid #E8DCC8' }}>
+                <h3 className="font-semibold mb-2 text-sm md:text-base" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>By Sport</h3>
+                {Object.keys(stats.bySport).length === 0 ? (
+                  <p className="text-sm" style={{ color: '#95A5A6' }}>No settled bets</p>
+                ) : (
+                  Object.entries(stats.bySport).map(([sport, dollars]) => (
+                    <div key={sport} className="flex justify-between text-sm py-1">
+                      <span style={{ color: '#5D6D7E' }}>{sport.toUpperCase()}</span>
+                      <span style={{ color: dollars >= 0 ? '#27AE60' : '#E74C3C' }}>
+                        {formatMoney(dollars)}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="p-3 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(230, 126, 34, 0.15) 0%, rgba(211, 84, 0, 0.15) 100%)', border: '1px solid rgba(230, 126, 34, 0.3)' }}>
-            <div className="text-xs md:text-sm" style={{ color: '#2C3E50' }}>Favorite Team</div>
-            <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.favoriteTeamDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
-              {formatMoney(parseFloat(stats.favoriteTeamDollars))}
+        <div className="rounded-2xl mb-6 p-4 shadow-xl" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
+          <button 
+            onClick={() => toggleSection('teamTime')}
+            className="w-full flex items-center justify-between mb-4"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            <h3 className="font-bold text-base md:text-lg" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Favorite Team & Prime Time</h3>
+            <ChevronDown isOpen={!collapsedSections.teamTime} />
+          </button>
+          {!collapsedSections.teamTime && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(230, 126, 34, 0.15) 0%, rgba(211, 84, 0, 0.15) 100%)', border: '1px solid rgba(230, 126, 34, 0.3)' }}>
+                <div className="text-xs md:text-sm" style={{ color: '#2C3E50' }}>Favorite Team</div>
+                <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.favoriteTeamDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
+                  {formatMoney(parseFloat(stats.favoriteTeamDollars))}
+                </div>
+                <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.favoriteTeamRecord}</div>
+              </div>
+              
+              <div className="p-3 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(93, 173, 226, 0.15) 0%, rgba(52, 152, 219, 0.15) 100%)', border: '1px solid rgba(93, 173, 226, 0.3)' }}>
+                <div className="text-xs md:text-sm" style={{ color: '#2C3E50' }}>Prime Time</div>
+                <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.primeTimeDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
+                  {formatMoney(parseFloat(stats.primeTimeDollars))}
+                </div>
+                <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.primeTimeRecord}</div>
+              </div>
             </div>
-            <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.favoriteTeamRecord}</div>
-          </div>
-          
-          <div className="p-3 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(93, 173, 226, 0.15) 0%, rgba(52, 152, 219, 0.15) 100%)', border: '1px solid rgba(93, 173, 226, 0.3)' }}>
-            <div className="text-xs md:text-sm" style={{ color: '#2C3E50' }}>Prime Time</div>
-            <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.primeTimeDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
-              {formatMoney(parseFloat(stats.primeTimeDollars))}
-            </div>
-            <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.primeTimeRecord}</div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* Pending Bets Section */}
       {pendingBets.length > 0 && (
         <div className="rounded-2xl shadow-2xl p-4 md:p-6 mb-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-          <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50' }}>Pending Bets ({pendingBets.length})</h2>
+          <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Pending Bets ({pendingBets.length})</h2>
           <div className="space-y-3">
             {pendingBets.map(bet => (
               <BetCard key={bet.id} bet={bet} />
@@ -1034,7 +1120,7 @@ function App() {
       {/* Recent Bets Section */}
       <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold" style={{ color: '#2C3E50' }}>Recent Bets</h2>
+          <h2 className="text-xl font-bold" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Recent Bets</h2>
           <button
             onClick={() => setCurrentPage('history')}
             className="text-sm transition-colors"
@@ -1060,7 +1146,7 @@ function App() {
   const HistoryPage = () => (
     <div className="pb-20 animate-fadeIn">
       <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50' }}>Bet History</h2>
+        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
         
         {/* Filter Pills */}
         <div className="mb-4 space-y-3">
@@ -1288,7 +1374,7 @@ function App() {
   const MorePage = () => (
     <div className="pb-20 animate-fadeIn">
       <div className="rounded-2xl shadow-2xl p-4 md:p-6 mb-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50' }}>Resources</h2>
+        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Resources</h2>
         <div className="grid grid-cols-1 gap-3">
           {resources.map((resource, idx) => (
             <a
@@ -1308,7 +1394,7 @@ function App() {
       </div>
 
       <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50' }}>Actions</h2>
+        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Actions</h2>
         <div className="space-y-3">
           <button
             onClick={exportToCSV}
@@ -1338,8 +1424,16 @@ function App() {
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="text-2xl">{getSportEmoji(bet.sport)}</span>
-            <span className="font-semibold" style={{ color: '#2C3E50' }}>{bet.description}</span>
+            <span className="text-xs font-bold px-3 py-1 rounded-lg" style={{ 
+              background: '#D4A574', 
+              color: '#FFFFFF',
+              fontFamily: "'Outfit', sans-serif",
+              letterSpacing: '0.5px',
+              boxShadow: '0 2px 4px rgba(212, 165, 116, 0.3)'
+            }}>
+              {getSportLabel(bet.sport)}
+            </span>
+            <span className="font-semibold" style={{ color: '#2C3E50', fontFamily: "'Inter', sans-serif" }}>{bet.description}</span>
             {bet.favoriteTeam && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(230, 126, 34, 0.15)', color: '#E67E22', border: '1px solid rgba(230, 126, 34, 0.3)' }}>Fav Team</span>}
             {bet.primeTime && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(93, 173, 226, 0.15)', color: '#5DADE2', border: '1px solid rgba(93, 173, 226, 0.3)' }}>Prime Time</span>}
             {bet.systemPlay !== 'none' && (
@@ -1348,14 +1442,14 @@ function App() {
               </span>
             )}
           </div>
-          <div className="text-sm" style={{ color: '#5D6D7E' }}>
+          <div className="text-sm" style={{ color: '#5D6D7E', fontFamily: "'Inter', sans-serif" }}>
             {bet.date} • {bet.sport.toUpperCase()} • {formatBetType(bet.betType)} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
           </div>
-          <div className="text-xs mt-1" style={{ color: '#95A5A6' }}>
+          <div className="text-xs mt-1" style={{ color: '#95A5A6', fontFamily: "'Inter', sans-serif", fontFeatureSettings: "'tnum' 1" }}>
             Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
           </div>
           {bet.notes && (
-            <div className="text-xs mt-1 italic" style={{ color: '#95A5A6' }}>
+            <div className="text-xs mt-1 italic" style={{ color: '#95A5A6', fontFamily: "'Inter', sans-serif" }}>
               Note: {bet.notes}
             </div>
           )}
@@ -1389,7 +1483,11 @@ function App() {
               </button>
             </div>
           ) : (
-            <div className="font-semibold" style={{ color: bet.payout > 0 ? '#27AE60' : bet.payout < 0 ? '#E74C3C' : '#95A5A6' }}>
+            <div className="font-semibold" style={{ 
+              color: bet.payout > 0 ? '#27AE60' : bet.payout < 0 ? '#E74C3C' : '#95A5A6',
+              fontFamily: "'Inter', sans-serif",
+              fontFeatureSettings: "'tnum' 1"
+            }}>
               {formatMoney(bet.payout)}
             </div>
           )}
@@ -2147,12 +2245,12 @@ function App() {
             <Menu />
           </button>
           
-          <h1 className="text-2xl md:text-3xl font-bold" style={{ color: '#2C3E50' }}>Betting Tracker</h1>
+          <CindyLogo />
           
           <button
             onClick={toggleDisplayMode}
             className="px-3 py-2 rounded-lg transition-all shadow-xl font-medium"
-            style={{ background: '#D4A574', color: '#FFFFFF' }}
+            style={{ background: '#D4A574', color: '#FFFFFF', fontFamily: "'Inter', sans-serif" }}
           >
             {displayMode === 'dollars' ? '$' : 'U'}
           </button>
