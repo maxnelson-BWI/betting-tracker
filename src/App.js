@@ -132,23 +132,26 @@ const ChevronDown = ({ isOpen }) => (
   </svg>
 );
 
-// The Cindy Logo Component
+// ============================================
+// LOGO COMPONENT
+// ============================================
 const CindyLogo = () => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-    <div style={{ 
-      fontFamily: "'Brush Script MT', cursive",
-      fontSize: '32px',
-      fontWeight: '400',
+  <div style={{ lineHeight: 1 }}>
+    <div style={{
+      fontFamily: 'Georgia, "Times New Roman", serif',
+      fontSize: '26px',
+      fontWeight: '700',
+      fontStyle: 'italic',
       color: '#2C3E50',
-      lineHeight: '1',
-      fontStyle: 'italic'
+      letterSpacing: '0.5px'
     }}>
       The Cindy
     </div>
     <div style={{
-      width: '100%',
       height: '3px',
-      background: 'linear-gradient(90deg, #D4A574 0%, #E8B887 50%, #D4A574 100%)',
+      background: 'linear-gradient(90deg, #D4A574 0%, #E8B887 70%, transparent 100%)',
+      marginTop: '2px',
+      width: '100%',
       borderRadius: '2px'
     }} />
   </div>
@@ -210,6 +213,38 @@ const VaultLock = () => (
     <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔓</text>
   </svg>
 );
+
+// ============================================
+// COLOR SYSTEM & TYPOGRAPHY
+// ============================================
+const colors = {
+  bgPrimary: '#FFF8F0',
+  bgSecondary: '#F5E6D3',
+  bgElevated: '#FFFFFF',
+  accentPrimary: '#D4A574',
+  accentWin: '#7C9885',
+  accentLoss: '#B85C50',
+  accentSystem: '#8B7B9B',
+  accentFavoriteTeam: '#E8926F',
+  accentPrimeTime: '#6B8CAE',
+  textPrimary: '#2C3E50',
+  textSecondary: '#6B7280',
+  textTertiary: '#9CA3AF',
+  border: '#E5D5C3',
+  shadow: 'rgba(212, 165, 116, 0.15)'
+};
+
+const headerStyle = {
+  fontFamily: 'Outfit, sans-serif',
+  fontWeight: '700',
+  letterSpacing: '-0.02em'
+};
+
+const numberStyle = {
+  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
+  fontVariantNumeric: 'tabular-nums',
+  fontFeatureSettings: '"tnum"'
+};
 
 function App() {
   const [bets, setBets] = useState([]);
@@ -273,19 +308,10 @@ function App() {
   });
   const [showAllBets, setShowAllBets] = useState(false);
 
-  // Collapsible sections state
-  const [collapsedSections, setCollapsedSections] = useState({
-    system: false,
-    breakdown: false,
-    teamTime: false
-  });
-
-  const toggleSection = (section) => {
-    setCollapsedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
+  // Collapsible sections state - UPDATED
+  const [systemExpanded, setSystemExpanded] = useState(false);
+  const [breakdownExpanded, setBreakdownExpanded] = useState(false);
+  const [teamTimeExpanded, setTeamTimeExpanded] = useState(false);
 
   // Animation state
   const [animation, setAnimation] = useState({ show: false, type: '', content: null, isStreak: false, streakText: '' });
@@ -753,6 +779,15 @@ function App() {
     });
     const monthlyLoss = monthBets.reduce((sum, bet) => sum + bet.payout, 0);
 
+    // Last month calculation - ADDED
+    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    const lastMonthBets = settledBets.filter(bet => {
+      const betDate = new Date(bet.date);
+      return betDate.getMonth() === lastMonth && betDate.getFullYear() === lastMonthYear;
+    });
+    const lastMonthPL = lastMonthBets.reduce((sum, bet) => sum + bet.payout, 0);
+
     const byType = {};
     const bySport = {};
     settledBets.forEach(bet => {
@@ -768,13 +803,25 @@ function App() {
     const kindOfSystemBets = settledBets.filter(b => b.systemPlay === 'kind-of');
     const notSystemBets = settledBets.filter(b => b.systemPlay === 'not-system');
 
+    // Calculate win streak - ADDED
+    let currentStreak = 0;
+    for (const bet of settledBets) {
+      if (bet.result === 'win') {
+        currentStreak++;
+      } else if (bet.result === 'loss') {
+        break;
+      }
+    }
+
     return {
       totalDollars: totalDollars.toFixed(2),
       monthlyLoss: monthlyLoss.toFixed(2),
+      lastMonthPL: lastMonthPL.toFixed(2), // ADDED
       totalBets: settledBets.length,
       wins: settledBets.filter(b => b.result === 'win').length,
       losses: settledBets.filter(b => b.result === 'loss').length,
       winRate: settledBets.length ? ((settledBets.filter(b => b.result === 'win').length / settledBets.length) * 100).toFixed(1) : 0,
+      winStreak: currentStreak, // ADDED
       byType,
       bySport,
       favoriteTeamDollars: favoriteTeamBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
@@ -913,8 +960,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FFF8F0' }}>
-        <div className="text-xl" style={{ color: '#5D6D7E' }}>Loading your bets...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: colors.bgPrimary }}>
+        <div className="text-xl" style={{ color: colors.textSecondary }}>Loading your bets...</div>
       </div>
     );
   }
@@ -924,6 +971,8 @@ function App() {
     switch (currentPage) {
       case 'home':
         return <HomePage />;
+      case 'stats':
+        return <StatsPage />;
       case 'history':
         return <HistoryPage />;
       case 'more':
@@ -933,205 +982,296 @@ function App() {
     }
   };
 
-  // HOME PAGE COMPONENT
+  // ============================================
+  // HOME PAGE COMPONENT - MATCHES MOCKUP EXACTLY
+  // ============================================
   const HomePage = () => (
-    <div className="pb-20 animate-fadeIn">
-      <div className="rounded-2xl shadow-2xl p-4 md:p-6 mb-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-        {(stats.monthlyLossWarning || stats.totalLossWarning) && (
-          <div className="mb-4 p-4 rounded-2xl flex items-start gap-3" style={{ background: 'rgba(231, 76, 60, 0.1)', border: '1px solid rgba(231, 76, 60, 0.3)' }}>
-            <div className="flex-shrink-0 mt-0.5" style={{ color: '#E74C3C' }}>
-              <AlertCircle />
-            </div>
-            <div>
-              {stats.monthlyLossWarning && (
-                <p className="font-medium text-sm md:text-base" style={{ color: '#E74C3C' }}>⚠️ Monthly loss limit: {formatMoneyNoSign(stats.monthlyLoss)} / ${monthlyLimit}</p>
-              )}
-              {stats.totalLossWarning && (
-                <p className="font-medium text-sm md:text-base" style={{ color: '#E74C3C' }}>⚠️ Total loss threshold: {formatMoneyNoSign(stats.totalDollars)} / $5,000</p>
-              )}
-            </div>
-          </div>
-        )}
+    <div style={{ paddingBottom: '100px' }}>
+      {/* HERO SECTION - Big P/L Number with Add Bet Button */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '24px',
+        padding: '32px 24px',
+        marginBottom: '24px',
+        boxShadow: `0 4px 12px ${colors.shadow}`,
+        textAlign: 'center',
+        border: `1px solid ${colors.border}`
+      }}>
+        <div style={{
+          fontSize: '12px',
+          color: colors.textSecondary,
+          marginBottom: '8px',
+          fontWeight: '800',
+          letterSpacing: '1.5px',
+          textTransform: 'uppercase',
+          ...headerStyle
+        }}>
+          Total Profit/Loss
+        </div>
+        <div style={{
+          fontSize: '48px',
+          fontWeight: '800',
+          color: parseFloat(stats.totalDollars) >= 0 ? colors.accentWin : colors.accentLoss,
+          marginBottom: '8px',
+          letterSpacing: '-2px',
+          ...numberStyle
+        }}>
+          {formatMoney(parseFloat(stats.totalDollars))}
+        </div>
+        <div style={{
+          fontSize: '13px',
+          color: colors.textTertiary,
+          marginBottom: '24px',
+          fontWeight: '500'
+        }}>
+          {parseFloat(stats.monthlyLoss) >= parseFloat(stats.lastMonthPL) ? '↑' : '↓'} ${Math.abs(parseFloat(stats.monthlyLoss) - parseFloat(stats.lastMonthPL)).toFixed(2)} vs. last month
+        </div>
+        
+        {/* Add Bet Button */}
+        <button
+          onClick={() => !isRetired && setShowAddBetModal(true)}
+          disabled={isRetired}
+          style={{
+            width: '100%',
+            padding: '16px',
+            background: isRetired
+              ? colors.textTertiary
+              : `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
+            color: colors.textPrimary,
+            border: 'none',
+            borderRadius: '16px',
+            fontSize: '16px',
+            fontWeight: '600',
+            cursor: isRetired ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            boxShadow: `0 4px 12px ${colors.shadow}`
+          }}
+        >
+          <PlusCircle />
+          Add New Bet
+        </button>
+      </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-          <div className="p-4 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(52, 152, 219, 0.15) 0%, rgba(41, 128, 185, 0.15) 100%)', border: '1px solid rgba(52, 152, 219, 0.3)' }}>
-            <div className="text-xs md:text-sm mb-1" style={{ color: '#2C3E50' }}>Total P/L</div>
-            <div className={`text-xl md:text-2xl font-bold ${parseFloat(stats.totalDollars) >= 0 ? '' : ''}`} style={{ color: parseFloat(stats.totalDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
-              {formatMoney(parseFloat(stats.totalDollars))}
-            </div>
-          </div>
-          <div className="p-4 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(39, 174, 96, 0.15) 0%, rgba(22, 160, 133, 0.15) 100%)', border: '1px solid rgba(39, 174, 96, 0.3)' }}>
-            <div className="text-xs md:text-sm flex items-center gap-1 mb-1" style={{ color: '#2C3E50' }}>
-              This Month
-              {stats.monthlyLossWarning && <span style={{ color: '#E74C3C' }}>⚠️</span>}
-            </div>
-            <div className={`text-xl md:text-2xl font-bold`} style={{ color: parseFloat(stats.monthlyLoss) >= 0 ? '#27AE60' : '#E74C3C' }}>
-              {formatMoney(parseFloat(stats.monthlyLoss))}
-            </div>
-          </div>
-
-          <div className="p-4 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(39, 174, 96, 0.15) 0%, rgba(22, 160, 133, 0.15) 100%)', border: '1px solid rgba(39, 174, 96, 0.3)' }}>
-            <div className="text-xs md:text-sm mb-1" style={{ color: '#2C3E50' }}>Win Rate</div>
-            <div className="text-xl md:text-2xl font-bold" style={{ color: '#2C3E50' }}>{stats.winRate}%</div>
-            <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>{stats.wins}W-{stats.losses}L</div>
-          </div>
-
-          <div className="p-4 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(243, 156, 18, 0.15) 0%, rgba(230, 126, 34, 0.15) 100%)', border: '1px solid rgba(243, 156, 18, 0.3)' }}>
-            <div className="text-xs md:text-sm mb-1" style={{ color: '#2C3E50' }}>Total Bets</div>
-            <div className="text-xl md:text-2xl font-bold" style={{ color: '#2C3E50' }}>{stats.totalBets}</div>
+      {/* KEY METRICS - 3 Cards in a Row */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '12px',
+        marginBottom: '24px'
+      }}>
+        <div style={{
+          background: colors.bgElevated,
+          padding: '20px 16px',
+          borderRadius: '20px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>This Month</div>
+          <div style={{
+            fontSize: '20px',
+            fontWeight: '800',
+            color: parseFloat(stats.monthlyLoss) >= 0 ? colors.accentWin : colors.accentLoss,
+            ...numberStyle
+          }}>
+            {formatMoney(parseFloat(stats.monthlyLoss))}
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl mb-6 shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(39, 174, 96, 0.15) 0%, rgba(34, 153, 84, 0.15) 100%)', border: '1px solid rgba(39, 174, 96, 0.3)' }}>
-          <button 
-            onClick={() => toggleSection('system')}
-            className="w-full flex items-center justify-between mb-3"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-          >
-            <div className="flex items-center gap-2">
-              <TrendingUp />
-              <h3 className="font-bold text-base md:text-lg" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>THE SYSTEM (Fade the Public)</h3>
-            </div>
-            <ChevronDown isOpen={!collapsedSections.system} />
-          </button>
-          {!collapsedSections.system && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-            <div>
-              <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>All System</div>
-              <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.systemDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
-                {formatMoney(parseFloat(stats.systemDollars))}
-              </div>
-              <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.systemWinRate}%</div>
-            </div>
-            <div>
-              <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>Clear</div>
-              <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.clearSystemDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
-                {formatMoney(parseFloat(stats.clearSystemDollars))}
-              </div>
-              <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.clearSystemRecord}</div>
-            </div>
-            <div>
-              <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>Kind Of</div>
-              <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.kindOfSystemDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
-                {formatMoney(parseFloat(stats.kindOfSystemDollars))}
-              </div>
-              <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.kindOfSystemRecord}</div>
-            </div>
-            <div>
-              <div className="text-xs md:text-sm" style={{ color: '#5D6D7E' }}>Anti System</div>
-              <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.notSystemDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
-                {formatMoney(parseFloat(stats.notSystemDollars))}
-              </div>
-              <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.notSystemRecord}</div>
-            </div>
+        <div style={{
+          background: colors.bgElevated,
+          padding: '20px 16px',
+          borderRadius: '20px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Win Rate</div>
+          <div style={{ fontSize: '20px', fontWeight: '800', color: colors.textPrimary, ...numberStyle }}>
+            {stats.winRate}%
           </div>
-          )}
+          <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px', ...numberStyle }}>
+            {stats.wins}W-{stats.losses}L
+          </div>
         </div>
 
-        <div className="rounded-2xl mb-6 p-4 shadow-xl" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-          <button 
-            onClick={() => toggleSection('breakdown')}
-            className="w-full flex items-center justify-between mb-4"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-          >
-            <h3 className="font-bold text-base md:text-lg" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Performance Breakdown</h3>
-            <ChevronDown isOpen={!collapsedSections.breakdown} />
-          </button>
-          {!collapsedSections.breakdown && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-2xl shadow-xl" style={{ background: '#F5E6D3', border: '1px solid #E8DCC8' }}>
-                <h3 className="font-semibold mb-2 text-sm md:text-base" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>By Bet Type</h3>
-                {Object.keys(stats.byType).length === 0 ? (
-                  <p className="text-sm" style={{ color: '#95A5A6' }}>No settled bets</p>
-                ) : (
-                  Object.entries(stats.byType).map(([type, dollars]) => (
-                    <div key={type} className="flex justify-between text-sm py-1">
-                      <span style={{ color: '#5D6D7E' }}>{formatBetType(type)}</span>
-                      <span style={{ color: dollars >= 0 ? '#27AE60' : '#E74C3C' }}>
-                        {formatMoney(dollars)}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="p-4 rounded-2xl shadow-xl" style={{ background: '#F5E6D3', border: '1px solid #E8DCC8' }}>
-                <h3 className="font-semibold mb-2 text-sm md:text-base" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>By Sport</h3>
-                {Object.keys(stats.bySport).length === 0 ? (
-                  <p className="text-sm" style={{ color: '#95A5A6' }}>No settled bets</p>
-                ) : (
-                  Object.entries(stats.bySport).map(([sport, dollars]) => (
-                    <div key={sport} className="flex justify-between text-sm py-1">
-                      <span style={{ color: '#5D6D7E' }}>{sport.toUpperCase()}</span>
-                      <span style={{ color: dollars >= 0 ? '#27AE60' : '#E74C3C' }}>
-                        {formatMoney(dollars)}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-2xl mb-6 p-4 shadow-xl" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-          <button 
-            onClick={() => toggleSection('teamTime')}
-            className="w-full flex items-center justify-between mb-4"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-          >
-            <h3 className="font-bold text-base md:text-lg" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Favorite Team & Prime Time</h3>
-            <ChevronDown isOpen={!collapsedSections.teamTime} />
-          </button>
-          {!collapsedSections.teamTime && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(230, 126, 34, 0.15) 0%, rgba(211, 84, 0, 0.15) 100%)', border: '1px solid rgba(230, 126, 34, 0.3)' }}>
-                <div className="text-xs md:text-sm" style={{ color: '#2C3E50' }}>Favorite Team</div>
-                <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.favoriteTeamDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
-                  {formatMoney(parseFloat(stats.favoriteTeamDollars))}
-                </div>
-                <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.favoriteTeamRecord}</div>
-              </div>
-              
-              <div className="p-3 rounded-2xl shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(93, 173, 226, 0.15) 0%, rgba(52, 152, 219, 0.15) 100%)', border: '1px solid rgba(93, 173, 226, 0.3)' }}>
-                <div className="text-xs md:text-sm" style={{ color: '#2C3E50' }}>Prime Time</div>
-                <div className={`text-lg md:text-xl font-bold`} style={{ color: parseFloat(stats.primeTimeDollars) >= 0 ? '#27AE60' : '#E74C3C' }}>
-                  {formatMoney(parseFloat(stats.primeTimeDollars))}
-                </div>
-                <div className="text-xs" style={{ color: '#5D6D7E' }}>{stats.primeTimeRecord}</div>
-              </div>
-            </div>
-          )}
+        <div style={{
+          background: colors.bgElevated,
+          padding: '20px 16px',
+          borderRadius: '20px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Streak</div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: colors.accentPrimary }}>
+            {stats.winStreak >= 1 ? `${stats.winStreak} 🔥` : '—'}
+          </div>
         </div>
       </div>
 
-      {/* Pending Bets Section */}
+      {/* THE SYSTEM SECTION - Purple Border, Collapsible */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        marginBottom: '24px',
+        border: `2px solid ${colors.accentSystem}`,
+        boxShadow: `0 4px 12px ${colors.shadow}`,
+        overflow: 'hidden'
+      }}>
+        <button
+          onClick={() => setSystemExpanded(!systemExpanded)}
+          style={{
+            width: '100%',
+            padding: '20px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <TrendingUp />
+            <div style={{ textAlign: 'left' }}>
+              <div style={{
+                fontSize: '12px',
+                color: colors.accentSystem,
+                fontWeight: '600',
+                marginBottom: '2px'
+              }}>
+                THE SYSTEM
+              </div>
+              <div style={{ fontSize: '10px', color: colors.textSecondary }}>
+                Fade the Public
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{
+                fontSize: '20px',
+                fontWeight: '700',
+                color: parseFloat(stats.systemDollars) >= 0 ? colors.accentWin : colors.accentLoss,
+                ...numberStyle
+              }}>
+                {formatMoney(parseFloat(stats.systemDollars))}
+              </div>
+              <div style={{ fontSize: '11px', color: colors.textTertiary }}>
+                {stats.systemWinRate}% Win Rate
+              </div>
+            </div>
+            <ChevronDown isOpen={systemExpanded} />
+          </div>
+        </button>
+
+        {systemExpanded && (
+          <div style={{
+            padding: '0 20px 20px 20px',
+            borderTop: `1px solid ${colors.border}`,
+            paddingTop: '20px'
+          }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+              <div>
+                <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px' }}>Clear System</div>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: parseFloat(stats.clearSystemDollars) >= 0 ? colors.accentWin : colors.accentLoss, ...numberStyle }}>
+                  {formatMoney(parseFloat(stats.clearSystemDollars))}
+                </div>
+                <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px' }}>
+                  {stats.clearSystemRecord}
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px' }}>Kind Of</div>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: parseFloat(stats.kindOfSystemDollars) >= 0 ? colors.accentWin : colors.accentLoss, ...numberStyle }}>
+                  {formatMoney(parseFloat(stats.kindOfSystemDollars))}
+                </div>
+                <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px' }}>
+                  {stats.kindOfSystemRecord}
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px' }}>Anti System</div>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: parseFloat(stats.notSystemDollars) >= 0 ? colors.accentWin : colors.accentLoss, ...numberStyle }}>
+                  {formatMoney(parseFloat(stats.notSystemDollars))}
+                </div>
+                <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px' }}>
+                  {stats.notSystemRecord}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* PENDING BETS - Right after System */}
       {pendingBets.length > 0 && (
-        <div className="rounded-2xl shadow-2xl p-4 md:p-6 mb-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-          <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Pending Bets ({pendingBets.length})</h2>
-          <div className="space-y-3">
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          marginBottom: '24px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            marginBottom: '16px',
+            margin: '0 0 16px 0',
+            ...headerStyle
+          }}>
+            Pending Bets ({pendingBets.length})
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {pendingBets.map(bet => (
-              <BetCard key={bet.id} bet={bet} />
+              <BetCard key={bet.id} bet={bet} isPending={true} />
             ))}
           </div>
         </div>
       )}
 
-      {/* Recent Bets Section */}
-      <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Recent Bets</h2>
+      {/* RECENT BETS */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '20px',
+        boxShadow: `0 2px 8px ${colors.shadow}`,
+        border: `1px solid ${colors.border}`
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            margin: 0,
+            ...headerStyle
+          }}>
+            Recent Bets
+          </h3>
           <button
             onClick={() => setCurrentPage('history')}
-            className="text-sm transition-colors"
-            style={{ color: '#D4A574' }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: colors.accentPrimary,
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
           >
             View All →
           </button>
         </div>
-        <div className="space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {recentBets.length === 0 ? (
-            <p className="text-center py-8" style={{ color: '#95A5A6' }}>No bets yet. Add your first bet!</p>
+            <p style={{ textAlign: 'center', padding: '32px', color: colors.textTertiary }}>
+              No bets yet. Add your first bet!
+            </p>
           ) : (
             recentBets.map(bet => (
               <BetCard key={bet.id} bet={bet} />
@@ -1141,12 +1281,196 @@ function App() {
       </div>
     </div>
   );
+  // ============================================
+  // STATS PAGE COMPONENT - NEW PAGE
+  // ============================================
+  const StatsPage = () => (
+    <div style={{ paddingBottom: '100px' }}>
+      <h2 style={{
+        fontSize: '24px',
+        fontWeight: '800',
+        color: colors.textPrimary,
+        marginBottom: '24px',
+        ...headerStyle
+      }}>
+        Performance Stats
+      </h2>
+
+      {/* Performance Breakdown */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '20px',
+        marginBottom: '24px',
+        boxShadow: `0 2px 8px ${colors.shadow}`,
+        border: `1px solid ${colors.border}`
+      }}>
+        <button
+          onClick={() => setBreakdownExpanded(!breakdownExpanded)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            marginBottom: breakdownExpanded ? '16px' : 0
+          }}
+        >
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            margin: 0,
+            ...headerStyle
+          }}>
+            Performance Breakdown
+          </h3>
+          <ChevronDown isOpen={breakdownExpanded} />
+        </button>
+        
+        {breakdownExpanded && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+            <div style={{
+              background: colors.bgSecondary,
+              padding: '16px',
+              borderRadius: '16px',
+              border: `1px solid ${colors.border}`
+            }}>
+              <h4 style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', margin: '0 0 12px 0' }}>
+                By Bet Type
+              </h4>
+              {Object.keys(stats.byType).length === 0 ? (
+                <p style={{ fontSize: '13px', color: colors.textTertiary }}>No settled bets</p>
+              ) : (
+                Object.entries(stats.byType).map(([type, dollars]) => (
+                  <div key={type} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '4px 0' }}>
+                    <span style={{ color: colors.textSecondary }}>{formatBetType(type)}</span>
+                    <span style={{ color: dollars >= 0 ? colors.accentWin : colors.accentLoss, fontWeight: '600', ...numberStyle }}>
+                      {formatMoney(dollars)}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div style={{
+              background: colors.bgSecondary,
+              padding: '16px',
+              borderRadius: '16px',
+              border: `1px solid ${colors.border}`
+            }}>
+              <h4 style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', margin: '0 0 12px 0' }}>
+                By Sport
+              </h4>
+              {Object.keys(stats.bySport).length === 0 ? (
+                <p style={{ fontSize: '13px', color: colors.textTertiary }}>No settled bets</p>
+              ) : (
+                Object.entries(stats.bySport).map(([sport, dollars]) => (
+                  <div key={sport} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '4px 0' }}>
+                    <span style={{ color: colors.textSecondary }}>{sport.toUpperCase()}</span>
+                    <span style={{ color: dollars >= 0 ? colors.accentWin : colors.accentLoss, fontWeight: '600', ...numberStyle }}>
+                      {formatMoney(dollars)}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Favorite Team & Prime Time */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '20px',
+        marginBottom: '24px',
+        boxShadow: `0 2px 8px ${colors.shadow}`,
+        border: `1px solid ${colors.border}`
+      }}>
+        <button
+          onClick={() => setTeamTimeExpanded(!teamTimeExpanded)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            marginBottom: teamTimeExpanded ? '16px' : 0
+          }}
+        >
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            margin: 0,
+            ...headerStyle
+          }}>
+            Favorite Team & Prime Time
+          </h3>
+          <ChevronDown isOpen={teamTimeExpanded} />
+        </button>
+        
+        {teamTimeExpanded && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+            <div style={{
+              background: `${colors.accentFavoriteTeam}20`,
+              padding: '16px',
+              borderRadius: '16px',
+              border: `1px solid ${colors.accentFavoriteTeam}40`
+            }}>
+              <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Favorite Team</div>
+              <div style={{
+                fontSize: '20px',
+                fontWeight: '800',
+                color: parseFloat(stats.favoriteTeamDollars) >= 0 ? colors.accentWin : colors.accentLoss,
+                marginBottom: '4px',
+                ...numberStyle
+              }}>
+                {formatMoney(parseFloat(stats.favoriteTeamDollars))}
+              </div>
+              <div style={{ fontSize: '11px', color: colors.textTertiary }}>
+                {stats.favoriteTeamRecord}
+              </div>
+            </div>
+            
+            <div style={{
+              background: `${colors.accentPrimeTime}20`,
+              padding: '16px',
+              borderRadius: '16px',
+              border: `1px solid ${colors.accentPrimeTime}40`
+            }}>
+              <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Prime Time</div>
+              <div style={{
+                fontSize: '20px',
+                fontWeight: '800',
+                color: parseFloat(stats.primeTimeDollars) >= 0 ? colors.accentWin : colors.accentLoss,
+                marginBottom: '4px',
+                ...numberStyle
+              }}>
+                {formatMoney(parseFloat(stats.primeTimeDollars))}
+              </div>
+              <div style={{ fontSize: '11px', color: colors.textTertiary }}>
+                {stats.primeTimeRecord}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   // HISTORY PAGE COMPONENT
   const HistoryPage = () => (
     <div className="pb-20 animate-fadeIn">
-      <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
+      <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
+        <h2 className="text-xl font-bold mb-4" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
         
         {/* Filter Pills */}
         <div className="mb-4 space-y-3">
@@ -1156,8 +1480,8 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, sport: 'all'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
               style={{
-                background: historyFilter.sport === 'all' ? '#D4A574' : '#F5E6D3',
-                color: historyFilter.sport === 'all' ? '#FFFFFF' : '#2C3E50'
+                background: historyFilter.sport === 'all' ? colors.accentPrimary : colors.bgSecondary,
+                color: historyFilter.sport === 'all' ? '#FFFFFF' : colors.textPrimary
               }}
             >
               All Sports
@@ -1168,8 +1492,8 @@ function App() {
                 onClick={() => setHistoryFilter({...historyFilter, sport})}
                 className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
                 style={{
-                  background: historyFilter.sport === sport ? '#D4A574' : '#F5E6D3',
-                  color: historyFilter.sport === sport ? '#FFFFFF' : '#2C3E50'
+                  background: historyFilter.sport === sport ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.sport === sport ? '#FFFFFF' : colors.textPrimary
                 }}
               >
                 {sport.toUpperCase()}
@@ -1180,11 +1504,11 @@ function App() {
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setHistoryFilter({...historyFilter, betType: 'all'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                historyFilter.betType === 'all' 
-                  ? 'bg-emerald-600 text-white' 
-                  : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
-              }`}
+              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+              style={{
+                background: historyFilter.betType === 'all' ? colors.accentPrimary : colors.bgSecondary,
+                color: historyFilter.betType === 'all' ? '#FFFFFF' : colors.textPrimary
+              }}
             >
               All Types
             </button>
@@ -1194,8 +1518,8 @@ function App() {
                 onClick={() => setHistoryFilter({...historyFilter, betType: type})}
                 className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
                 style={{
-                  background: historyFilter.betType === type ? '#D4A574' : '#F5E6D3',
-                  color: historyFilter.betType === type ? '#FFFFFF' : '#2C3E50'
+                  background: historyFilter.betType === type ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.betType === type ? '#FFFFFF' : colors.textPrimary
                 }}
               >
                 {formatBetType(type)}
@@ -1208,8 +1532,8 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, result: 'all'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
               style={{
-                background: historyFilter.result === 'all' ? '#D4A574' : '#F5E6D3',
-                color: historyFilter.result === 'all' ? '#FFFFFF' : '#2C3E50'
+                background: historyFilter.result === 'all' ? colors.accentPrimary : colors.bgSecondary,
+                color: historyFilter.result === 'all' ? '#FFFFFF' : colors.textPrimary
               }}
             >
               All Results
@@ -1220,8 +1544,8 @@ function App() {
                 onClick={() => setHistoryFilter({...historyFilter, result})}
                 className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
                 style={{
-                  background: historyFilter.result === result ? '#D4A574' : '#F5E6D3',
-                  color: historyFilter.result === result ? '#FFFFFF' : '#2C3E50'
+                  background: historyFilter.result === result ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.result === result ? '#FFFFFF' : colors.textPrimary
                 }}
               >
                 {result.charAt(0).toUpperCase() + result.slice(1)}
@@ -1234,8 +1558,8 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'all'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
               style={{
-                background: historyFilter.favoriteUnderdog === 'all' ? '#D4A574' : '#F5E6D3',
-                color: historyFilter.favoriteUnderdog === 'all' ? '#FFFFFF' : '#2C3E50'
+                background: historyFilter.favoriteUnderdog === 'all' ? colors.accentPrimary : colors.bgSecondary,
+                color: historyFilter.favoriteUnderdog === 'all' ? '#FFFFFF' : colors.textPrimary
               }}
             >
               Fav/Dog
@@ -1244,8 +1568,8 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'favorite'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
               style={{
-                background: historyFilter.favoriteUnderdog === 'favorite' ? '#D4A574' : '#F5E6D3',
-                color: historyFilter.favoriteUnderdog === 'favorite' ? '#FFFFFF' : '#2C3E50'
+                background: historyFilter.favoriteUnderdog === 'favorite' ? colors.accentPrimary : colors.bgSecondary,
+                color: historyFilter.favoriteUnderdog === 'favorite' ? '#FFFFFF' : colors.textPrimary
               }}
             >
               Favorites
@@ -1254,8 +1578,8 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'underdog'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
               style={{
-                background: historyFilter.favoriteUnderdog === 'underdog' ? '#D4A574' : '#F5E6D3',
-                color: historyFilter.favoriteUnderdog === 'underdog' ? '#FFFFFF' : '#2C3E50'
+                background: historyFilter.favoriteUnderdog === 'underdog' ? colors.accentPrimary : colors.bgSecondary,
+                color: historyFilter.favoriteUnderdog === 'underdog' ? '#FFFFFF' : colors.textPrimary
               }}
             >
               Underdogs
@@ -1267,8 +1591,8 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, overUnder: 'all'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
               style={{
-                background: historyFilter.overUnder === 'all' ? '#D4A574' : '#F5E6D3',
-                color: historyFilter.overUnder === 'all' ? '#FFFFFF' : '#2C3E50'
+                background: historyFilter.overUnder === 'all' ? colors.accentPrimary : colors.bgSecondary,
+                color: historyFilter.overUnder === 'all' ? '#FFFFFF' : colors.textPrimary
               }}
             >
               O/U
@@ -1277,8 +1601,8 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, overUnder: 'over'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
               style={{
-                background: historyFilter.overUnder === 'over' ? '#D4A574' : '#F5E6D3',
-                color: historyFilter.overUnder === 'over' ? '#FFFFFF' : '#2C3E50'
+                background: historyFilter.overUnder === 'over' ? colors.accentPrimary : colors.bgSecondary,
+                color: historyFilter.overUnder === 'over' ? '#FFFFFF' : colors.textPrimary
               }}
             >
               Overs
@@ -1287,8 +1611,8 @@ function App() {
               onClick={() => setHistoryFilter({...historyFilter, overUnder: 'under'})}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
               style={{
-                background: historyFilter.overUnder === 'under' ? '#D4A574' : '#F5E6D3',
-                color: historyFilter.overUnder === 'under' ? '#FFFFFF' : '#2C3E50'
+                background: historyFilter.overUnder === 'under' ? colors.accentPrimary : colors.bgSecondary,
+                color: historyFilter.overUnder === 'under' ? '#FFFFFF' : colors.textPrimary
               }}
             >
               Unders
@@ -1296,15 +1620,15 @@ function App() {
           </div>
         </div>
 
-        {/* Time Range Toggle - Bigger and More Prominent */}
+        {/* Time Range Toggle */}
         <div className="flex gap-3 mb-4">
           <button
             onClick={() => setShowAllBets(false)}
             className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all`}
             style={{
-              background: !showAllBets ? '#D4A574' : '#F5E6D3',
-              color: !showAllBets ? '#FFFFFF' : '#5D6D7E',
-              boxShadow: !showAllBets ? '0 4px 12px rgba(212, 165, 116, 0.3)' : 'none'
+              background: !showAllBets ? colors.accentPrimary : colors.bgSecondary,
+              color: !showAllBets ? '#FFFFFF' : colors.textSecondary,
+              boxShadow: !showAllBets ? `0 4px 12px ${colors.shadow}` : 'none'
             }}
           >
             Last 30 Days
@@ -1313,9 +1637,9 @@ function App() {
             onClick={() => setShowAllBets(true)}
             className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all`}
             style={{
-              background: showAllBets ? '#D4A574' : '#F5E6D3',
-              color: showAllBets ? '#FFFFFF' : '#5D6D7E',
-              boxShadow: showAllBets ? '0 4px 12px rgba(212, 165, 116, 0.3)' : 'none'
+              background: showAllBets ? colors.accentPrimary : colors.bgSecondary,
+              color: showAllBets ? '#FFFFFF' : colors.textSecondary,
+              boxShadow: showAllBets ? `0 4px 12px ${colors.shadow}` : 'none'
             }}
           >
             All Time
@@ -1327,8 +1651,8 @@ function App() {
           <div className="p-4 rounded-2xl mb-4" style={{ background: 'linear-gradient(135deg, rgba(52, 152, 219, 0.15) 0%, rgba(155, 89, 182, 0.15) 100%)', border: '1px solid rgba(52, 152, 219, 0.3)' }}>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs mb-1" style={{ color: '#5D6D7E' }}>Current Filter</div>
-                <div className="text-sm font-medium" style={{ color: '#2C3E50' }}>
+                <div className="text-xs mb-1" style={{ color: colors.textSecondary }}>Current Filter</div>
+                <div className="text-sm font-medium" style={{ color: colors.textPrimary }}>
                   {historyFilter.sport !== 'all' && `${historyFilter.sport.toUpperCase()} • `}
                   {historyFilter.betType !== 'all' && `${formatBetType(historyFilter.betType)} • `}
                   {historyFilter.result !== 'all' && `${historyFilter.result.charAt(0).toUpperCase() + historyFilter.result.slice(1)} • `}
@@ -1338,12 +1662,12 @@ function App() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xs mb-1" style={{ color: '#5D6D7E' }}>Record & P/L</div>
+                <div className="text-xs mb-1" style={{ color: colors.textSecondary }}>Record & P/L</div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium" style={{ color: '#2C3E50' }}>
+                  <span className="text-sm font-medium" style={{ color: colors.textPrimary }}>
                     {filteredBets.filter(b => b.result === 'win').length}-{filteredBets.filter(b => b.result === 'loss').length}
                   </span>
-                  <span className={`text-lg font-bold`} style={{ color: filteredBets.reduce((sum, b) => sum + b.payout, 0) >= 0 ? '#27AE60' : '#E74C3C' }}>
+                  <span className={`text-lg font-bold`} style={{ color: filteredBets.reduce((sum, b) => sum + b.payout, 0) >= 0 ? colors.accentWin : colors.accentLoss }}>
                     {formatMoney(filteredBets.reduce((sum, b) => sum + b.payout, 0))}
                   </span>
                 </div>
@@ -1352,14 +1676,14 @@ function App() {
           </div>
         )}
 
-        <div className="text-sm mb-4" style={{ color: '#5D6D7E' }}>
+        <div className="text-sm mb-4" style={{ color: colors.textSecondary }}>
           Showing {filteredBets.length} {filteredBets.length === 1 ? 'bet' : 'bets'}
           {!showAllBets && ' (Last 30 days)'}
         </div>
 
         <div className="space-y-3">
           {filteredBets.length === 0 ? (
-            <p className="text-center py-8" style={{ color: '#95A5A6' }}>No bets match your filters</p>
+            <p className="text-center py-8" style={{ color: colors.textTertiary }}>No bets match your filters</p>
           ) : (
             filteredBets.map(bet => (
               <BetCard key={bet.id} bet={bet} showActions />
@@ -1370,70 +1694,145 @@ function App() {
     </div>
   );
 
-  // MORE PAGE COMPONENT
-  const MorePage = () => (
-    <div className="pb-20 animate-fadeIn">
-      <div className="rounded-2xl shadow-2xl p-4 md:p-6 mb-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Resources</h2>
-        <div className="grid grid-cols-1 gap-3">
-          {resources.map((resource, idx) => (
-            <a
-              key={idx}
-              href={resource.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-4 rounded-2xl transition-all"
-              style={{ background: '#F5E6D3', border: '1px solid #E8DCC8' }}
+ /// MORE PAGE COMPONENT
+  const MorePage = () => {
+    return (
+      <div style={{ paddingBottom: '100px' }}>
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          marginBottom: '24px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: '800',
+            color: colors.textPrimary,
+            marginBottom: '24px',
+            ...headerStyle
+          }}>
+            Resources
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {resources.map((resource, idx) => (
+              <a
+                key={idx}
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '16px',
+                  background: colors.bgSecondary,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '16px',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <span style={{ fontSize: '30px' }}>{resource.icon}</span>
+                <span style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '500', 
+                  color: colors.textPrimary,
+                  flex: 1
+                }}>
+                  {resource.name}
+                </span>
+                <ExternalLink />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: '800',
+            color: colors.textPrimary,
+            marginBottom: '24px',
+            ...headerStyle
+          }}>
+            Actions
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <button
+              onClick={exportToCSV}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '16px',
+                background: colors.accentPrimary,
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '16px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: `0 4px 12px ${colors.shadow}`
+              }}
             >
-              <span className="text-3xl">{resource.icon}</span>
-              <span className="text-base font-medium flex-1" style={{ color: '#2C3E50' }}>{resource.name}</span>
-              <ExternalLink />
-            </a>
-          ))}
+              <Download />
+              Export Bet History
+            </button>
+            
+            <button
+              onClick={() => setShowRetirementModal(true)}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '16px',
+                background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)',
+                color: '#FFFFFF',
+                border: '2px solid rgba(231, 76, 60, 0.5)',
+                borderRadius: '16px',
+                fontSize: '16px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: `0 4px 12px ${colors.shadow}`
+              }}
+            >
+              <PowerOff />
+              RETIRE
+            </button>
+          </div>
         </div>
       </div>
+    );
+  };
 
-      <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: '#FFFFFF', border: '1px solid #E8DCC8' }}>
-        <h2 className="text-xl font-bold mb-4" style={{ color: '#2C3E50', fontFamily: "'Outfit', sans-serif" }}>Actions</h2>
-        <div className="space-y-3">
-          <button
-            onClick={exportToCSV}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all shadow-xl"
-            style={{ background: '#D4A574', color: '#FFFFFF' }}
-          >
-            <Download />
-            Export Bet History
-          </button>
-          
-          <button
-            onClick={() => setShowRetirementModal(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all shadow-xl font-semibold"
-            style={{ background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)', color: '#FFFFFF', border: '2px solid rgba(231, 76, 60, 0.5)' }}
-          >
-            <PowerOff />
-            RETIRE
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  // BET CARD COMPONENT
-  const BetCard = ({ bet, showActions = false }) => (
-    <div className="rounded-2xl p-4 transition-all duration-200 shadow-xl" style={{ border: '1px solid #E8DCC8', background: '#FFFFFF' }}>
+  // BET CARD COMPONENT - UPDATED with isPending prop
+  const BetCard = ({ bet, showActions = false, isPending = false }) => (
+    <div className="rounded-2xl p-4 transition-all duration-200 shadow-xl" style={{ border: `1px solid ${colors.border}`, background: isPending ? colors.bgSecondary : colors.bgElevated }}>
       <div className="flex justify-between items-start mb-2">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="text-xs font-bold px-3 py-1 rounded-lg" style={{ 
-              background: '#D4A574', 
+              background: colors.accentPrimary, 
               color: '#FFFFFF',
               fontFamily: "'Outfit', sans-serif",
               letterSpacing: '0.5px',
-              boxShadow: '0 2px 4px rgba(212, 165, 116, 0.3)'
+              boxShadow: `0 2px 4px ${colors.shadow}`
             }}>
               {getSportLabel(bet.sport)}
             </span>
-            <span className="font-semibold" style={{ color: '#2C3E50', fontFamily: "'Inter', sans-serif" }}>{bet.description}</span>
+            <span className="font-semibold" style={{ color: colors.textPrimary, fontFamily: "'Inter', sans-serif" }}>{bet.description}</span>
             {bet.favoriteTeam && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(230, 126, 34, 0.15)', color: '#E67E22', border: '1px solid rgba(230, 126, 34, 0.3)' }}>Fav Team</span>}
             {bet.primeTime && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(93, 173, 226, 0.15)', color: '#5DADE2', border: '1px solid rgba(93, 173, 226, 0.3)' }}>Prime Time</span>}
             {bet.systemPlay !== 'none' && (
@@ -1442,14 +1841,14 @@ function App() {
               </span>
             )}
           </div>
-          <div className="text-sm" style={{ color: '#5D6D7E', fontFamily: "'Inter', sans-serif" }}>
+          <div className="text-sm" style={{ color: colors.textSecondary, fontFamily: "'Inter', sans-serif" }}>
             {bet.date} • {bet.sport.toUpperCase()} • {formatBetType(bet.betType)} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
           </div>
-          <div className="text-xs mt-1" style={{ color: '#95A5A6', fontFamily: "'Inter', sans-serif", fontFeatureSettings: "'tnum' 1" }}>
+          <div className="text-xs mt-1" style={{ color: colors.textTertiary, fontFamily: "'Inter', sans-serif", fontFeatureSettings: "'tnum' 1" }}>
             Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
           </div>
           {bet.notes && (
-            <div className="text-xs mt-1 italic" style={{ color: '#95A5A6', fontFamily: "'Inter', sans-serif" }}>
+            <div className="text-xs mt-1 italic" style={{ color: colors.textTertiary, fontFamily: "'Inter', sans-serif" }}>
               Note: {bet.notes}
             </div>
           )}
@@ -1484,7 +1883,7 @@ function App() {
             </div>
           ) : (
             <div className="font-semibold" style={{ 
-              color: bet.payout > 0 ? '#27AE60' : bet.payout < 0 ? '#E74C3C' : '#95A5A6',
+              color: bet.payout > 0 ? colors.accentWin : bet.payout < 0 ? colors.accentLoss : colors.textTertiary,
               fontFamily: "'Inter', sans-serif",
               fontFeatureSettings: "'tnum' 1"
             }}>
@@ -1493,13 +1892,8 @@ function App() {
           )}
         </div>
       </div>
-      <div className="flex justify-between items-center mt-2 pt-2" style={{ borderTop: '1px solid #E8DCC8' }}>
-        <span className={`text-xs font-medium px-2 py-1 rounded ${
-          bet.result === 'win' ? '' :
-          bet.result === 'loss' ? '' :
-          bet.result === 'push' ? '' :
-          ''
-        }`} style={{
+      <div className="flex justify-between items-center mt-2 pt-2" style={{ borderTop: `1px solid ${colors.border}` }}>
+        <span className={`text-xs font-medium px-2 py-1 rounded`} style={{
           background: bet.result === 'win' ? 'rgba(39, 174, 96, 0.15)' : bet.result === 'loss' ? 'rgba(231, 76, 60, 0.15)' : bet.result === 'push' ? 'rgba(149, 165, 166, 0.15)' : 'rgba(243, 156, 18, 0.15)',
           color: bet.result === 'win' ? '#27AE60' : bet.result === 'loss' ? '#E74C3C' : bet.result === 'push' ? '#95A5A6' : '#F39C12',
           border: bet.result === 'win' ? '1px solid rgba(39, 174, 96, 0.3)' : bet.result === 'loss' ? '1px solid rgba(231, 76, 60, 0.3)' : bet.result === 'push' ? '1px solid rgba(149, 165, 166, 0.3)' : '1px solid rgba(243, 156, 18, 0.3)'
@@ -1531,7 +1925,6 @@ function App() {
 
   // ADD BET MODAL COMPONENT
   const AddBetModal = () => {
-    // Modal manages its own state to prevent parent re-renders
     const [localFormData, setLocalFormData] = useState({
       date: formData.date,
       sport: formData.sport,
@@ -1546,7 +1939,6 @@ function App() {
       notes: formData.notes
     });
 
-    // Sync with parent formData when modal opens
     useEffect(() => {
       if (showAddBetModal) {
         setLocalFormData({
@@ -1566,9 +1958,7 @@ function App() {
     }, [showAddBetModal]);
 
     const handleSubmit = async () => {
-      // Update parent formData and trigger save with the local data
       setFormData(localFormData);
-      // Pass the localFormData directly to avoid state update timing issues
       let errorMsg;
       if (editingBet) {
         errorMsg = await saveEdit(localFormData);
@@ -1589,8 +1979,8 @@ function App() {
       <div 
         className="rounded-t-3xl w-full max-w-2xl overflow-y-auto shadow-2xl"
         style={{ 
-          background: '#FFFFFF',
-          borderTop: '1px solid #E8DCC8',
+          background: colors.bgElevated,
+          borderTop: `1px solid ${colors.border}`,
           minHeight: '80vh',
           maxHeight: '80vh'
         }}
@@ -1601,15 +1991,15 @@ function App() {
             position: 'sticky', 
             top: 0, 
             zIndex: 10,
-            background: '#FFFFFF',
-            borderBottom: '1px solid #E8DCC8'
+            background: colors.bgElevated,
+            borderBottom: `1px solid ${colors.border}`
           }}
         >
-          <h2 className="text-lg font-bold" style={{ color: '#2C3E50' }}>{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
+          <h2 className="text-lg font-bold" style={{ color: colors.textPrimary }}>{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
           <button
             onClick={cancelEdit}
             className="transition-colors"
-            style={{ color: '#95A5A6' }}
+            style={{ color: colors.textTertiary }}
           >
             <X />
           </button>
@@ -1617,30 +2007,30 @@ function App() {
         
         <div className="p-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Date</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Date</label>
             <input
               type="date"
               value={localFormData.date}
               onChange={(e) => setLocalFormData({...localFormData, date: e.target.value})}
               className="w-full p-2 rounded-lg"
               style={{ 
-                border: '1px solid #E8DCC8', 
-                background: '#FFFFFF', 
-                color: '#2C3E50'
+                border: `1px solid ${colors.border}`, 
+                background: colors.bgElevated, 
+                color: colors.textPrimary
               }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Sport</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Sport</label>
             <select
               value={localFormData.sport}
               onChange={(e) => setLocalFormData({...localFormData, sport: e.target.value})}
               className="w-full p-2 rounded-lg"
               style={{ 
-                border: '1px solid #E8DCC8', 
-                background: '#FFFFFF', 
-                color: '#2C3E50'
+                border: `1px solid ${colors.border}`, 
+                background: colors.bgElevated, 
+                color: colors.textPrimary
               }}
             >
               <option value="">Select...</option>
@@ -1655,15 +2045,15 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Bet Type</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Bet Type</label>
             <select
               value={localFormData.betType}
               onChange={(e) => setLocalFormData({...localFormData, betType: e.target.value})}
               className="w-full p-2 rounded-lg"
               style={{ 
-                border: '1px solid #E8DCC8', 
-                background: '#FFFFFF', 
-                color: '#2C3E50'
+                border: `1px solid ${colors.border}`, 
+                background: colors.bgElevated, 
+                color: colors.textPrimary
               }}
             >
               <option value="">Select...</option>
@@ -1679,7 +2069,7 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Units</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Units</label>
             <input
               type="number"
               step="0.25"
@@ -1687,9 +2077,9 @@ function App() {
               onChange={(e) => setLocalFormData({...localFormData, units: e.target.value})}
               className="w-full p-2 rounded-lg mb-2"
               style={{ 
-                border: '1px solid #E8DCC8', 
-                background: '#FFFFFF', 
-                color: '#2C3E50'
+                border: `1px solid ${colors.border}`, 
+                background: colors.bgElevated, 
+                color: colors.textPrimary
               }}
               placeholder="e.g., 1, 2, 0.5"
             />
@@ -1700,14 +2090,14 @@ function App() {
                   type="button"
                   onClick={() => setLocalFormData({...localFormData, units: btn.value.toString()})}
                   className="px-2 py-1 text-xs rounded transition-all"
-                  style={{ background: '#F5E6D3', color: '#2C3E50' }}
+                  style={{ background: colors.bgSecondary, color: colors.textPrimary }}
                 >
                   {btn.label}
                 </button>
               ))}
             </div>
             {localFormData.units && localFormData.odds && (
-              <div className="text-xs mt-2" style={{ color: '#5D6D7E' }}>
+              <div className="text-xs mt-2" style={{ color: colors.textSecondary }}>
                 Risk: ${calculateRiskAndWin(localFormData.units, localFormData.odds).risk.toFixed(2)} | 
                 Win: ${calculateRiskAndWin(localFormData.units, localFormData.odds).win.toFixed(2)}
               </div>
@@ -1715,7 +2105,7 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Odds (American)</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Odds (American)</label>
             <input
               id="bet-odds"
               type="text"
@@ -1723,9 +2113,9 @@ function App() {
               onChange={(e) => setLocalFormData({...localFormData, odds: e.target.value})}
               className="w-full p-2 rounded-lg"
               style={{ 
-                border: '1px solid #E8DCC8', 
-                background: '#FFFFFF', 
-                color: '#2C3E50'
+                border: `1px solid ${colors.border}`, 
+                background: colors.bgElevated, 
+                color: colors.textPrimary
               }}
               placeholder="e.g., -110, +150"
               autoComplete="off"
@@ -1733,15 +2123,15 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Result</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Result</label>
             <select
               value={localFormData.result}
               onChange={(e) => setLocalFormData({...localFormData, result: e.target.value})}
               className="w-full p-2 rounded-lg"
               style={{ 
-                border: '1px solid #E8DCC8', 
-                background: '#FFFFFF', 
-                color: '#2C3E50'
+                border: `1px solid ${colors.border}`, 
+                background: colors.bgElevated, 
+                color: colors.textPrimary
               }}
             >
               <option value="pending">Pending</option>
@@ -1752,7 +2142,7 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Description</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Description</label>
             <input
               id="bet-description"
               type="text"
@@ -1760,9 +2150,9 @@ function App() {
               onChange={(e) => setLocalFormData({...localFormData, description: e.target.value})}
               className="w-full p-2 rounded-lg"
               style={{ 
-                border: '1px solid #E8DCC8', 
-                background: '#FFFFFF', 
-                color: '#2C3E50'
+                border: `1px solid ${colors.border}`, 
+                background: colors.bgElevated, 
+                color: colors.textPrimary
               }}
               placeholder="e.g., Chiefs -3 vs Bills"
               autoComplete="off"
@@ -1770,16 +2160,16 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: '#2C3E50' }}>Notes (Optional)</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Notes (Optional)</label>
             <textarea
               id="bet-notes"
               value={localFormData.notes}
               onChange={(e) => setLocalFormData({...localFormData, notes: e.target.value})}
               className="w-full p-2 rounded-lg"
               style={{ 
-                border: '1px solid #E8DCC8', 
-                background: '#FFFFFF', 
-                color: '#2C3E50'
+                border: `1px solid ${colors.border}`, 
+                background: colors.bgElevated, 
+                color: colors.textPrimary
               }}
               placeholder="e.g., Reverse line movement from -7 to -6.5"
               rows="2"
@@ -1788,16 +2178,16 @@ function App() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#2C3E50' }}>System Play Classification</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: colors.textPrimary }}>System Play Classification</label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setLocalFormData({...localFormData, systemPlay: 'clear'})}
                 className={`p-2 border-2 rounded-lg text-sm transition-all`}
                 style={{
-                  borderColor: localFormData.systemPlay === 'clear' ? '#9B59B6' : '#E8DCC8',
-                  background: localFormData.systemPlay === 'clear' ? 'rgba(155, 89, 182, 0.15)' : '#FFFFFF',
-                  color: localFormData.systemPlay === 'clear' ? '#9B59B6' : '#5D6D7E'
+                  borderColor: localFormData.systemPlay === 'clear' ? '#9B59B6' : colors.border,
+                  background: localFormData.systemPlay === 'clear' ? 'rgba(155, 89, 182, 0.15)' : colors.bgElevated,
+                  color: localFormData.systemPlay === 'clear' ? '#9B59B6' : colors.textSecondary
                 }}
               >
                 Clear System
@@ -1807,9 +2197,9 @@ function App() {
                 onClick={() => setLocalFormData({...localFormData, systemPlay: 'kind-of'})}
                 className={`p-2 border-2 rounded-lg text-sm transition-all`}
                 style={{
-                  borderColor: localFormData.systemPlay === 'kind-of' ? '#3498DB' : '#E8DCC8',
-                  background: localFormData.systemPlay === 'kind-of' ? 'rgba(52, 152, 219, 0.15)' : '#FFFFFF',
-                  color: localFormData.systemPlay === 'kind-of' ? '#3498DB' : '#5D6D7E'
+                  borderColor: localFormData.systemPlay === 'kind-of' ? '#3498DB' : colors.border,
+                  background: localFormData.systemPlay === 'kind-of' ? 'rgba(52, 152, 219, 0.15)' : colors.bgElevated,
+                  color: localFormData.systemPlay === 'kind-of' ? '#3498DB' : colors.textSecondary
                 }}
               >
                 Kind Of
@@ -1819,9 +2209,9 @@ function App() {
                 onClick={() => setLocalFormData({...localFormData, systemPlay: 'no-system'})}
                 className={`p-2 border-2 rounded-lg text-sm transition-all`}
                 style={{
-                  borderColor: localFormData.systemPlay === 'no-system' ? '#95A5A6' : '#E8DCC8',
-                  background: localFormData.systemPlay === 'no-system' ? 'rgba(149, 165, 166, 0.15)' : '#FFFFFF',
-                  color: localFormData.systemPlay === 'no-system' ? '#95A5A6' : '#5D6D7E'
+                  borderColor: localFormData.systemPlay === 'no-system' ? '#95A5A6' : colors.border,
+                  background: localFormData.systemPlay === 'no-system' ? 'rgba(149, 165, 166, 0.15)' : colors.bgElevated,
+                  color: localFormData.systemPlay === 'no-system' ? '#95A5A6' : colors.textSecondary
                 }}
               >
                 No System
@@ -1831,9 +2221,9 @@ function App() {
                 onClick={() => setLocalFormData({...localFormData, systemPlay: 'not-system'})}
                 className={`p-2 border-2 rounded-lg text-sm transition-all`}
                 style={{
-                  borderColor: localFormData.systemPlay === 'not-system' ? '#E74C3C' : '#E8DCC8',
-                  background: localFormData.systemPlay === 'not-system' ? 'rgba(231, 76, 60, 0.15)' : '#FFFFFF',
-                  color: localFormData.systemPlay === 'not-system' ? '#E74C3C' : '#5D6D7E'
+                  borderColor: localFormData.systemPlay === 'not-system' ? '#E74C3C' : colors.border,
+                  background: localFormData.systemPlay === 'not-system' ? 'rgba(231, 76, 60, 0.15)' : colors.bgElevated,
+                  color: localFormData.systemPlay === 'not-system' ? '#E74C3C' : colors.textSecondary
                 }}
               >
                 Anti System
@@ -1848,9 +2238,9 @@ function App() {
                 checked={localFormData.favoriteTeam}
                 onChange={(e) => setLocalFormData({...localFormData, favoriteTeam: e.target.checked})}
                 className="w-4 h-4 rounded"
-                style={{ accentColor: '#D4A574' }}
+                style={{ accentColor: colors.accentPrimary }}
               />
-              <span className="text-sm" style={{ color: '#2C3E50' }}>Favorite Team</span>
+              <span className="text-sm" style={{ color: colors.textPrimary }}>Favorite Team</span>
             </label>
 
             <label className="flex items-center gap-2">
@@ -1859,9 +2249,9 @@ function App() {
                 checked={localFormData.primeTime}
                 onChange={(e) => setLocalFormData({...localFormData, primeTime: e.target.checked})}
                 className="w-4 h-4 rounded"
-                style={{ accentColor: '#D4A574' }}
+                style={{ accentColor: colors.accentPrimary }}
               />
-              <span className="text-sm" style={{ color: '#2C3E50' }}>Prime Time Game</span>
+              <span className="text-sm" style={{ color: colors.textPrimary }}>Prime Time Game</span>
             </label>
           </div>
 
@@ -1869,14 +2259,14 @@ function App() {
             <button
               onClick={handleSubmit}
               className="flex-1 py-3 rounded-lg transition-all shadow-xl font-medium"
-              style={{ background: 'linear-gradient(135deg, #D4A574 0%, #E8B887 100%)', color: '#FFFFFF' }}
+              style={{ background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #E8B887 100%)`, color: '#FFFFFF' }}
             >
               {editingBet ? 'Save Changes' : 'Add Bet'}
             </button>
             <button
               onClick={cancelEdit}
               className="flex-1 py-3 rounded-lg transition-all font-medium"
-              style={{ background: '#F5E6D3', color: '#5D6D7E' }}
+              style={{ background: colors.bgSecondary, color: colors.textSecondary }}
             >
               Cancel
             </button>
@@ -1887,178 +2277,8 @@ function App() {
     );
   };
 
-  // SETTINGS MENU COMPONENT
-  const SettingsMenu = () => (
-    <div className="fixed inset-0 flex items-start justify-start z-50" style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowSettingsMenu(false)}>
-      <div className="w-80 h-full overflow-y-auto shadow-2xl" style={{ background: '#FFFFFF', borderRight: '1px solid #E8DCC8' }} onClick={(e) => e.stopPropagation()}>
-        <div className="sticky top-0 p-4 flex justify-between items-center" style={{ background: '#FFFFFF', borderBottom: '1px solid #E8DCC8' }}>
-          <h2 className="text-xl font-bold" style={{ color: '#2C3E50' }}>Settings</h2>
-          <button
-            onClick={() => setShowSettingsMenu(false)}
-            className="transition-colors"
-            style={{ color: '#95A5A6' }}
-          >
-            <X />
-          </button>
-        </div>
-        
-        <div className="p-4 space-y-6">
-          {/* Unit Value */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#2C3E50' }}>Unit Value ($)</label>
-            <input
-              type="number"
-              step="1"
-              value={unitValue}
-              onChange={(e) => setUnitValue(parseFloat(e.target.value) || 50)}
-              className="w-full p-2 rounded-lg"
-              style={{ 
-                border: '1px solid #E8DCC8', 
-                background: '#FFFFFF', 
-                color: '#2C3E50'
-              }}
-            />
-            <p className="text-xs mt-1" style={{ color: '#95A5A6' }}>Applies to future bets only</p>
-          </div>
-
-          {/* Monthly Limit */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#2C3E50' }}>Monthly Loss Limit ($)</label>
-            <input
-              type="number"
-              step="100"
-              value={monthlyLimit}
-              onChange={(e) => setMonthlyLimit(parseFloat(e.target.value) || 1500)}
-              className="w-full p-2 rounded-lg"
-              style={{ 
-                border: '1px solid #E8DCC8', 
-                background: '#FFFFFF', 
-                color: '#2C3E50'
-              }}
-            />
-          </div>
-
-          {/* Notifications */}
-          <div>
-            <h3 className="text-lg font-bold mb-3" style={{ color: '#2C3E50' }}>Notifications</h3>
-            
-            <div className="space-y-4">
-              {/* Big Bet Notification */}
-              <div>
-                <label className="flex items-center gap-2 mb-2">
-                  <input
-                    type="checkbox"
-                    checked={notificationSettings.bigBet.enabled}
-                    onChange={(e) => setNotificationSettings({
-                      ...notificationSettings,
-                      bigBet: { ...notificationSettings.bigBet, enabled: e.target.checked }
-                    })}
-                    className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-purple-600 focus:ring-purple-500"
-                  />
-                  <span className="text-sm text-slate-200">Big Bet Warning</span>
-                </label>
-                {notificationSettings.bigBet.enabled && (
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">Threshold (units)</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={notificationSettings.bigBet.threshold}
-                      onChange={(e) => setNotificationSettings({
-                        ...notificationSettings,
-                        bigBet: { ...notificationSettings.bigBet, threshold: parseFloat(e.target.value) || 4 }
-                      })}
-                      className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Favorite Team Notification */}
-              <div>
-                <label className="flex items-center gap-2 mb-2">
-                  <input
-                    type="checkbox"
-                    checked={notificationSettings.favoriteTeam.enabled}
-                    onChange={(e) => setNotificationSettings({
-                      ...notificationSettings,
-                      favoriteTeam: { ...notificationSettings.favoriteTeam, enabled: e.target.checked }
-                    })}
-                    className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-purple-600 focus:ring-purple-500"
-                  />
-                  <span className="text-sm text-slate-200">Favorite Team Warning</span>
-                </label>
-                {notificationSettings.favoriteTeam.enabled && (
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">Threshold (percentile)</label>
-                    <input
-                      type="number"
-                      step="0.05"
-                      min="0"
-                      max="1"
-                      value={notificationSettings.favoriteTeam.threshold}
-                      onChange={(e) => setNotificationSettings({
-                        ...notificationSettings,
-                        favoriteTeam: { ...notificationSettings.favoriteTeam, threshold: parseFloat(e.target.value) || 0.75 }
-                      })}
-                      className="w-full p-2 border border-slate-600 rounded-lg bg-slate-800/50 text-white backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-                    />
-                    <p className="text-xs text-slate-400 mt-1">0.75 = top 75% of bets</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Monthly Limit Notification */}
-              <div>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={notificationSettings.monthlyLimit.enabled}
-                    onChange={(e) => setNotificationSettings({
-                      ...notificationSettings,
-                      monthlyLimit: { ...notificationSettings.monthlyLimit, enabled: e.target.checked }
-                    })}
-                    className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-purple-600 focus:ring-purple-500"
-                  />
-                  <span className="text-sm text-slate-200">Monthly Limit Warning</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* Display Mode */}
-          <div>
-            <h3 className="text-lg font-bold mb-3" style={{ color: '#2C3E50' }}>Display</h3>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setDisplayMode('dollars')}
-                className={`flex-1 p-2 rounded-lg text-sm transition-all`}
-                style={{
-                  background: displayMode === 'dollars' ? '#D4A574' : '#F5E6D3',
-                  color: displayMode === 'dollars' ? '#FFFFFF' : '#5D6D7E'
-                }}
-              >
-                Dollars ($)
-              </button>
-              <button
-                onClick={() => setDisplayMode('units')}
-                className={`flex-1 p-2 rounded-lg text-sm transition-all`}
-                style={{
-                  background: displayMode === 'units' ? '#D4A574' : '#F5E6D3',
-                  color: displayMode === 'units' ? '#FFFFFF' : '#5D6D7E'
-                }}
-              >
-                Units (u)
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="min-h-screen" style={{ background: '#FFF8F0' }}>
+    <div className="min-h-screen" style={{ background: colors.bgPrimary }}>
       {/* Animation Overlay */}
       {animation.show && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 custom-fadeIn">
@@ -2088,18 +2308,18 @@ function App() {
       {/* Retirement Modal */}
       {showRetirementModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl" style={{ background: '#FFFFFF', border: '2px solid rgba(231, 76, 60, 0.5)' }}>
+          <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl" style={{ background: colors.bgElevated, border: '2px solid rgba(231, 76, 60, 0.5)' }}>
             <div className="flex items-start gap-4 mb-6">
               <div className="flex-shrink-0" style={{ color: '#E74C3C' }}>
                 <PowerOff />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2" style={{ color: '#2C3E50' }}>Retirement Mode</h3>
-                <p style={{ color: '#5D6D7E' }}>How many days do you need to take a break?</p>
+                <h3 className="text-xl font-bold mb-2" style={{ color: colors.textPrimary }}>Retirement Mode</h3>
+                <p style={{ color: colors.textSecondary }}>How many days do you need to take a break?</p>
               </div>
             </div>
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2" style={{ color: '#2C3E50' }}>Days</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: colors.textPrimary }}>Days</label>
               <input
                 type="number"
                 min="1"
@@ -2108,12 +2328,12 @@ function App() {
                 onChange={(e) => setRetirementDays(Math.max(1, Math.min(30, parseInt(e.target.value) || 1)))}
                 className="w-full p-3 rounded-lg text-center text-2xl font-bold"
                 style={{ 
-                  border: '1px solid #E8DCC8', 
-                  background: '#FFFFFF', 
-                  color: '#2C3E50'
+                  border: `1px solid ${colors.border}`, 
+                  background: colors.bgElevated, 
+                  color: colors.textPrimary
                 }}
               />
-              <p className="text-xs mt-2 text-center" style={{ color: '#95A5A6' }}>Once you retire, you cannot add new bets until the period ends.</p>
+              <p className="text-xs mt-2 text-center" style={{ color: colors.textTertiary }}>Once you retire, you cannot add new bets until the period ends.</p>
             </div>
             <div className="flex gap-3">
               <button
@@ -2126,7 +2346,7 @@ function App() {
               <button
                 onClick={() => setShowRetirementModal(false)}
                 className="flex-1 py-3 rounded-lg transition-all font-medium"
-                style={{ background: '#F5E6D3', color: '#5D6D7E' }}
+                style={{ background: colors.bgSecondary, color: colors.textSecondary }}
               >
                 Cancel
               </button>
@@ -2138,14 +2358,14 @@ function App() {
       {/* Warning Modal */}
       {warningModal.show && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl" style={{ background: '#FFFFFF', border: '2px solid rgba(231, 76, 60, 0.5)' }}>
+          <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl" style={{ background: colors.bgElevated, border: '2px solid rgba(231, 76, 60, 0.5)' }}>
             <div className="flex items-start gap-4 mb-6">
               <div className="flex-shrink-0" style={{ color: '#E74C3C' }}>
                 <AlertCircle />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2" style={{ color: '#2C3E50' }}>Warning</h3>
-                <p style={{ color: '#5D6D7E' }}>{warningModal.message}</p>
+                <h3 className="text-xl font-bold mb-2" style={{ color: colors.textPrimary }}>Warning</h3>
+                <p style={{ color: colors.textSecondary }}>{warningModal.message}</p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -2161,7 +2381,7 @@ function App() {
               <button
                 onClick={() => setWarningModal({ show: false, message: '', type: '' })}
                 className="flex-1 py-3 rounded-lg transition-all font-medium"
-                style={{ background: '#F5E6D3', color: '#5D6D7E' }}
+                style={{ background: colors.bgSecondary, color: colors.textSecondary }}
               >
                 {warningModal.buttonNo || 'No, let me change it'}
               </button>
@@ -2173,14 +2393,14 @@ function App() {
       {/* Delete Confirmation Modal */}
       {deleteModal.show && (
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl" style={{ background: '#FFFFFF', border: '2px solid rgba(231, 76, 60, 0.5)' }}>
+          <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl" style={{ background: colors.bgElevated, border: '2px solid rgba(231, 76, 60, 0.5)' }}>
             <div className="flex items-start gap-4 mb-6">
               <div className="flex-shrink-0" style={{ color: '#E74C3C' }}>
                 <AlertCircle />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2" style={{ color: '#2C3E50' }}>Delete Bet</h3>
-                <p style={{ color: '#5D6D7E' }}>Are you sure you want to delete this bet? This action cannot be undone.</p>
+                <h3 className="text-xl font-bold mb-2" style={{ color: colors.textPrimary }}>Delete Bet</h3>
+                <p style={{ color: colors.textSecondary }}>Are you sure you want to delete this bet? This action cannot be undone.</p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -2194,7 +2414,7 @@ function App() {
               <button
                 onClick={() => setDeleteModal({ show: false, betId: null })}
                 className="flex-1 py-3 rounded-lg transition-all font-medium"
-                style={{ background: '#F5E6D3', color: '#5D6D7E' }}
+                style={{ background: colors.bgSecondary, color: colors.textSecondary }}
               >
                 Cancel
               </button>
@@ -2220,7 +2440,7 @@ function App() {
             <div className="text-8xl md:text-9xl font-black mb-4 opacity-90 drop-shadow-2xl" style={{ color: '#E74C3C' }}>
               RETIRED
             </div>
-            <div className="text-2xl md:text-3xl font-semibold opacity-90" style={{ color: '#2C3E50' }}>
+            <div className="text-2xl md:text-3xl font-semibold opacity-90" style={{ color: colors.textPrimary }}>
               {daysUntilRetirementEnds} {daysUntilRetirementEnds === 1 ? 'day' : 'days'} remaining
             </div>
           </div>
@@ -2230,27 +2450,30 @@ function App() {
       {/* Add Bet Modal */}
       {showAddBetModal && !isRetired && <AddBetModal key="add-bet-modal" />}
 
-      {/* Settings Menu */}
-      {showSettingsMenu && <SettingsMenu key="settings-menu" />}
-
       {/* Main Content */}
       <div className={`max-w-7xl mx-auto p-4 md:p-6 ${isRetired ? 'opacity-30' : ''}`}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => setShowSettingsMenu(true)}
-            className="p-2 rounded-lg transition-all"
-            style={{ color: '#2C3E50' }}
-          >
-            <Menu />
-          </button>
-          
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '24px'
+        }}>
+          <div style={{ width: '40px' }} />
           <CindyLogo />
-          
           <button
             onClick={toggleDisplayMode}
-            className="px-3 py-2 rounded-lg transition-all shadow-xl font-medium"
-            style={{ background: '#D4A574', color: '#FFFFFF', fontFamily: "'Inter', sans-serif" }}
+            style={{
+              padding: '8px 14px',
+              background: colors.accentPrimary,
+              color: colors.textPrimary,
+              border: 'none',
+              borderRadius: '10px',
+              fontSize: '15px',
+              fontWeight: '700',
+              cursor: 'pointer',
+              boxShadow: `0 2px 8px ${colors.shadow}`
+            }}
           >
             {displayMode === 'dollars' ? '$' : 'U'}
           </button>
@@ -2261,16 +2484,35 @@ function App() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 shadow-2xl" style={{ background: '#FFFFFF', borderTop: '1px solid #E8DCC8' }}>
+      <div className="fixed bottom-0 left-0 right-0 shadow-2xl" style={{ background: colors.bgElevated, borderTop: `1px solid ${colors.border}` }}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-around py-3">
             <button
               onClick={() => setCurrentPage('home')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all`}
-              style={{ color: currentPage === 'home' ? '#D4A574' : '#95A5A6' }}
+              style={{ color: currentPage === 'home' ? colors.accentPrimary : colors.textTertiary }}
             >
               <Home />
               <span className="text-xs font-medium">Home</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentPage('stats')}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '8px 12px',
+                color: currentPage === 'stats' ? colors.accentPrimary : colors.textSecondary,
+                flex: '1'
+              }}
+            >
+              <BarChart />
+              <span style={{ fontSize: '11px', fontWeight: '500' }}>Stats</span>
             </button>
 
             <button
@@ -2280,10 +2522,10 @@ function App() {
                   ? 'cursor-not-allowed' 
                   : ''
               }`}
-              style={{ color: isRetired ? '#BDC3C7' : '#95A5A6' }}
+              style={{ color: isRetired ? '#BDC3C7' : colors.textTertiary }}
               disabled={isRetired}
             >
-              <div className="p-2 rounded-full shadow-xl" style={{ background: isRetired ? '#BDC3C7' : 'linear-gradient(135deg, #D4A574 0%, #E8B887 100%)' }}>
+              <div className="p-2 rounded-full shadow-xl" style={{ background: isRetired ? '#BDC3C7' : `linear-gradient(135deg, ${colors.accentPrimary} 0%, #E8B887 100%)` }}>
                 <PlusCircle />
               </div>
               <span className="text-xs font-medium">Add Bet</span>
@@ -2292,7 +2534,7 @@ function App() {
             <button
               onClick={() => setCurrentPage('history')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all`}
-              style={{ color: currentPage === 'history' ? '#D4A574' : '#95A5A6' }}
+              style={{ color: currentPage === 'history' ? colors.accentPrimary : colors.textTertiary }}
             >
               <Clock />
               <span className="text-xs font-medium">History</span>
@@ -2301,7 +2543,7 @@ function App() {
             <button
               onClick={() => setCurrentPage('more')}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all`}
-              style={{ color: currentPage === 'more' ? '#D4A574' : '#95A5A6' }}
+              style={{ color: currentPage === 'more' ? colors.accentPrimary : colors.textTertiary }}
             >
               <MoreHorizontal />
               <span className="text-xs font-medium">More</span>
