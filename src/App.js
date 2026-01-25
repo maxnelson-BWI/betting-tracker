@@ -1,3 +1,7 @@
+// ============================================
+// PART 1 OF 3 - COPY THIS FIRST
+// ============================================
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
@@ -127,6 +131,20 @@ const ChevronUp = () => (
   </svg>
 );
 
+const ArrowRight = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+    <polyline points="12 5 19 12 12 19"></polyline>
+  </svg>
+);
+
+const ArrowLeft = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+);
+
 // ============================================
 // LOGO COMPONENT
 // ============================================
@@ -244,9 +262,9 @@ const numberStyle = {
 function App() {
   const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
-const [theme, setTheme] = useState('warm'); // NEW: Theme toggle
-const [showAddBetModal, setShowAddBetModal] = useState(false);
-const [addBetStep, setAddBetStep] = useState(1); // NEW: Multi-step modal
+  const [theme, setTheme] = useState('warm');
+  const [showAddBetModal, setShowAddBetModal] = useState(false);
+  const [addBetStep, setAddBetStep] = useState(1); // Multi-step modal state
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingBet, setEditingBet] = useState(null);
@@ -304,10 +322,10 @@ const [addBetStep, setAddBetStep] = useState(1); // NEW: Multi-step modal
     overUnder: 'all'
   });
   const [showAllBets, setShowAllBets] = useState(false);
-const [showFilters, setShowFilters] = useState(false); // NEW: Collapsible filters
+  const [showFilters, setShowFilters] = useState(false);
 
-// Collapsible sections state
-const [systemExpanded, setSystemExpanded] = useState(false);
+  // Collapsible sections state
+  const [systemExpanded, setSystemExpanded] = useState(false);
 
   // Animation state
   const [animation, setAnimation] = useState({ show: false, type: '', content: null, isStreak: false, streakText: '' });
@@ -383,6 +401,14 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     return () => unsubscribe();
   }, []);
 
+// ============================================
+// END OF PART 1
+// Continue with Part 2...
+// ============================================
+// ============================================
+// PART 2 OF 3 - COPY THIS SECOND (after Part 1)
+// ============================================
+
   const formatMoney = (dollarAmount) => {
     if (displayMode === 'units') {
       const units = dollarAmount / unitValue;
@@ -439,12 +465,10 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     }
   };
 
-  // Parse odds to determine favorite/underdog and over/under
   const parseBetDetails = (bet) => {
     const odds = parseFloat(bet.odds);
     const favoriteUnderdog = odds < 0 ? 'favorite' : odds > 0 ? 'underdog' : 'even';
     
-    // Check description or odds field for O/U notation
     const desc = bet.description?.toLowerCase() || '';
     const oddsStr = bet.odds?.toString() || '';
     let overUnder = 'none';
@@ -461,7 +485,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   const checkWarnings = () => {
     const units = parseFloat(formData.units);
     
-    // Warning 1: Betting more than threshold units
     if (notificationSettings.bigBet.enabled && units > notificationSettings.bigBet.threshold) {
       return {
         show: true,
@@ -470,7 +493,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       };
     }
 
-    // Warning 2: Favorite team + larger than threshold of recent bets
     if (notificationSettings.favoriteTeam.enabled && formData.favoriteTeam) {
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
@@ -496,7 +518,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       }
     }
 
-    // Warning 3: Down more than monthly limit
     if (notificationSettings.monthlyLimit.enabled) {
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
@@ -568,6 +589,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
         notes: ''
       });
       setShowAddBetModal(false);
+      setAddBetStep(1);
       setWarningModal({ show: false, message: '', type: '' });
     } catch (error) {
       console.error("Error adding bet:", error);
@@ -591,6 +613,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       notes: bet.notes || ''
     });
     setShowAddBetModal(true);
+    setAddBetStep(1);
   };
 
   const saveEdit = async (dataToSubmit = formData) => {
@@ -632,6 +655,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
         notes: ''
       });
       setShowAddBetModal(false);
+      setAddBetStep(1);
       setEditingBet(null);
       return null;
     } catch (error) {
@@ -657,6 +681,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       notes: ''
     });
     setShowAddBetModal(false);
+    setAddBetStep(1);
   };
 
   const getRandomWinAnimation = () => {
@@ -776,7 +801,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     });
     const monthlyLoss = monthBets.reduce((sum, bet) => sum + bet.payout, 0);
 
-    // Last month calculation - ADDED
     const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
     const lastMonthBets = settledBets.filter(bet => {
@@ -800,7 +824,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     const kindOfSystemBets = settledBets.filter(b => b.systemPlay === 'kind-of');
     const notSystemBets = settledBets.filter(b => b.systemPlay === 'not-system');
 
-    // Calculate win streak - ADDED
     let currentStreak = 0;
     for (const bet of settledBets) {
       if (bet.result === 'win') {
@@ -813,12 +836,12 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     return {
       totalDollars: totalDollars.toFixed(2),
       monthlyLoss: monthlyLoss.toFixed(2),
-      lastMonthPL: lastMonthPL.toFixed(2), // ADDED
+      lastMonthPL: lastMonthPL.toFixed(2),
       totalBets: settledBets.length,
       wins: settledBets.filter(b => b.result === 'win').length,
       losses: settledBets.filter(b => b.result === 'loss').length,
       winRate: settledBets.length ? ((settledBets.filter(b => b.result === 'win').length / settledBets.length) * 100).toFixed(1) : 0,
-      winStreak: currentStreak, // ADDED
+      winStreak: currentStreak,
       byType,
       bySport,
       favoriteTeamDollars: favoriteTeamBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
@@ -883,54 +906,27 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     { label: '5u', value: 5 }
   ];
 
-  const getSystemLabel = (systemPlay) => {
-    const labels = {
-      'clear': 'Clear System',
-      'kind-of': 'Kind Of',
-      'no-system': 'No System',
-      'not-system': 'Anti System',
-      'none': ''
-    };
-    return labels[systemPlay] || '';
-  };
-
-  const getSystemColor = (systemPlay) => {
-    const colors = {
-      'clear': 'bg-purple-500/20 text-emerald-300 border border-emerald-500/30',
-      'kind-of': 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
-      'no-system': 'bg-slate-500/20 text-slate-300 border border-slate-500/30',
-      'not-system': 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-    };
-    return colors[systemPlay] || '';
-  };
-
-  // Filter bets for history page
   const getFilteredBets = () => {
     let filtered = [...bets];
 
-    // Time range filter
     if (historyFilter.timeRange === '30days' && !showAllBets) {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       filtered = filtered.filter(bet => new Date(bet.date) >= thirtyDaysAgo);
     }
 
-    // Sport filter
     if (historyFilter.sport !== 'all') {
       filtered = filtered.filter(bet => bet.sport === historyFilter.sport);
-      }
+    }
 
-    // Bet type filter
     if (historyFilter.betType !== 'all') {
       filtered = filtered.filter(bet => bet.betType === historyFilter.betType);
     }
 
-    // Result filter
     if (historyFilter.result !== 'all') {
       filtered = filtered.filter(bet => bet.result === historyFilter.result);
     }
 
-    // Favorite/Underdog filter
     if (historyFilter.favoriteUnderdog !== 'all') {
       filtered = filtered.filter(bet => {
         const { favoriteUnderdog } = parseBetDetails(bet);
@@ -938,7 +934,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       });
     }
 
-    // Over/Under filter
     if (historyFilter.overUnder !== 'all') {
       filtered = filtered.filter(bet => {
         const { overUnder } = parseBetDetails(bet);
@@ -950,8 +945,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   };
 
   const filteredBets = getFilteredBets();
-
-  // Get recent bets for home page
   const recentBets = bets.slice(0, 5);
   const pendingBets = bets.filter(b => b.result === 'pending');
 
@@ -963,24 +956,139 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     );
   }
 
-  // Render different pages based on currentPage state
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'home':
-        return <HomePage />;
-      case 'stats':
-        return <StatsPage />;
-      case 'history':
-        return <HistoryPage />;
-      case 'more':
-        return <MorePage />;
-      default:
-        return <HomePage />;
-    }
-  };
+  // ADD BET MODAL COMPONENT - NEW MULTI-STEP VERSION
+  const AddBetModal = () => {
+    const [localFormData, setLocalFormData] = useState({
+      date: formData.date,
+      sport: formData.sport,
+      betType: formData.betType,
+      description: formData.description,
+      units: formData.units,
+      odds: formData.odds,
+      result: formData.result,
+      favoriteTeam: formData.favoriteTeam,
+      primeTime: formData.primeTime,
+      systemPlay: formData.systemPlay,
+      notes: formData.notes
+    });
+
+    useEffect(() => {
+      if (showAddBetModal) {
+        setLocalFormData({
+          date: formData.date,
+          sport: formData.sport,
+          betType: formData.betType,
+          description: formData.description,
+          units: formData.units,
+          odds: formData.odds,
+          result: formData.result,
+          favoriteTeam: formData.favoriteTeam,
+          primeTime: formData.primeTime,
+          systemPlay: formData.systemPlay,
+          notes: formData.notes
+        });
+      }
+    }, [showAddBetModal]);
+
+    const handleSubmit = async () => {
+      setFormData(localFormData);
+      let errorMsg;
+      if (editingBet) {
+        errorMsg = await saveEdit(localFormData);
+      } else {
+        errorMsg = handleAddBet(localFormData);
+      }
+      if (errorMsg) {
+        showToast(errorMsg, 'error');
+      }
+    };
+
+    const handleStepContinue = () => {
+      if (addBetStep === 1) {
+        if (!localFormData.sport || !localFormData.betType || !localFormData.description || !localFormData.units || !localFormData.odds) {
+          showToast('Please fill in all required fields', 'error');
+          return;
+        }
+        setAddBetStep(2);
+      } else if (addBetStep === 2) {
+        setAddBetStep(3);
+      } else if (addBetStep === 3) {
+        handleSubmit();
+      }
+    };
+
+    const calculateRiskWin = () => {
+      if (!localFormData.units || !localFormData.odds) return { risk: 0, win: 0 };
+      return calculateRiskAndWin(localFormData.units, localFormData.odds);
+    };
+
+    return (
+      <div 
+        className="fixed inset-0 z-50 flex items-end justify-center"
+        style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
+        onClick={cancelEdit}
+      >
+        <div 
+          className="rounded-t-3xl w-full max-w-2xl overflow-y-auto shadow-2xl"
+          style={{ 
+            background: colors.bgElevated,
+            borderTop: `1px solid ${colors.border}`,
+            minHeight: '85vh',
+            maxHeight: '85vh'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="border-b p-3 flex justify-between items-center"
+            style={{ 
+              position: 'sticky', 
+              top: 0, 
+              zIndex: 10,
+              background: colors.bgElevated,
+              borderBottom: `1px solid ${colors.border}`
+            }}
+          >
+            <h2 className="text-lg font-bold" style={{ color: colors.textPrimary }}>
+              {editingBet ? 'Edit Bet' : `New Bet - Step ${addBetStep} of 3`}
+            </h2>
+            <button
+              onClick={cancelEdit}
+              className="transition-colors"
+              style={{ color: colors.textTertiary }}
+            >
+              <X />
+            </button>
+          </div>
+
+          {/* Step Indicator */}
+          {!editingBet && (
+            <div style={{ 
+              padding: '16px 20px',
+              display: 'flex',
+              gap: '8px'
+            }}>
+              {[1, 2, 3].map(step => (
+                <div key={step} style={{
+                  flex: 1,
+                  height: '4px',
+                  background: step <= addBetStep ? colors.accentPrimary : colors.bgSecondary,
+                  borderRadius: '2px',
+                  transition: 'all 0.3s ease'
+                }} />
+              ))}
+            </div>
+          )}
+
+// ============================================
+// Continue with Part 3 for the rest of the modal steps and pages...
+// ============================================
+// ============================================
+// PART 3 OF 3 - COPY THIS THIRD (after Part 2)
+// Paste this directly after Part 2 with no gap
+// ============================================
 
   // ============================================
-  // HOME PAGE COMPONENT - MATCHES MOCKUP EXACTLY
+  // HOME PAGE COMPONENT
   // ============================================
   const HomePage = () => (
     <div style={{ paddingBottom: '100px' }}>
@@ -1159,7 +1267,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                 {stats.systemWinRate}% Win Rate
               </div>
             </div>
-{systemExpanded ? <ChevronUp /> : <ChevronDown />}
+            {systemExpanded ? <ChevronUp /> : <ChevronDown />}
           </div>
         </button>
 
@@ -1251,18 +1359,18 @@ const [systemExpanded, setSystemExpanded] = useState(false);
             Recent Bets
           </h3>
           <button
-  onClick={() => setCurrentPage('history')}
-  style={{
-    background: 'transparent',
-    border: 'none',
-    color: colors.accentPrimary,
-    fontSize: '13px',
-    fontWeight: '700',  // Changed from 600 to 700
-    cursor: 'pointer'
-  }}
->
-  View All →
-</button>
+            onClick={() => setCurrentPage('history')}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: colors.accentPrimary,
+              fontSize: '13px',
+              fontWeight: '700',
+              cursor: 'pointer'
+            }}
+          >
+            View All →
+          </button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {recentBets.length === 0 ? (
@@ -1278,8 +1386,9 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       </div>
     </div>
   );
+
   // ============================================
-  // STATS PAGE COMPONENT - NEW PAGE
+  // STATS PAGE COMPONENT
   // ============================================
   const StatsPage = () => (
     <div style={{ paddingBottom: '100px' }}>
@@ -1435,8 +1544,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       </div>
     </div>
   );
-
-  // HISTORY PAGE COMPONENT
   const HistoryPage = () => (
     <div className="pb-20 animate-fadeIn">
       <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
@@ -2123,6 +2230,10 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   );
 
   // ADD BET MODAL COMPONENT
+
+  // ============================================
+  // NEW ADD BET MODAL - MULTI-STEP VERSION
+  // ============================================
   const AddBetModal = () => {
     const [localFormData, setLocalFormData] = useState({
       date: formData.date,
@@ -2169,314 +2280,800 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       }
     };
 
+    const handleStepContinue = () => {
+      if (addBetStep === 1) {
+        if (!localFormData.sport || !localFormData.betType || !localFormData.description || !localFormData.units || !localFormData.odds) {
+          showToast('Please fill in all required fields', 'error');
+          return;
+        }
+        setAddBetStep(2);
+      } else if (addBetStep === 2) {
+        setAddBetStep(3);
+      } else if (addBetStep === 3) {
+        handleSubmit();
+      }
+    };
+
+    const calculateRiskWin = () => {
+      if (!localFormData.units || !localFormData.odds) return { risk: 0, win: 0 };
+      return calculateRiskAndWin(localFormData.units, localFormData.odds);
+    };
+
     return (
-    <div 
-      className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
-      onClick={cancelEdit}
-    >
       <div 
-        className="rounded-t-3xl w-full max-w-2xl overflow-y-auto shadow-2xl"
-        style={{ 
-          background: colors.bgElevated,
-          borderTop: `1px solid ${colors.border}`,
-          minHeight: '80vh',
-          maxHeight: '80vh'
-        }}
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-50 flex items-end justify-center"
+        style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
+        onClick={cancelEdit}
       >
-        <div className="border-b p-3 flex justify-between items-center"
+        <div 
+          className="rounded-t-3xl w-full max-w-2xl overflow-y-auto shadow-2xl"
           style={{ 
-            position: 'sticky', 
-            top: 0, 
-            zIndex: 10,
             background: colors.bgElevated,
-            borderBottom: `1px solid ${colors.border}`
+            borderTop: `1px solid ${colors.border}`,
+            minHeight: '85vh',
+            maxHeight: '85vh'
           }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <h2 className="text-lg font-bold" style={{ color: colors.textPrimary }}>{editingBet ? 'Edit Bet' : 'New Bet'}</h2>
-          <button
-            onClick={cancelEdit}
-            className="transition-colors"
-            style={{ color: colors.textTertiary }}
+          {/* Header */}
+          <div className="border-b p-3 flex justify-between items-center"
+            style={{ 
+              position: 'sticky', 
+              top: 0, 
+              zIndex: 10,
+              background: colors.bgElevated,
+              borderBottom: `1px solid ${colors.border}`
+            }}
           >
-            <X />
-          </button>
-        </div>
-        
-        <div className="p-4 space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Date</label>
-            <input
-              type="date"
-              value={localFormData.date}
-              onChange={(e) => setLocalFormData({...localFormData, date: e.target.value})}
-              className="w-full p-2 rounded-lg"
-              style={{ 
-                border: `1px solid ${colors.border}`, 
-                background: colors.bgElevated, 
-                color: colors.textPrimary
-              }}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Sport</label>
-            <select
-              value={localFormData.sport}
-              onChange={(e) => setLocalFormData({...localFormData, sport: e.target.value})}
-              className="w-full p-2 rounded-lg"
-              style={{ 
-                border: `1px solid ${colors.border}`, 
-                background: colors.bgElevated, 
-                color: colors.textPrimary
-              }}
-            >
-              <option value="">Select...</option>
-              <option value="nfl">NFL</option>
-              <option value="nba">NBA</option>
-              <option value="mlb">MLB</option>
-              <option value="nhl">NHL</option>
-              <option value="ncaaf">NCAAF</option>
-              <option value="ncaab">NCAAB</option>
-              <option value="boxing">Boxing/UFC</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Bet Type</label>
-            <select
-              value={localFormData.betType}
-              onChange={(e) => setLocalFormData({...localFormData, betType: e.target.value})}
-              className="w-full p-2 rounded-lg"
-              style={{ 
-                border: `1px solid ${colors.border}`, 
-                background: colors.bgElevated, 
-                color: colors.textPrimary
-              }}
-            >
-              <option value="">Select...</option>
-              <option value="straight">Straight</option>
-              <option value="money-line">Money Line</option>
-              <option value="over-under">Over/Under</option>
-              <option value="teaser">Teaser</option>
-              <option value="parlay">Parlay</option>
-              <option value="longshot-parlay">Long Shot Parlay (+500)</option>
-              <option value="prop">Prop</option>
-              <option value="future">Future</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Units</label>
-            <input
-              type="number"
-              step="0.25"
-              value={localFormData.units}
-              onChange={(e) => setLocalFormData({...localFormData, units: e.target.value})}
-              className="w-full p-2 rounded-lg mb-2"
-              style={{ 
-                border: `1px solid ${colors.border}`, 
-                background: colors.bgElevated, 
-                color: colors.textPrimary
-              }}
-              placeholder="e.g., 1, 2, 0.5"
-            />
-            <div className="flex gap-1 flex-wrap">
-              {quickAddButtons.map(btn => (
-                <button
-                  key={btn.value}
-                  type="button"
-                  onClick={() => setLocalFormData({...localFormData, units: btn.value.toString()})}
-                  className="px-2 py-1 text-xs rounded transition-all"
-                  style={{ background: colors.bgSecondary, color: colors.textPrimary }}
-                >
-                  {btn.label}
-                </button>
-              ))}
-            </div>
-            {localFormData.units && localFormData.odds && (
-              <div className="text-xs mt-2" style={{ color: colors.textSecondary }}>
-                Risk: ${calculateRiskAndWin(localFormData.units, localFormData.odds).risk.toFixed(2)} | 
-                Win: ${calculateRiskAndWin(localFormData.units, localFormData.odds).win.toFixed(2)}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Odds (American)</label>
-            <input
-              id="bet-odds"
-              type="text"
-              value={localFormData.odds}
-              onChange={(e) => setLocalFormData({...localFormData, odds: e.target.value})}
-              className="w-full p-2 rounded-lg"
-              style={{ 
-                border: `1px solid ${colors.border}`, 
-                background: colors.bgElevated, 
-                color: colors.textPrimary
-              }}
-              placeholder="e.g., -110, +150"
-              autoComplete="off"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Result</label>
-            <select
-              value={localFormData.result}
-              onChange={(e) => setLocalFormData({...localFormData, result: e.target.value})}
-              className="w-full p-2 rounded-lg"
-              style={{ 
-                border: `1px solid ${colors.border}`, 
-                background: colors.bgElevated, 
-                color: colors.textPrimary
-              }}
-            >
-              <option value="pending">Pending</option>
-              <option value="win">Win</option>
-              <option value="loss">Loss</option>
-              <option value="push">Push</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Description</label>
-            <input
-              id="bet-description"
-              type="text"
-              value={localFormData.description}
-              onChange={(e) => setLocalFormData({...localFormData, description: e.target.value})}
-              className="w-full p-2 rounded-lg"
-              style={{ 
-                border: `1px solid ${colors.border}`, 
-                background: colors.bgElevated, 
-                color: colors.textPrimary
-              }}
-              placeholder="e.g., Chiefs -3 vs Bills"
-              autoComplete="off"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: colors.textPrimary }}>Notes (Optional)</label>
-            <textarea
-              id="bet-notes"
-              value={localFormData.notes}
-              onChange={(e) => setLocalFormData({...localFormData, notes: e.target.value})}
-              className="w-full p-2 rounded-lg"
-              style={{ 
-                border: `1px solid ${colors.border}`, 
-                background: colors.bgElevated, 
-                color: colors.textPrimary
-              }}
-              placeholder="e.g., Reverse line movement from -7 to -6.5"
-              rows="2"
-              autoComplete="off"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: colors.textPrimary }}>System Play Classification</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setLocalFormData({...localFormData, systemPlay: 'clear'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all`}
-                style={{
-                  borderColor: localFormData.systemPlay === 'clear' ? '#9B59B6' : colors.border,
-                  background: localFormData.systemPlay === 'clear' ? 'rgba(155, 89, 182, 0.15)' : colors.bgElevated,
-                  color: localFormData.systemPlay === 'clear' ? '#9B59B6' : colors.textSecondary
-                }}
-              >
-                Clear System
-              </button>
-              <button
-                type="button"
-                onClick={() => setLocalFormData({...localFormData, systemPlay: 'kind-of'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all`}
-                style={{
-                  borderColor: localFormData.systemPlay === 'kind-of' ? '#3498DB' : colors.border,
-                  background: localFormData.systemPlay === 'kind-of' ? 'rgba(52, 152, 219, 0.15)' : colors.bgElevated,
-                  color: localFormData.systemPlay === 'kind-of' ? '#3498DB' : colors.textSecondary
-                }}
-              >
-                Kind Of
-              </button>
-              <button
-                type="button"
-                onClick={() => setLocalFormData({...localFormData, systemPlay: 'no-system'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all`}
-                style={{
-                  borderColor: localFormData.systemPlay === 'no-system' ? '#95A5A6' : colors.border,
-                  background: localFormData.systemPlay === 'no-system' ? 'rgba(149, 165, 166, 0.15)' : colors.bgElevated,
-                  color: localFormData.systemPlay === 'no-system' ? '#95A5A6' : colors.textSecondary
-                }}
-              >
-                No System
-              </button>
-              <button
-                type="button"
-                onClick={() => setLocalFormData({...localFormData, systemPlay: 'not-system'})}
-                className={`p-2 border-2 rounded-lg text-sm transition-all`}
-                style={{
-                  borderColor: localFormData.systemPlay === 'not-system' ? '#E74C3C' : colors.border,
-                  background: localFormData.systemPlay === 'not-system' ? 'rgba(231, 76, 60, 0.15)' : colors.bgElevated,
-                  color: localFormData.systemPlay === 'not-system' ? '#E74C3C' : colors.textSecondary
-                }}
-              >
-                Anti System
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={localFormData.favoriteTeam}
-                onChange={(e) => setLocalFormData({...localFormData, favoriteTeam: e.target.checked})}
-                className="w-4 h-4 rounded"
-                style={{ accentColor: colors.accentPrimary }}
-              />
-              <span className="text-sm" style={{ color: colors.textPrimary }}>Favorite Team</span>
-            </label>
-
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={localFormData.primeTime}
-                onChange={(e) => setLocalFormData({...localFormData, primeTime: e.target.checked})}
-                className="w-4 h-4 rounded"
-                style={{ accentColor: colors.accentPrimary }}
-              />
-              <span className="text-sm" style={{ color: colors.textPrimary }}>Prime Time Game</span>
-            </label>
-          </div>
-
-          <div className="flex gap-2 pt-4">
-            <button
-              onClick={handleSubmit}
-              className="flex-1 py-3 rounded-lg transition-all shadow-xl font-medium"
-              style={{ background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #E8B887 100%)`, color: '#FFFFFF' }}
-            >
-              {editingBet ? 'Save Changes' : 'Add Bet'}
-            </button>
+            <h2 className="text-lg font-bold" style={{ color: colors.textPrimary }}>
+              {editingBet ? 'Edit Bet' : `New Bet - Step ${addBetStep} of 3`}
+            </h2>
             <button
               onClick={cancelEdit}
-              className="flex-1 py-3 rounded-lg transition-all font-medium"
-              style={{ background: colors.bgSecondary, color: colors.textSecondary }}
+              className="transition-colors"
+              style={{ color: colors.textTertiary }}
             >
-              Cancel
+              <X />
             </button>
+          </div>
+
+          {/* Step Indicator */}
+          {!editingBet && (
+            <div style={{ 
+              padding: '16px 20px',
+              display: 'flex',
+              gap: '8px'
+            }}>
+              {[1, 2, 3].map(step => (
+                <div key={step} style={{
+                  flex: 1,
+                  height: '4px',
+                  background: step <= addBetStep ? colors.accentPrimary : colors.bgSecondary,
+                  borderRadius: '2px',
+                  transition: 'all 0.3s ease'
+                }} />
+              ))}
+            </div>
+          )}
+
+          <div className="p-4 space-y-4">
+            {/* STEP 1: THE BASICS */}
+            {(addBetStep === 1 || editingBet) && (
+              <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+                {!editingBet && (
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '20px' }}>
+                    The Basics
+                  </h3>
+                )}
+
+                {/* Date */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '8px' }}>
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    value={localFormData.date}
+                    onChange={(e) => setLocalFormData({...localFormData, date: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: colors.bgSecondary,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      color: colors.textPrimary
+                    }}
+                  />
+                </div>
+
+                {/* Sport Selection */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Sport
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                    {[
+                      { name: 'NFL', value: 'nfl' },
+                      { name: 'NCAAF', value: 'ncaaf' },
+                      { name: 'NBA', value: 'nba' },
+                      { name: 'NCAAB', value: 'ncaab' },
+                      { name: 'MLB', value: 'mlb' },
+                      { name: 'Boxing/UFC', value: 'boxing' },
+                      { name: 'Other', value: 'other' },
+                    ].map(sport => (
+                      <button
+                        key={sport.value}
+                        type="button"
+                        onClick={() => setLocalFormData({ ...localFormData, sport: sport.value })}
+                        style={{
+                          padding: '14px 8px',
+                          background: localFormData.sport === sport.value ? colors.accentPrimary : colors.bgSecondary,
+                          border: `2px solid ${localFormData.sport === sport.value ? colors.accentPrimary : colors.border}`,
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          color: colors.textPrimary,
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {sport.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bet Type Selection */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Bet Type
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                    {[
+                      { name: 'Spread', value: 'straight' },
+                      { name: 'ML', value: 'money-line' },
+                      { name: 'O/U', value: 'over-under' },
+                      { name: 'Parlay', value: 'parlay' },
+                      { name: 'Teaser', value: 'teaser' },
+                      { name: 'Prop', value: 'prop' },
+                      { name: 'Future', value: 'future' },
+                      { name: '+500 Parlay', value: 'longshot-parlay' },
+                    ].map(type => (
+                      <button
+                        key={type.value}
+                        type="button"
+                        onClick={() => setLocalFormData({ ...localFormData, betType: type.value })}
+                        style={{
+                          padding: '12px 8px',
+                          background: localFormData.betType === type.value ? colors.accentPrimary : colors.bgSecondary,
+                          border: `2px solid ${localFormData.betType === type.value ? colors.accentPrimary : colors.border}`,
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '700',
+                          color: colors.textPrimary,
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {type.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '8px' }}>
+                    Description
+                  </label>
+                  <input
+                    id="bet-description"
+                    type="text"
+                    placeholder="e.g., Chiefs -3 vs Bills"
+                    value={localFormData.description}
+                    onChange={(e) => setLocalFormData({ ...localFormData, description: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: colors.bgSecondary,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      color: colors.textPrimary,
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                    autoComplete="off"
+                  />
+                </div>
+
+                {/* Units */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '12px' }}>
+                    Units
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                    {quickAddButtons.map(btn => (
+                      <button
+                        key={btn.value}
+                        type="button"
+                        onClick={() => setLocalFormData({ ...localFormData, units: btn.value.toString() })}
+                        style={{
+                          flex: 1,
+                          padding: '14px',
+                          background: localFormData.units === btn.value.toString() ? colors.accentPrimary : colors.bgSecondary,
+                          border: `2px solid ${localFormData.units === btn.value.toString() ? colors.accentPrimary : colors.border}`,
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          fontSize: '16px',
+                          fontWeight: '700',
+                          color: colors.textPrimary,
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {btn.label}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="number"
+                    placeholder="Custom amount"
+                    step="0.25"
+                    value={localFormData.units}
+                    onChange={(e) => setLocalFormData({ ...localFormData, units: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: colors.bgSecondary,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      color: colors.textPrimary,
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                  {localFormData.units && localFormData.odds && (
+                    <div style={{ fontSize: '12px', color: colors.textSecondary, marginTop: '8px' }}>
+                      Risk: ${calculateRiskWin().risk.toFixed(2)} | To Win: ${calculateRiskWin().win.toFixed(2)}
+                    </div>
+                  )}
+                </div>
+
+                {/* Odds */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '8px' }}>
+                    Odds (American)
+                  </label>
+                  <input
+                    id="bet-odds"
+                    type="text"
+                    placeholder="e.g., -110 or +150"
+                    value={localFormData.odds}
+                    onChange={(e) => setLocalFormData({ ...localFormData, odds: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: colors.bgSecondary,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      color: colors.textPrimary,
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                    autoComplete="off"
+                  />
+                </div>
+
+                {!editingBet && (
+                  <button
+                    onClick={handleStepContinue}
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
+                      color: colors.textPrimary,
+                      border: 'none',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    Continue
+                    <ArrowRight />
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* STEP 2: OPTIONAL DETAILS */}
+            {addBetStep === 2 && !editingBet && (
+              <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+                  Additional Details
+                </h3>
+                <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '20px' }}>
+                  Optional - Skip if you want to add the bet quickly
+                </p>
+
+                {/* System Classification */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    System Play Classification
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                    {[
+                      { name: 'Clear System', value: 'clear', color: colors.accentSystem },
+                      { name: 'Kind Of', value: 'kind-of', color: '#6B8CAE' },
+                      { name: 'No System', value: 'no-system', color: colors.textSecondary },
+                      { name: 'Anti System', value: 'not-system', color: colors.accentLoss },
+                    ].map(sys => (
+                      <button
+                        key={sys.value}
+                        type="button"
+                        onClick={() => setLocalFormData({...localFormData, systemPlay: sys.value})}
+                        style={{
+                          padding: '14px',
+                          background: localFormData.systemPlay === sys.value ? sys.color + '20' : colors.bgSecondary,
+                          border: `2px solid ${localFormData.systemPlay === sys.value ? sys.color : colors.border}`,
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          color: localFormData.systemPlay === sys.value ? sys.color : colors.textPrimary,
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {sys.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Checkboxes */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '16px',
+                    background: colors.bgSecondary,
+                    borderRadius: '12px',
+                    marginBottom: '12px',
+                    cursor: 'pointer',
+                    border: `1px solid ${colors.border}`
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={localFormData.favoriteTeam}
+                      onChange={(e) => setLocalFormData({...localFormData, favoriteTeam: e.target.checked})}
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        cursor: 'pointer',
+                        accentColor: colors.accentPrimary
+                      }}
+                    />
+                    <span style={{ fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>
+                      Favorite Team
+                    </span>
+                  </label>
+
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '16px',
+                    background: colors.bgSecondary,
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    border: `1px solid ${colors.border}`
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={localFormData.primeTime}
+                      onChange={(e) => setLocalFormData({...localFormData, primeTime: e.target.checked})}
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        cursor: 'pointer',
+                        accentColor: colors.accentPrimary
+                      }}
+                    />
+                    <span style={{ fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>
+                      Prime Time Game
+                    </span>
+                  </label>
+                </div>
+
+                {/* Notes */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '8px' }}>
+                    Notes (Optional)
+                  </label>
+                  <textarea
+                    id="bet-notes"
+                    placeholder="e.g., Reverse line movement..."
+                    rows="3"
+                    value={localFormData.notes}
+                    onChange={(e) => setLocalFormData({...localFormData, notes: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: colors.bgSecondary,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      color: colors.textPrimary,
+                      outline: 'none',
+                      resize: 'none',
+                      boxSizing: 'border-box',
+                      fontFamily: 'inherit'
+                    }}
+                    autoComplete="off"
+                  />
+                </div>
+
+                {/* Navigation */}
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                  <button
+                    onClick={() => setAddBetStep(1)}
+                    style={{
+                      flex: 1,
+                      padding: '16px',
+                      background: colors.bgSecondary,
+                      color: colors.textPrimary,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <ArrowLeft />
+                    Back
+                  </button>
+                  <button
+                    onClick={handleStepContinue}
+                    style={{
+                      flex: 2,
+                      padding: '16px',
+                      background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
+                      color: colors.textPrimary,
+                      border: 'none',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    Continue
+                    <ArrowRight />
+                  </button>
+                </div>
+
+                {/* Skip Button */}
+                <button
+                  onClick={handleStepContinue}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: 'transparent',
+                    color: colors.textSecondary,
+                    border: 'none',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Skip & Continue
+                </button>
+              </div>
+            )}
+
+            {/* STEP 3: REVIEW & CONFIRM */}
+            {addBetStep === 3 && !editingBet && (
+              <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '20px' }}>
+                  Review Your Bet
+                </h3>
+
+                {/* Summary Card */}
+                <div style={{
+                  background: colors.bgSecondary,
+                  padding: '20px',
+                  borderRadius: '16px',
+                  marginBottom: '20px',
+                  border: `1px solid ${colors.border}`
+                }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
+                      Description
+                    </div>
+                    <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
+                      {localFormData.description}
+                    </div>
+                  </div>
+
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(2, 1fr)', 
+                    gap: '16px',
+                    paddingTop: '16px',
+                    borderTop: `1px solid ${colors.border}`
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
+                        Sport
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                        {getSportLabel(localFormData.sport)}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
+                        Bet Type
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                        {formatBetType(localFormData.betType)}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
+                        Units
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                        {localFormData.units}u
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
+                        Odds
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                        {localFormData.odds > 0 ? '+' : ''}{localFormData.odds}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    marginTop: '16px',
+                    paddingTop: '16px',
+                    borderTop: `1px solid ${colors.border}`,
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '16px'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
+                        Risk Amount
+                      </div>
+                      <div style={{ fontSize: '16px', fontWeight: '700', color: colors.accentLoss }}>
+                        ${calculateRiskWin().risk.toFixed(2)}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
+                        To Win
+                      </div>
+                      <div style={{ fontSize: '16px', fontWeight: '700', color: colors.accentWin }}>
+                        ${calculateRiskWin().win.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Navigation */}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    onClick={() => setAddBetStep(2)}
+                    style={{
+                      flex: 1,
+                      padding: '16px',
+                      background: colors.bgSecondary,
+                      color: colors.textPrimary,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <ArrowLeft />
+                    Back
+                  </button>
+                  <button
+                    onClick={handleStepContinue}
+                    style={{
+                      flex: 2,
+                      padding: '16px',
+                      background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
+                      color: colors.textPrimary,
+                      border: 'none',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Place Bet
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* For Edit Mode - Show all fields + Result + Single Save Button */}
+            {editingBet && (
+              <>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '8px' }}>
+                    Result
+                  </label>
+                  <select
+                    value={localFormData.result}
+                    onChange={(e) => setLocalFormData({...localFormData, result: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: colors.bgSecondary,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      color: colors.textPrimary
+                    }}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="win">Win</option>
+                    <option value="loss">Loss</option>
+                    <option value="push">Push</option>
+                  </select>
+                </div>
+
+                {/* System Classification for Edit */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    System Play
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                    {[
+                      { name: 'Clear System', value: 'clear', color: colors.accentSystem },
+                      { name: 'Kind Of', value: 'kind-of', color: '#6B8CAE' },
+                      { name: 'No System', value: 'no-system', color: colors.textSecondary },
+                      { name: 'Anti System', value: 'not-system', color: colors.accentLoss },
+                    ].map(sys => (
+                      <button
+                        key={sys.value}
+                        type="button"
+                        onClick={() => setLocalFormData({...localFormData, systemPlay: sys.value})}
+                        style={{
+                          padding: '14px',
+                          background: localFormData.systemPlay === sys.value ? sys.color + '20' : colors.bgSecondary,
+                          border: `2px solid ${localFormData.systemPlay === sys.value ? sys.color : colors.border}`,
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          color: localFormData.systemPlay === sys.value ? sys.color : colors.textPrimary,
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {sys.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Checkboxes for Edit */}
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="checkbox"
+                      checked={localFormData.favoriteTeam}
+                      onChange={(e) => setLocalFormData({...localFormData, favoriteTeam: e.target.checked})}
+                      style={{ width: '18px', height: '18px', accentColor: colors.accentPrimary }}
+                    />
+                    <span style={{ fontSize: '13px', fontWeight: '500', color: colors.textPrimary }}>Favorite Team</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="checkbox"
+                      checked={localFormData.primeTime}
+                      onChange={(e) => setLocalFormData({...localFormData, primeTime: e.target.checked})}
+                      style={{ width: '18px', height: '18px', accentColor: colors.accentPrimary }}
+                    />
+                    <span style={{ fontSize: '13px', fontWeight: '500', color: colors.textPrimary }}>Prime Time</span>
+                  </label>
+                </div>
+
+                {/* Notes for Edit */}
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '8px' }}>
+                    Notes (Optional)
+                  </label>
+                  <textarea
+                    id="bet-notes"
+                    rows="2"
+                    value={localFormData.notes}
+                    onChange={(e) => setLocalFormData({...localFormData, notes: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: colors.bgSecondary,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      fontSize: '14px',
+                      color: colors.textPrimary,
+                      outline: 'none',
+                      resize: 'none',
+                      boxSizing: 'border-box',
+                      fontFamily: 'inherit'
+                    }}
+                    autoComplete="off"
+                  />
+                </div>
+
+                {/* Edit Mode Buttons */}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    onClick={handleSubmit}
+                    style={{
+                      flex: 1,
+                      padding: '16px',
+                      background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
+                      color: colors.textPrimary,
+                      border: 'none',
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={cancelEdit}
+                    style={{
+                      flex: 1,
+                      padding: '16px',
+                      background: colors.bgSecondary,
+                      color: colors.textSecondary,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '12px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
-    </div>
     );
   };
-
   return (
     <div className="min-h-screen" style={{ background: colors.bgPrimary }}>
       {/* Animation Overlay */}
