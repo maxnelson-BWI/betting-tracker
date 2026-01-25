@@ -2064,22 +2064,57 @@ const [systemExpanded, setSystemExpanded] = useState(false);
         Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
       </div>
 
-      {/* Bottom Row: Result badge on left, Edit/Delete on right */}
+      {/* Bottom Row: Result badge OR action buttons for pending */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           {bet.result === 'pending' ? (
-            <span style={{
-              fontSize: '12px',
-              fontWeight: '700',
-              padding: '8px 16px',
-              borderRadius: '12px',
-              background: 'rgba(231, 76, 60, 0.15)',
-              color: '#E74C3C',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              PENDING
-            </span>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                onClick={() => updateBetResult(bet.id, 'win')}
+                style={{
+                  padding: '8px 16px',
+                  background: colors.accentWin,
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                WIN
+              </button>
+              <button
+                onClick={() => updateBetResult(bet.id, 'loss')}
+                style={{
+                  padding: '8px 16px',
+                  background: colors.accentLoss,
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                LOSS
+              </button>
+              <button
+                onClick={() => updateBetResult(bet.id, 'push')}
+                style={{
+                  padding: '8px 16px',
+                  background: colors.textTertiary,
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                PUSH
+              </button>
+            </div>
           ) : (
             <span style={{
               fontSize: '12px',
