@@ -907,7 +907,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   // Filter bets for history page
   const getFilteredBets = () => {
     let filtered = [...bets];
-
     // Time range filter
     if (historyFilter.timeRange === '30days' && !showAllBets) {
       const thirtyDaysAgo = new Date();
@@ -918,7 +917,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     // Sport filter
     if (historyFilter.sport !== 'all') {
       filtered = filtered.filter(bet => bet.sport === historyFilter.sport);
-      }
+    }
 
     // Bet type filter
     if (historyFilter.betType !== 'all') {
@@ -1985,138 +1984,120 @@ const [systemExpanded, setSystemExpanded] = useState(false);
 
   // BET CARD COMPONENT - UPDATED with isPending prop
   const BetCard = ({ bet, showActions = false, isPending = false }) => (
-    <div className="rounded-2xl p-4 transition-all duration-200 shadow-xl" style={{ border: `1px solid ${colors.border}`, background: colors.bgSecondary }}>
-      <div className="flex justify-between items-start mb-2">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="text-xs font-bold px-3 py-1 rounded-lg" style={{ 
-              background: colors.accentPrimary, 
-              color: '#FFFFFF',
-              fontFamily: "'Outfit', sans-serif",
-              letterSpacing: '0.5px',
-              boxShadow: `0 2px 4px ${colors.shadow}`
-            }}>
-              {getSportLabel(bet.sport)}
-            </span>
-            <span className="font-semibold" style={{ color: colors.textPrimary, fontFamily: "'Inter', sans-serif" }}>{bet.description}</span>
-            {bet.favoriteTeam && <span style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '8px', background: `${colors.accentFavoriteTeam}20`, color: colors.accentFavoriteTeam, border: `1px solid ${colors.accentFavoriteTeam}40` }}>Fav Team</span>}
-            {bet.primeTime && <span style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '8px', background: `${colors.accentPrimeTime}20`, color: colors.accentPrimeTime, border: `1px solid ${colors.accentPrimeTime}40` }}>Prime Time</span>}
-            {bet.systemPlay !== 'none' && (
-              <span className={`text-xs px-2 py-0.5 rounded-full ${getSystemColor(bet.systemPlay)}`}>
-                {getSystemLabel(bet.systemPlay)}
-              </span>
-            )}
-          </div>
-          <div className="text-sm" style={{ color: colors.textSecondary, fontFamily: "'Inter', sans-serif" }}>
-            {bet.date} • {bet.sport.toUpperCase()} • {formatBetType(bet.betType)} • {bet.units} units @ {bet.odds > 0 ? '+' : ''}{bet.odds}
-          </div>
-          <div className="text-xs mt-1" style={{ color: colors.textTertiary, fontFamily: "'Inter', sans-serif", fontFeatureSettings: "'tnum' 1" }}>
-            Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
-          </div>
-          {bet.notes && (
-            <div className="text-xs mt-1 italic" style={{ color: colors.textTertiary, fontFamily: "'Inter', sans-serif" }}>
-              Note: {bet.notes}
-            </div>
-          )}
+    <div style={{ 
+      background: colors.bgSecondary, 
+      borderRadius: '20px', 
+      padding: '16px', 
+      border: `1px solid ${colors.border}`,
+      boxShadow: `0 2px 8px ${colors.shadow}`
+    }}>
+      {/* Top Row: Sport Badge + Description + P/L Amount (for settled bets) */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+          <span style={{ 
+            background: colors.accentPrimary, 
+            color: '#FFFFFF',
+            fontSize: '13px',
+            fontWeight: '700',
+            padding: '6px 14px',
+            borderRadius: '10px',
+            letterSpacing: '0.3px'
+          }}>
+            {getSportLabel(bet.sport)}
+          </span>
+          <span style={{ 
+            fontSize: '16px', 
+            fontWeight: '600', 
+            color: colors.textPrimary 
+          }}>
+            {bet.description}
+          </span>
         </div>
-        <div className="text-right">
-          {bet.result === 'pending' ? (
-            <div className="flex gap-1">
-              <button
-                onClick={() => updateBetResult(bet.id, 'win')}
-                style={{
-                  padding: '8px 12px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  background: colors.accentWin,
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '12px',
-                  cursor: isRetired ? 'not-allowed' : 'pointer'
-                }}
-                disabled={isRetired}
-              >
-                Win
-              </button>
-              <button
-                onClick={() => updateBetResult(bet.id, 'loss')}
-                style={{
-                  padding: '8px 12px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  background: colors.accentLoss,
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '12px',
-                  cursor: isRetired ? 'not-allowed' : 'pointer'
-                }}
-                disabled={isRetired}
-              >
-                Loss
-              </button>
-              <button
-                onClick={() => updateBetResult(bet.id, 'push')}
-                style={{
-                  padding: '8px 12px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  background: colors.bgSecondary,
-                  color: colors.textPrimary,
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: '12px',
-                  cursor: isRetired ? 'not-allowed' : 'pointer'
-                }}
-                disabled={isRetired}
-              >
-                Push
-              </button>
-            </div>
-          ) : (
-            <div className="font-semibold" style={{ 
-              color: bet.payout > 0 ? colors.accentWin : bet.payout < 0 ? colors.accentLoss : colors.textTertiary,
-              fontFamily: "'Inter', sans-serif",
-              fontFeatureSettings: "'tnum' 1"
-            }}>
-              {formatMoney(bet.payout)}
-            </div>
-          )}
-        </div>
+        {bet.result !== 'pending' && (
+          <div style={{ 
+            fontSize: '20px', 
+            fontWeight: '800', 
+            color: bet.payout >= 0 ? colors.accentWin : colors.accentLoss,
+            ...numberStyle
+          }}>
+            {formatMoney(bet.payout)}
+          </div>
+        )}
       </div>
-      <div className="flex justify-between items-center mt-2 pt-2" style={{ borderTop: `1px solid ${colors.border}` }}>
-        <span style={{
-          fontSize: '12px',
-          fontWeight: '600',
-          padding: '6px 12px',
-          borderRadius: '8px',
-          background: bet.result === 'win' ? `${colors.accentWin}20` : 
-                      bet.result === 'loss' ? `${colors.accentLoss}20` : 
-                      bet.result === 'push' ? `${colors.textTertiary}20` : 
-                      `${colors.accentPrimary}20`,
-          color: bet.result === 'win' ? colors.accentWin : 
-                 bet.result === 'loss' ? colors.accentLoss : 
-                 bet.result === 'push' ? colors.textTertiary : 
-                 colors.accentPrimary,
-          border: `1px solid ${bet.result === 'win' ? `${colors.accentWin}40` : 
-                                bet.result === 'loss' ? `${colors.accentLoss}40` : 
-                                bet.result === 'push' ? `${colors.textTertiary}40` : 
-                                `${colors.accentPrimary}40`}`
-        }}>
-          {bet.result.toUpperCase()}
-        </span>
+
+      {/* Second Row: Date • Sport • Units @ Odds */}
+      <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '6px' }}>
+        {bet.date} • {getSportLabel(bet.sport)} • {bet.units}u @ {bet.odds > 0 ? '+' : ''}{bet.odds}
+      </div>
+
+      {/* Third Row: Risk and Win amounts */}
+      <div style={{ fontSize: '12px', color: colors.textTertiary, marginBottom: '12px' }}>
+        Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
+      </div>
+
+      {/* Bottom Row: Result badge on left, Edit/Delete on right */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          {bet.result === 'pending' ? (
+            <span style={{
+              fontSize: '12px',
+              fontWeight: '700',
+              padding: '8px 16px',
+              borderRadius: '12px',
+              background: 'rgba(231, 76, 60, 0.15)',
+              color: '#E74C3C',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              PENDING
+            </span>
+          ) : (
+            <span style={{
+              fontSize: '12px',
+              fontWeight: '700',
+              padding: '8px 16px',
+              borderRadius: '12px',
+              background: bet.result === 'win' ? 'rgba(124, 152, 133, 0.2)' : 
+                          bet.result === 'loss' ? 'rgba(184, 92, 80, 0.2)' : 
+                          'rgba(156, 163, 175, 0.2)',
+              color: bet.result === 'win' ? colors.accentWin : 
+                     bet.result === 'loss' ? colors.accentLoss : 
+                     colors.textTertiary,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              {bet.result}
+            </span>
+          )}
+        </div>
+        
         {showActions && !isRetired && (
-          <div className="flex gap-2">
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
             <button
               onClick={() => startEdit(bet)}
-              className="flex items-center gap-1 text-xs transition-colors"
-              style={{ color: '#3498DB' }}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: colors.accentPrimary,
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                padding: '4px 8px'
+              }}
             >
-              <Edit />
               Edit
             </button>
             <button
               onClick={() => deleteBet(bet.id)}
-              className="text-xs transition-colors"
-              style={{ color: '#E74C3C' }}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#E74C3C',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                padding: '4px 8px'
+              }}
             >
               Delete
             </button>
