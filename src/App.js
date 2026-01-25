@@ -422,6 +422,7 @@ function App() {
       'nhl': 'NHL',
       'ncaaf': 'NCAAF',
       'ncaab': 'NCAAB',
+      'boxing': 'Boxing/UFC',
       'other': 'OTHER'
     };
     return labels[sport?.toLowerCase()] || 'OTHER';
@@ -1486,7 +1487,7 @@ function App() {
             >
               All Sports
             </button>
-            {['nfl', 'nba', 'mlb', 'nhl', 'ncaaf', 'ncaab'].map(sport => (
+            {['nfl', 'nba', 'mlb', 'ncaaf', 'ncaab', 'boxing'].map(sport => (
               <button
                 key={sport}
                 onClick={() => setHistoryFilter({...historyFilter, sport})}
@@ -1813,6 +1814,228 @@ function App() {
             </button>
           </div>
         </div>
+
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: '800',
+            color: colors.textPrimary,
+            marginBottom: '24px',
+            ...headerStyle
+          }}>
+            Settings
+          </h2>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Unit Value */}
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+                Unit Value ($)
+              </label>
+              <input
+                type="number"
+                step="1"
+                value={unitValue}
+                onChange={(e) => setUnitValue(parseFloat(e.target.value) || 50)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: colors.bgSecondary,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  color: colors.textPrimary
+                }}
+              />
+              <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '4px' }}>
+                Applies to future bets only
+              </p>
+            </div>
+
+            {/* Monthly Limit */}
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+                Monthly Loss Limit ($)
+              </label>
+              <input
+                type="number"
+                step="100"
+                value={monthlyLimit}
+                onChange={(e) => setMonthlyLimit(parseFloat(e.target.value) || 1500)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: colors.bgSecondary,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  color: colors.textPrimary
+                }}
+              />
+            </div>
+
+            {/* Notifications */}
+            <div>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', margin: '0 0 12px 0' }}>
+                Notifications
+              </h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Big Bet */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <input
+                      type="checkbox"
+                      checked={notificationSettings.bigBet.enabled}
+                      onChange={(e) => setNotificationSettings({
+                        ...notificationSettings,
+                        bigBet: { ...notificationSettings.bigBet, enabled: e.target.checked }
+                      })}
+                      style={{ width: '18px', height: '18px', accentColor: colors.accentPrimary }}
+                    />
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                      Big Bet Warning
+                    </span>
+                  </label>
+                  {notificationSettings.bigBet.enabled && (
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={notificationSettings.bigBet.threshold}
+                      onChange={(e) => setNotificationSettings({
+                        ...notificationSettings,
+                        bigBet: { ...notificationSettings.bigBet, threshold: parseFloat(e.target.value) || 4 }
+                      })}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        background: colors.bgSecondary,
+                        border: `1px solid ${colors.border}`,
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        color: colors.textPrimary
+                      }}
+                      placeholder="Threshold (units)"
+                    />
+                  )}
+                </div>
+
+                {/* Favorite Team */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <input
+                      type="checkbox"
+                      checked={notificationSettings.favoriteTeam.enabled}
+                      onChange={(e) => setNotificationSettings({
+                        ...notificationSettings,
+                        favoriteTeam: { ...notificationSettings.favoriteTeam, enabled: e.target.checked }
+                      })}
+                      style={{ width: '18px', height: '18px', accentColor: colors.accentPrimary }}
+                    />
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                      Favorite Team Warning
+                    </span>
+                  </label>
+                  {notificationSettings.favoriteTeam.enabled && (
+                    <div>
+                      <input
+                        type="number"
+                        step="0.05"
+                        min="0"
+                        max="1"
+                        value={notificationSettings.favoriteTeam.threshold}
+                        onChange={(e) => setNotificationSettings({
+                          ...notificationSettings,
+                          favoriteTeam: { ...notificationSettings.favoriteTeam, threshold: parseFloat(e.target.value) || 0.75 }
+                        })}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          background: colors.bgSecondary,
+                          border: `1px solid ${colors.border}`,
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          color: colors.textPrimary
+                        }}
+                        placeholder="Threshold (percentile)"
+                      />
+                      <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '4px' }}>
+                        0.75 = top 75% of bets
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Monthly Limit */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="checkbox"
+                      checked={notificationSettings.monthlyLimit.enabled}
+                      onChange={(e) => setNotificationSettings({
+                        ...notificationSettings,
+                        monthlyLimit: { ...notificationSettings.monthlyLimit, enabled: e.target.checked }
+                      })}
+                      style={{ width: '18px', height: '18px', accentColor: colors.accentPrimary }}
+                    />
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                      Monthly Limit Warning
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Display Mode */}
+            <div>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', margin: '0 0 12px 0' }}>
+                Display
+              </h3>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => setDisplayMode('dollars')}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: displayMode === 'dollars' ? colors.accentPrimary : colors.bgSecondary,
+                    color: displayMode === 'dollars' ? '#FFFFFF' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    boxShadow: displayMode === 'dollars' ? `0 2px 8px ${colors.shadow}` : 'none'
+                  }}
+                >
+                  Dollars ($)
+                </button>
+                <button
+                  onClick={() => setDisplayMode('units')}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: displayMode === 'units' ? colors.accentPrimary : colors.bgSecondary,
+                    color: displayMode === 'units' ? '#FFFFFF' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    boxShadow: displayMode === 'units' ? `0 2px 8px ${colors.shadow}` : 'none'
+                  }}
+                >
+                  Units (u)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
@@ -1833,8 +2056,8 @@ function App() {
               {getSportLabel(bet.sport)}
             </span>
             <span className="font-semibold" style={{ color: colors.textPrimary, fontFamily: "'Inter', sans-serif" }}>{bet.description}</span>
-            {bet.favoriteTeam && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(230, 126, 34, 0.15)', color: '#E67E22', border: '1px solid rgba(230, 126, 34, 0.3)' }}>Fav Team</span>}
-            {bet.primeTime && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(93, 173, 226, 0.15)', color: '#5DADE2', border: '1px solid rgba(93, 173, 226, 0.3)' }}>Prime Time</span>}
+            {bet.favoriteTeam && <span style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '8px', background: `${colors.accentFavoriteTeam}20`, color: colors.accentFavoriteTeam, border: `1px solid ${colors.accentFavoriteTeam}40` }}>Fav Team</span>}
+            {bet.primeTime && <span style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '8px', background: `${colors.accentPrimeTime}20`, color: colors.accentPrimeTime, border: `1px solid ${colors.accentPrimeTime}40` }}>Prime Time</span>}
             {bet.systemPlay !== 'none' && (
               <span className={`text-xs px-2 py-0.5 rounded-full ${getSystemColor(bet.systemPlay)}`}>
                 {getSystemLabel(bet.systemPlay)}
@@ -1858,24 +2081,48 @@ function App() {
             <div className="flex gap-1">
               <button
                 onClick={() => updateBetResult(bet.id, 'win')}
-                className="px-2 py-1 text-xs rounded-lg transition-all"
-                style={{ background: 'rgba(39, 174, 96, 0.15)', color: '#27AE60', border: '1px solid rgba(39, 174, 96, 0.3)' }}
+                style={{
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  background: colors.accentWin,
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: isRetired ? 'not-allowed' : 'pointer'
+                }}
                 disabled={isRetired}
               >
                 Win
               </button>
               <button
                 onClick={() => updateBetResult(bet.id, 'loss')}
-                className="px-2 py-1 text-xs rounded-lg transition-all"
-                style={{ background: 'rgba(231, 76, 60, 0.15)', color: '#E74C3C', border: '1px solid rgba(231, 76, 60, 0.3)' }}
+                style={{
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  background: colors.accentLoss,
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: isRetired ? 'not-allowed' : 'pointer'
+                }}
                 disabled={isRetired}
               >
                 Loss
               </button>
               <button
                 onClick={() => updateBetResult(bet.id, 'push')}
-                className="px-2 py-1 text-xs rounded transition-all"
-                style={{ background: 'rgba(149, 165, 166, 0.15)', color: '#95A5A6', border: '1px solid rgba(149, 165, 166, 0.3)' }}
+                style={{
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  background: colors.bgSecondary,
+                  color: colors.textPrimary,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '12px',
+                  cursor: isRetired ? 'not-allowed' : 'pointer'
+                }}
                 disabled={isRetired}
               >
                 Push
@@ -1893,10 +2140,23 @@ function App() {
         </div>
       </div>
       <div className="flex justify-between items-center mt-2 pt-2" style={{ borderTop: `1px solid ${colors.border}` }}>
-        <span className={`text-xs font-medium px-2 py-1 rounded`} style={{
-          background: bet.result === 'win' ? 'rgba(39, 174, 96, 0.15)' : bet.result === 'loss' ? 'rgba(231, 76, 60, 0.15)' : bet.result === 'push' ? 'rgba(149, 165, 166, 0.15)' : 'rgba(243, 156, 18, 0.15)',
-          color: bet.result === 'win' ? '#27AE60' : bet.result === 'loss' ? '#E74C3C' : bet.result === 'push' ? '#95A5A6' : '#F39C12',
-          border: bet.result === 'win' ? '1px solid rgba(39, 174, 96, 0.3)' : bet.result === 'loss' ? '1px solid rgba(231, 76, 60, 0.3)' : bet.result === 'push' ? '1px solid rgba(149, 165, 166, 0.3)' : '1px solid rgba(243, 156, 18, 0.3)'
+        <span style={{
+          fontSize: '12px',
+          fontWeight: '600',
+          padding: '6px 12px',
+          borderRadius: '8px',
+          background: bet.result === 'win' ? `${colors.accentWin}20` : 
+                      bet.result === 'loss' ? `${colors.accentLoss}20` : 
+                      bet.result === 'push' ? `${colors.textTertiary}20` : 
+                      `${colors.accentPrimary}20`,
+          color: bet.result === 'win' ? colors.accentWin : 
+                 bet.result === 'loss' ? colors.accentLoss : 
+                 bet.result === 'push' ? colors.textTertiary : 
+                 colors.accentPrimary,
+          border: `1px solid ${bet.result === 'win' ? `${colors.accentWin}40` : 
+                                bet.result === 'loss' ? `${colors.accentLoss}40` : 
+                                bet.result === 'push' ? `${colors.textTertiary}40` : 
+                                `${colors.accentPrimary}40`}`
         }}>
           {bet.result.toUpperCase()}
         </span>
@@ -2040,6 +2300,7 @@ function App() {
               <option value="nhl">NHL</option>
               <option value="ncaaf">NCAAF</option>
               <option value="ncaab">NCAAB</option>
+              <option value="boxing">Boxing/UFC</option>
               <option value="other">Other</option>
             </select>
           </div>
