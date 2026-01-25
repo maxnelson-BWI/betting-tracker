@@ -1,7 +1,3 @@
-// ============================================
-// PART 1 OF 3 - COPY THIS FIRST
-// ============================================
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
@@ -262,9 +258,9 @@ const numberStyle = {
 function App() {
   const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
-  const [theme, setTheme] = useState('warm');
-  const [showAddBetModal, setShowAddBetModal] = useState(false);
-  const [addBetStep, setAddBetStep] = useState(1); // Multi-step modal state
+const [theme, setTheme] = useState('warm'); // NEW: Theme toggle
+const [showAddBetModal, setShowAddBetModal] = useState(false);
+const [addBetStep, setAddBetStep] = useState(1); // NEW: Multi-step modal
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingBet, setEditingBet] = useState(null);
@@ -322,10 +318,10 @@ function App() {
     overUnder: 'all'
   });
   const [showAllBets, setShowAllBets] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+const [showFilters, setShowFilters] = useState(false); // NEW: Collapsible filters
 
-  // Collapsible sections state
-  const [systemExpanded, setSystemExpanded] = useState(false);
+// Collapsible sections state
+const [systemExpanded, setSystemExpanded] = useState(false);
 
   // Animation state
   const [animation, setAnimation] = useState({ show: false, type: '', content: null, isStreak: false, streakText: '' });
@@ -401,14 +397,6 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-// ============================================
-// END OF PART 1
-// Continue with Part 2...
-// ============================================
-// ============================================
-// PART 2 OF 3 - COPY THIS SECOND (after Part 1)
-// ============================================
-
   const formatMoney = (dollarAmount) => {
     if (displayMode === 'units') {
       const units = dollarAmount / unitValue;
@@ -465,10 +453,12 @@ function App() {
     }
   };
 
+  // Parse odds to determine favorite/underdog and over/under
   const parseBetDetails = (bet) => {
     const odds = parseFloat(bet.odds);
     const favoriteUnderdog = odds < 0 ? 'favorite' : odds > 0 ? 'underdog' : 'even';
     
+    // Check description or odds field for O/U notation
     const desc = bet.description?.toLowerCase() || '';
     const oddsStr = bet.odds?.toString() || '';
     let overUnder = 'none';
@@ -485,6 +475,7 @@ function App() {
   const checkWarnings = () => {
     const units = parseFloat(formData.units);
     
+    // Warning 1: Betting more than threshold units
     if (notificationSettings.bigBet.enabled && units > notificationSettings.bigBet.threshold) {
       return {
         show: true,
@@ -493,6 +484,7 @@ function App() {
       };
     }
 
+    // Warning 2: Favorite team + larger than threshold of recent bets
     if (notificationSettings.favoriteTeam.enabled && formData.favoriteTeam) {
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
@@ -518,6 +510,7 @@ function App() {
       }
     }
 
+    // Warning 3: Down more than monthly limit
     if (notificationSettings.monthlyLimit.enabled) {
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
@@ -589,7 +582,6 @@ function App() {
         notes: ''
       });
       setShowAddBetModal(false);
-      setAddBetStep(1);
       setWarningModal({ show: false, message: '', type: '' });
     } catch (error) {
       console.error("Error adding bet:", error);
@@ -613,7 +605,6 @@ function App() {
       notes: bet.notes || ''
     });
     setShowAddBetModal(true);
-    setAddBetStep(1);
   };
 
   const saveEdit = async (dataToSubmit = formData) => {
@@ -655,7 +646,6 @@ function App() {
         notes: ''
       });
       setShowAddBetModal(false);
-      setAddBetStep(1);
       setEditingBet(null);
       return null;
     } catch (error) {
@@ -681,7 +671,6 @@ function App() {
       notes: ''
     });
     setShowAddBetModal(false);
-    setAddBetStep(1);
   };
 
   const getRandomWinAnimation = () => {
@@ -801,6 +790,7 @@ function App() {
     });
     const monthlyLoss = monthBets.reduce((sum, bet) => sum + bet.payout, 0);
 
+    // Last month calculation - ADDED
     const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
     const lastMonthBets = settledBets.filter(bet => {
@@ -824,6 +814,7 @@ function App() {
     const kindOfSystemBets = settledBets.filter(b => b.systemPlay === 'kind-of');
     const notSystemBets = settledBets.filter(b => b.systemPlay === 'not-system');
 
+    // Calculate win streak - ADDED
     let currentStreak = 0;
     for (const bet of settledBets) {
       if (bet.result === 'win') {
@@ -836,12 +827,12 @@ function App() {
     return {
       totalDollars: totalDollars.toFixed(2),
       monthlyLoss: monthlyLoss.toFixed(2),
-      lastMonthPL: lastMonthPL.toFixed(2),
+      lastMonthPL: lastMonthPL.toFixed(2), // ADDED
       totalBets: settledBets.length,
       wins: settledBets.filter(b => b.result === 'win').length,
       losses: settledBets.filter(b => b.result === 'loss').length,
       winRate: settledBets.length ? ((settledBets.filter(b => b.result === 'win').length / settledBets.length) * 100).toFixed(1) : 0,
-      winStreak: currentStreak,
+      winStreak: currentStreak, // ADDED
       byType,
       bySport,
       favoriteTeamDollars: favoriteTeamBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
@@ -906,27 +897,54 @@ function App() {
     { label: '5u', value: 5 }
   ];
 
+  const getSystemLabel = (systemPlay) => {
+    const labels = {
+      'clear': 'Clear System',
+      'kind-of': 'Kind Of',
+      'no-system': 'No System',
+      'not-system': 'Anti System',
+      'none': ''
+    };
+    return labels[systemPlay] || '';
+  };
+
+  const getSystemColor = (systemPlay) => {
+    const colors = {
+      'clear': 'bg-purple-500/20 text-emerald-300 border border-emerald-500/30',
+      'kind-of': 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
+      'no-system': 'bg-slate-500/20 text-slate-300 border border-slate-500/30',
+      'not-system': 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+    };
+    return colors[systemPlay] || '';
+  };
+
+  // Filter bets for history page
   const getFilteredBets = () => {
     let filtered = [...bets];
 
+    // Time range filter
     if (historyFilter.timeRange === '30days' && !showAllBets) {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       filtered = filtered.filter(bet => new Date(bet.date) >= thirtyDaysAgo);
     }
 
+    // Sport filter
     if (historyFilter.sport !== 'all') {
       filtered = filtered.filter(bet => bet.sport === historyFilter.sport);
-    }
+      }
 
+    // Bet type filter
     if (historyFilter.betType !== 'all') {
       filtered = filtered.filter(bet => bet.betType === historyFilter.betType);
     }
 
+    // Result filter
     if (historyFilter.result !== 'all') {
       filtered = filtered.filter(bet => bet.result === historyFilter.result);
     }
 
+    // Favorite/Underdog filter
     if (historyFilter.favoriteUnderdog !== 'all') {
       filtered = filtered.filter(bet => {
         const { favoriteUnderdog } = parseBetDetails(bet);
@@ -934,6 +952,7 @@ function App() {
       });
     }
 
+    // Over/Under filter
     if (historyFilter.overUnder !== 'all') {
       filtered = filtered.filter(bet => {
         const { overUnder } = parseBetDetails(bet);
@@ -945,6 +964,8 @@ function App() {
   };
 
   const filteredBets = getFilteredBets();
+
+  // Get recent bets for home page
   const recentBets = bets.slice(0, 5);
   const pendingBets = bets.filter(b => b.result === 'pending');
 
@@ -956,139 +977,24 @@ function App() {
     );
   }
 
-  // ADD BET MODAL COMPONENT - NEW MULTI-STEP VERSION
-  const AddBetModal = () => {
-    const [localFormData, setLocalFormData] = useState({
-      date: formData.date,
-      sport: formData.sport,
-      betType: formData.betType,
-      description: formData.description,
-      units: formData.units,
-      odds: formData.odds,
-      result: formData.result,
-      favoriteTeam: formData.favoriteTeam,
-      primeTime: formData.primeTime,
-      systemPlay: formData.systemPlay,
-      notes: formData.notes
-    });
-
-    useEffect(() => {
-      if (showAddBetModal) {
-        setLocalFormData({
-          date: formData.date,
-          sport: formData.sport,
-          betType: formData.betType,
-          description: formData.description,
-          units: formData.units,
-          odds: formData.odds,
-          result: formData.result,
-          favoriteTeam: formData.favoriteTeam,
-          primeTime: formData.primeTime,
-          systemPlay: formData.systemPlay,
-          notes: formData.notes
-        });
-      }
-    }, [showAddBetModal]);
-
-    const handleSubmit = async () => {
-      setFormData(localFormData);
-      let errorMsg;
-      if (editingBet) {
-        errorMsg = await saveEdit(localFormData);
-      } else {
-        errorMsg = handleAddBet(localFormData);
-      }
-      if (errorMsg) {
-        showToast(errorMsg, 'error');
-      }
-    };
-
-    const handleStepContinue = () => {
-      if (addBetStep === 1) {
-        if (!localFormData.sport || !localFormData.betType || !localFormData.description || !localFormData.units || !localFormData.odds) {
-          showToast('Please fill in all required fields', 'error');
-          return;
-        }
-        setAddBetStep(2);
-      } else if (addBetStep === 2) {
-        setAddBetStep(3);
-      } else if (addBetStep === 3) {
-        handleSubmit();
-      }
-    };
-
-    const calculateRiskWin = () => {
-      if (!localFormData.units || !localFormData.odds) return { risk: 0, win: 0 };
-      return calculateRiskAndWin(localFormData.units, localFormData.odds);
-    };
-
-    return (
-      <div 
-        className="fixed inset-0 z-50 flex items-end justify-center"
-        style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
-        onClick={cancelEdit}
-      >
-        <div 
-          className="rounded-t-3xl w-full max-w-2xl overflow-y-auto shadow-2xl"
-          style={{ 
-            background: colors.bgElevated,
-            borderTop: `1px solid ${colors.border}`,
-            minHeight: '85vh',
-            maxHeight: '85vh'
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="border-b p-3 flex justify-between items-center"
-            style={{ 
-              position: 'sticky', 
-              top: 0, 
-              zIndex: 10,
-              background: colors.bgElevated,
-              borderBottom: `1px solid ${colors.border}`
-            }}
-          >
-            <h2 className="text-lg font-bold" style={{ color: colors.textPrimary }}>
-              {editingBet ? 'Edit Bet' : `New Bet - Step ${addBetStep} of 3`}
-            </h2>
-            <button
-              onClick={cancelEdit}
-              className="transition-colors"
-              style={{ color: colors.textTertiary }}
-            >
-              <X />
-            </button>
-          </div>
-
-          {/* Step Indicator */}
-          {!editingBet && (
-            <div style={{ 
-              padding: '16px 20px',
-              display: 'flex',
-              gap: '8px'
-            }}>
-              {[1, 2, 3].map(step => (
-                <div key={step} style={{
-                  flex: 1,
-                  height: '4px',
-                  background: step <= addBetStep ? colors.accentPrimary : colors.bgSecondary,
-                  borderRadius: '2px',
-                  transition: 'all 0.3s ease'
-                }} />
-              ))}
-            </div>
-          )}
-
-// ============================================
-// Continue with Part 3 for the rest of the modal steps and pages...
-// ============================================
-// ============================================
-// PART 3 OF 3 - COPY THIS THIRD (after Part 2)
-// Paste this directly after Part 2 with no gap
-// ============================================
+  // Render different pages based on currentPage state
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'home':
+        return <HomePage />;
+      case 'stats':
+        return <StatsPage />;
+      case 'history':
+        return <HistoryPage />;
+      case 'more':
+        return <MorePage />;
+      default:
+        return <HomePage />;
+    }
+  };
 
   // ============================================
-  // HOME PAGE COMPONENT
+  // HOME PAGE COMPONENT - MATCHES MOCKUP EXACTLY
   // ============================================
   const HomePage = () => (
     <div style={{ paddingBottom: '100px' }}>
@@ -1267,7 +1173,7 @@ function App() {
                 {stats.systemWinRate}% Win Rate
               </div>
             </div>
-            {systemExpanded ? <ChevronUp /> : <ChevronDown />}
+{systemExpanded ? <ChevronUp /> : <ChevronDown />}
           </div>
         </button>
 
@@ -1359,18 +1265,18 @@ function App() {
             Recent Bets
           </h3>
           <button
-            onClick={() => setCurrentPage('history')}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: colors.accentPrimary,
-              fontSize: '13px',
-              fontWeight: '700',
-              cursor: 'pointer'
-            }}
-          >
-            View All →
-          </button>
+  onClick={() => setCurrentPage('history')}
+  style={{
+    background: 'transparent',
+    border: 'none',
+    color: colors.accentPrimary,
+    fontSize: '13px',
+    fontWeight: '700',  // Changed from 600 to 700
+    cursor: 'pointer'
+  }}
+>
+  View All →
+</button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {recentBets.length === 0 ? (
@@ -1386,9 +1292,8 @@ function App() {
       </div>
     </div>
   );
-
   // ============================================
-  // STATS PAGE COMPONENT
+  // STATS PAGE COMPONENT - NEW PAGE
   // ============================================
   const StatsPage = () => (
     <div style={{ paddingBottom: '100px' }}>
@@ -1544,6 +1449,8 @@ function App() {
       </div>
     </div>
   );
+
+  // HISTORY PAGE COMPONENT
   const HistoryPage = () => (
     <div className="pb-20 animate-fadeIn">
       <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
@@ -2232,7 +2139,7 @@ function App() {
   // ADD BET MODAL COMPONENT
 
   // ============================================
-  // NEW ADD BET MODAL - MULTI-STEP VERSION
+  // ADD BET MODAL - NEW MULTI-STEP VERSION
   // ============================================
   const AddBetModal = () => {
     const [localFormData, setLocalFormData] = useState({
@@ -2316,22 +2223,23 @@ function App() {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="border-b p-3 flex justify-between items-center"
-            style={{ 
-              position: 'sticky', 
-              top: 0, 
-              zIndex: 10,
-              background: colors.bgElevated,
-              borderBottom: `1px solid ${colors.border}`
-            }}
-          >
-            <h2 className="text-lg font-bold" style={{ color: colors.textPrimary }}>
+          <div style={{ 
+            position: 'sticky', 
+            top: 0, 
+            zIndex: 10,
+            background: colors.bgElevated,
+            borderBottom: `1px solid ${colors.border}`,
+            padding: '12px 16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, margin: 0 }}>
               {editingBet ? 'Edit Bet' : `New Bet - Step ${addBetStep} of 3`}
             </h2>
             <button
               onClick={cancelEdit}
-              className="transition-colors"
-              style={{ color: colors.textTertiary }}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.textTertiary }}
             >
               <X />
             </button>
@@ -2339,11 +2247,7 @@ function App() {
 
           {/* Step Indicator */}
           {!editingBet && (
-            <div style={{ 
-              padding: '16px 20px',
-              display: 'flex',
-              gap: '8px'
-            }}>
+            <div style={{ padding: '16px 20px', display: 'flex', gap: '8px' }}>
               {[1, 2, 3].map(step => (
                 <div key={step} style={{
                   flex: 1,
@@ -2356,10 +2260,10 @@ function App() {
             </div>
           )}
 
-          <div className="p-4 space-y-4">
+          <div style={{ padding: '16px' }}>
             {/* STEP 1: THE BASICS */}
             {(addBetStep === 1 || editingBet) && (
-              <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+              <div>
                 {!editingBet && (
                   <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '20px' }}>
                     The Basics
@@ -2382,7 +2286,8 @@ function App() {
                       border: `1px solid ${colors.border}`,
                       borderRadius: '12px',
                       fontSize: '14px',
-                      color: colors.textPrimary
+                      color: colors.textPrimary,
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
@@ -2400,7 +2305,7 @@ function App() {
                       { name: 'NCAAB', value: 'ncaab' },
                       { name: 'MLB', value: 'mlb' },
                       { name: 'Boxing/UFC', value: 'boxing' },
-                      { name: 'Other', value: 'other' },
+                      { name: 'Other', value: 'other' }
                     ].map(sport => (
                       <button
                         key={sport.value}
@@ -2438,7 +2343,7 @@ function App() {
                       { name: 'Teaser', value: 'teaser' },
                       { name: 'Prop', value: 'prop' },
                       { name: 'Future', value: 'future' },
-                      { name: '+500 Parlay', value: 'longshot-parlay' },
+                      { name: '+500 Parlay', value: 'longshot-parlay' }
                     ].map(type => (
                       <button
                         key={type.value}
@@ -2468,7 +2373,6 @@ function App() {
                     Description
                   </label>
                   <input
-                    id="bet-description"
                     type="text"
                     placeholder="e.g., Chiefs -3 vs Bills"
                     value={localFormData.description}
@@ -2547,7 +2451,6 @@ function App() {
                     Odds (American)
                   </label>
                   <input
-                    id="bet-odds"
                     type="text"
                     placeholder="e.g., -110 or +150"
                     value={localFormData.odds}
@@ -2595,7 +2498,7 @@ function App() {
 
             {/* STEP 2: OPTIONAL DETAILS */}
             {addBetStep === 2 && !editingBet && (
-              <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+              <div>
                 <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
                   Additional Details
                 </h3>
@@ -2613,7 +2516,7 @@ function App() {
                       { name: 'Clear System', value: 'clear', color: colors.accentSystem },
                       { name: 'Kind Of', value: 'kind-of', color: '#6B8CAE' },
                       { name: 'No System', value: 'no-system', color: colors.textSecondary },
-                      { name: 'Anti System', value: 'not-system', color: colors.accentLoss },
+                      { name: 'Anti System', value: 'not-system', color: colors.accentLoss }
                     ].map(sys => (
                       <button
                         key={sys.value}
@@ -2654,12 +2557,7 @@ function App() {
                       type="checkbox"
                       checked={localFormData.favoriteTeam}
                       onChange={(e) => setLocalFormData({...localFormData, favoriteTeam: e.target.checked})}
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        cursor: 'pointer',
-                        accentColor: colors.accentPrimary
-                      }}
+                      style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: colors.accentPrimary }}
                     />
                     <span style={{ fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>
                       Favorite Team
@@ -2680,12 +2578,7 @@ function App() {
                       type="checkbox"
                       checked={localFormData.primeTime}
                       onChange={(e) => setLocalFormData({...localFormData, primeTime: e.target.checked})}
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        cursor: 'pointer',
-                        accentColor: colors.accentPrimary
-                      }}
+                      style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: colors.accentPrimary }}
                     />
                     <span style={{ fontSize: '14px', fontWeight: '500', color: colors.textPrimary }}>
                       Prime Time Game
@@ -2699,7 +2592,6 @@ function App() {
                     Notes (Optional)
                   </label>
                   <textarea
-                    id="bet-notes"
                     placeholder="e.g., Reverse line movement..."
                     rows="3"
                     value={localFormData.notes}
@@ -2788,7 +2680,7 @@ function App() {
 
             {/* STEP 3: REVIEW & CONFIRM */}
             {addBetStep === 3 && !editingBet && (
-              <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+              <div>
                 <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '20px' }}>
                   Review Your Bet
                 </h3>
@@ -2818,33 +2710,25 @@ function App() {
                     borderTop: `1px solid ${colors.border}`
                   }}>
                     <div>
-                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
-                        Sport
-                      </div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Sport</div>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
                         {getSportLabel(localFormData.sport)}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
-                        Bet Type
-                      </div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Bet Type</div>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
                         {formatBetType(localFormData.betType)}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
-                        Units
-                      </div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Units</div>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
                         {localFormData.units}u
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
-                        Odds
-                      </div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Odds</div>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
                         {localFormData.odds > 0 ? '+' : ''}{localFormData.odds}
                       </div>
@@ -2860,17 +2744,13 @@ function App() {
                     gap: '16px'
                   }}>
                     <div>
-                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
-                        Risk Amount
-                      </div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Risk Amount</div>
                       <div style={{ fontSize: '16px', fontWeight: '700', color: colors.accentLoss }}>
                         ${calculateRiskWin().risk.toFixed(2)}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
-                        To Win
-                      </div>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>To Win</div>
                       <div style={{ fontSize: '16px', fontWeight: '700', color: colors.accentWin }}>
                         ${calculateRiskWin().win.toFixed(2)}
                       </div>
@@ -2921,9 +2801,9 @@ function App() {
               </div>
             )}
 
-            {/* For Edit Mode - Show all fields + Result + Single Save Button */}
+            {/* EDIT MODE - Show all fields + Result */}
             {editingBet && (
-              <>
+              <div>
                 <div style={{ marginBottom: '16px' }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '8px' }}>
                     Result
@@ -2958,7 +2838,7 @@ function App() {
                       { name: 'Clear System', value: 'clear', color: colors.accentSystem },
                       { name: 'Kind Of', value: 'kind-of', color: '#6B8CAE' },
                       { name: 'No System', value: 'no-system', color: colors.textSecondary },
-                      { name: 'Anti System', value: 'not-system', color: colors.accentLoss },
+                      { name: 'Anti System', value: 'not-system', color: colors.accentLoss }
                     ].map(sys => (
                       <button
                         key={sys.value}
@@ -3011,7 +2891,6 @@ function App() {
                     Notes (Optional)
                   </label>
                   <textarea
-                    id="bet-notes"
                     rows="2"
                     value={localFormData.notes}
                     onChange={(e) => setLocalFormData({...localFormData, notes: e.target.value})}
@@ -3067,13 +2946,14 @@ function App() {
                     Cancel
                   </button>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
       </div>
     );
   };
+
   return (
     <div className="min-h-screen" style={{ background: colors.bgPrimary }}>
       {/* Animation Overlay */}
