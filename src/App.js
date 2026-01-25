@@ -2193,8 +2193,12 @@ const [systemExpanded, setSystemExpanded] = useState(false);
           showToast('Please fill in all required fields', 'error');
           return;
         }
+        // Sync to parent state before changing step
+        setFormData(localFormData);
         setAddBetStep(2);
       } else if (addBetStep === 2) {
+        // Sync to parent state before changing step
+        setFormData(localFormData);
         setAddBetStep(3);
       } else if (addBetStep === 3) {
         handleSubmit();
@@ -2285,7 +2289,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                       background: colors.bgSecondary,
                       border: `1px solid ${colors.border}`,
                       borderRadius: '12px',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       color: colors.textPrimary,
                       boxSizing: 'border-box'
                     }}
@@ -2383,7 +2387,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                       background: colors.bgSecondary,
                       border: `1px solid ${colors.border}`,
                       borderRadius: '12px',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       color: colors.textPrimary,
                       outline: 'none',
                       boxSizing: 'border-box'
@@ -2432,7 +2436,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                       background: colors.bgSecondary,
                       border: `1px solid ${colors.border}`,
                       borderRadius: '12px',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       color: colors.textPrimary,
                       outline: 'none',
                       boxSizing: 'border-box'
@@ -2461,7 +2465,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                       background: colors.bgSecondary,
                       border: `1px solid ${colors.border}`,
                       borderRadius: '12px',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       color: colors.textPrimary,
                       outline: 'none',
                       boxSizing: 'border-box'
@@ -2602,7 +2606,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                       background: colors.bgSecondary,
                       border: `1px solid ${colors.border}`,
                       borderRadius: '12px',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       color: colors.textPrimary,
                       outline: 'none',
                       resize: 'none',
@@ -2616,7 +2620,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                 {/* Navigation */}
                 <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                   <button
-                    onClick={() => setAddBetStep(1)}
+                    onClick={() => { setFormData(localFormData); setAddBetStep(1); }}
                     style={{
                       flex: 1,
                       padding: '16px',
@@ -2761,7 +2765,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                 {/* Navigation */}
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <button
-                    onClick={() => setAddBetStep(2)}
+                    onClick={() => { setFormData(localFormData); setAddBetStep(2); }}
                     style={{
                       flex: 1,
                       padding: '16px',
@@ -2817,7 +2821,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                       background: colors.bgSecondary,
                       border: `1px solid ${colors.border}`,
                       borderRadius: '12px',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       color: colors.textPrimary
                     }}
                   >
@@ -2900,7 +2904,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                       background: colors.bgSecondary,
                       border: `1px solid ${colors.border}`,
                       borderRadius: '12px',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       color: colors.textPrimary,
                       outline: 'none',
                       resize: 'none',
