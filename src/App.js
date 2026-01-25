@@ -907,6 +907,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   // Filter bets for history page
   const getFilteredBets = () => {
     let filtered = [...bets];
+
     // Time range filter
     if (historyFilter.timeRange === '30days' && !showAllBets) {
       const thirtyDaysAgo = new Date();
@@ -917,7 +918,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     // Sport filter
     if (historyFilter.sport !== 'all') {
       filtered = filtered.filter(bet => bet.sport === historyFilter.sport);
-    }
+      }
 
     // Bet type filter
     if (historyFilter.betType !== 'all') {
@@ -1442,150 +1443,164 @@ const [systemExpanded, setSystemExpanded] = useState(false);
         <h2 className="text-xl font-bold mb-4" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
         
         {/* Filter Pills */}
-        <div className="mb-4 space-y-3">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            <Filter />
-            <button
-              onClick={() => setHistoryFilter({...historyFilter, sport: 'all'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-              style={{
-                background: historyFilter.sport === 'all' ? colors.accentPrimary : colors.bgSecondary,
-                color: historyFilter.sport === 'all' ? '#FFFFFF' : colors.textPrimary
-              }}
-            >
-              All Sports
-            </button>
-            {['nfl', 'nba', 'mlb', 'ncaaf', 'ncaab', 'boxing'].map(sport => (
+        <div className="mb-4 space-y-4">
+          {/* SPORT Section */}
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              SPORT
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
               <button
-                key={sport}
-                onClick={() => setHistoryFilter({...historyFilter, sport})}
+                onClick={() => setHistoryFilter({...historyFilter, sport: 'all'})}
                 className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
                 style={{
-                  background: historyFilter.sport === sport ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.sport === sport ? '#FFFFFF' : colors.textPrimary
+                  background: historyFilter.sport === 'all' ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.sport === 'all' ? '#FFFFFF' : colors.textPrimary,
+                  fontWeight: '600'
                 }}
               >
-                {sport.toUpperCase()}
+                All
               </button>
-            ))}
+              {['nfl', 'nba', 'mlb', 'ncaaf', 'ncaab', 'boxing'].map(sport => (
+                <button
+                  key={sport}
+                  onClick={() => setHistoryFilter({...historyFilter, sport})}
+                  className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                  style={{
+                    background: historyFilter.sport === sport ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.sport === sport ? '#FFFFFF' : colors.textPrimary,
+                    fontWeight: '600'
+                  }}
+                >
+                  {getSportLabel(sport)}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            <button
-              onClick={() => setHistoryFilter({...historyFilter, betType: 'all'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-              style={{
-                background: historyFilter.betType === 'all' ? colors.accentPrimary : colors.bgSecondary,
-                color: historyFilter.betType === 'all' ? '#FFFFFF' : colors.textPrimary
-              }}
-            >
-              All Types
-            </button>
-            {['straight', 'money-line', 'over-under', 'parlay', 'teaser', 'prop'].map(type => (
+          {/* BET TYPE Section */}
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              BET TYPE
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
               <button
-                key={type}
-                onClick={() => setHistoryFilter({...historyFilter, betType: type})}
+                onClick={() => setHistoryFilter({...historyFilter, betType: 'all'})}
                 className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
                 style={{
-                  background: historyFilter.betType === type ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.betType === type ? '#FFFFFF' : colors.textPrimary
+                  background: historyFilter.betType === 'all' ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.betType === 'all' ? '#FFFFFF' : colors.textPrimary,
+                  fontWeight: '600'
                 }}
               >
-                {formatBetType(type)}
+                All
               </button>
-            ))}
+              {['straight', 'money-line', 'over-under', 'parlay', 'teaser', 'prop', 'future', 'longshot-parlay'].map(type => (
+                <button
+                  key={type}
+                  onClick={() => setHistoryFilter({...historyFilter, betType: type})}
+                  className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                  style={{
+                    background: historyFilter.betType === type ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.betType === type ? '#FFFFFF' : colors.textPrimary,
+                    fontWeight: '600'
+                  }}
+                >
+                  {type === 'straight' ? 'Spread' : 
+                   type === 'money-line' ? 'ML' : 
+                   type === 'over-under' ? 'O/U' :
+                   type === 'longshot-parlay' ? '+500 Parlay' :
+                   formatBetType(type)}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            <button
-              onClick={() => setHistoryFilter({...historyFilter, result: 'all'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-              style={{
-                background: historyFilter.result === 'all' ? colors.accentPrimary : colors.bgSecondary,
-                color: historyFilter.result === 'all' ? '#FFFFFF' : colors.textPrimary
-              }}
-            >
-              All Results
-            </button>
-            {['win', 'loss', 'push', 'pending'].map(result => (
+          {/* RESULT Section */}
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              RESULT
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
               <button
-                key={result}
-                onClick={() => setHistoryFilter({...historyFilter, result})}
+                onClick={() => setHistoryFilter({...historyFilter, result: 'all'})}
                 className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
                 style={{
-                  background: historyFilter.result === result ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.result === result ? '#FFFFFF' : colors.textPrimary
+                  background: historyFilter.result === 'all' ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.result === 'all' ? '#FFFFFF' : colors.textPrimary,
+                  fontWeight: '600'
                 }}
               >
-                {result.charAt(0).toUpperCase() + result.slice(1)}
+                All
               </button>
-            ))}
+              {['win', 'loss', 'push', 'pending'].map(result => (
+                <button
+                  key={result}
+                  onClick={() => setHistoryFilter({...historyFilter, result})}
+                  className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                  style={{
+                    background: historyFilter.result === result ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.result === result ? '#FFFFFF' : colors.textPrimary,
+                    fontWeight: '600'
+                  }}
+                >
+                  {result.charAt(0).toUpperCase() + result.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            <button
-              onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'all'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-              style={{
-                background: historyFilter.favoriteUnderdog === 'all' ? colors.accentPrimary : colors.bgSecondary,
-                color: historyFilter.favoriteUnderdog === 'all' ? '#FFFFFF' : colors.textPrimary
-              }}
-            >
-              Fav/Dog
-            </button>
-            <button
-              onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'favorite'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-              style={{
-                background: historyFilter.favoriteUnderdog === 'favorite' ? colors.accentPrimary : colors.bgSecondary,
-                color: historyFilter.favoriteUnderdog === 'favorite' ? '#FFFFFF' : colors.textPrimary
-              }}
-            >
-              Favorites
-            </button>
-            <button
-              onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'underdog'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-              style={{
-                background: historyFilter.favoriteUnderdog === 'underdog' ? colors.accentPrimary : colors.bgSecondary,
-                color: historyFilter.favoriteUnderdog === 'underdog' ? '#FFFFFF' : colors.textPrimary
-              }}
-            >
-              Underdogs
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            <button
-              onClick={() => setHistoryFilter({...historyFilter, overUnder: 'all'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-              style={{
-                background: historyFilter.overUnder === 'all' ? colors.accentPrimary : colors.bgSecondary,
-                color: historyFilter.overUnder === 'all' ? '#FFFFFF' : colors.textPrimary
-              }}
-            >
-              O/U
-            </button>
-            <button
-              onClick={() => setHistoryFilter({...historyFilter, overUnder: 'over'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-              style={{
-                background: historyFilter.overUnder === 'over' ? colors.accentPrimary : colors.bgSecondary,
-                color: historyFilter.overUnder === 'over' ? '#FFFFFF' : colors.textPrimary
-              }}
-            >
-              Overs
-            </button>
-            <button
-              onClick={() => setHistoryFilter({...historyFilter, overUnder: 'under'})}
-              className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-              style={{
-                background: historyFilter.overUnder === 'under' ? colors.accentPrimary : colors.bgSecondary,
-                color: historyFilter.overUnder === 'under' ? '#FFFFFF' : colors.textPrimary
-              }}
-            >
-              Unders
-            </button>
+          {/* OTHER FILTERS Section */}
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              OTHER FILTERS
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
+              <button
+                onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'favorite'})}
+                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                style={{
+                  background: historyFilter.favoriteUnderdog === 'favorite' ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.favoriteUnderdog === 'favorite' ? '#FFFFFF' : colors.textPrimary,
+                  fontWeight: '600'
+                }}
+              >
+                Favorite
+              </button>
+              <button
+                onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'underdog'})}
+                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                style={{
+                  background: historyFilter.favoriteUnderdog === 'underdog' ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.favoriteUnderdog === 'underdog' ? '#FFFFFF' : colors.textPrimary,
+                  fontWeight: '600'
+                }}
+              >
+                Underdog
+              </button>
+              <button
+                onClick={() => setHistoryFilter({...historyFilter, overUnder: 'over'})}
+                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                style={{
+                  background: historyFilter.overUnder === 'over' ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.overUnder === 'over' ? '#FFFFFF' : colors.textPrimary,
+                  fontWeight: '600'
+                }}
+              >
+                Over
+              </button>
+              <button
+                onClick={() => setHistoryFilter({...historyFilter, overUnder: 'under'})}
+                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                style={{
+                  background: historyFilter.overUnder === 'under' ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.overUnder === 'under' ? '#FFFFFF' : colors.textPrimary,
+                  fontWeight: '600'
+                }}
+              >
+                Under
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1823,7 +1838,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
               <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '4px' }}>
                 Applies to future bets only
               </p>
-            </div>
+              </div>
 
             {/* Monthly Limit */}
             <div>
