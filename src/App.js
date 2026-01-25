@@ -249,7 +249,9 @@ const numberStyle = {
 function App() {
   const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
-  const [showAddBetModal, setShowAddBetModal] = useState(false);
+const [theme, setTheme] = useState('warm'); // NEW: Theme toggle
+const [showAddBetModal, setShowAddBetModal] = useState(false);
+const [addBetStep, setAddBetStep] = useState(1); // NEW: Multi-step modal
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingBet, setEditingBet] = useState(null);
@@ -307,11 +309,10 @@ function App() {
     overUnder: 'all'
   });
   const [showAllBets, setShowAllBets] = useState(false);
+const [showFilters, setShowFilters] = useState(false); // NEW: Collapsible filters
 
-  // Collapsible sections state - UPDATED
-  const [systemExpanded, setSystemExpanded] = useState(false);
-  const [breakdownExpanded, setBreakdownExpanded] = useState(false);
-  const [teamTimeExpanded, setTeamTimeExpanded] = useState(false);
+// Collapsible sections state
+const [systemExpanded, setSystemExpanded] = useState(false);
 
   // Animation state
   const [animation, setAnimation] = useState({ show: false, type: '', content: null, isStreak: false, streakText: '' });
@@ -1163,7 +1164,7 @@ function App() {
                 {stats.systemWinRate}% Win Rate
               </div>
             </div>
-            <ChevronDown isOpen={systemExpanded} />
+{systemExpanded ? <ChevronUp /> : <ChevronDown />}
           </div>
         </button>
 
@@ -1255,18 +1256,18 @@ function App() {
             Recent Bets
           </h3>
           <button
-            onClick={() => setCurrentPage('history')}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: colors.accentPrimary,
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            View All →
-          </button>
+  onClick={() => setCurrentPage('history')}
+  style={{
+    background: 'transparent',
+    border: 'none',
+    color: colors.accentPrimary,
+    fontSize: '13px',
+    fontWeight: '700',  // Changed from 600 to 700
+    cursor: 'pointer'
+  }}
+>
+  View All →
+</button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {recentBets.length === 0 ? (
@@ -1890,15 +1891,33 @@ function App() {
                 {/* Big Bet */}
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <input
-                      type="checkbox"
-                      checked={notificationSettings.bigBet.enabled}
-                      onChange={(e) => setNotificationSettings({
-                        ...notificationSettings,
-                        bigBet: { ...notificationSettings.bigBet, enabled: e.target.checked }
-                      })}
-                      style={{ width: '18px', height: '18px', accentColor: colors.accentPrimary }}
-                    />
+                    <div
+  onClick={() => setNotificationSettings({
+    ...notificationSettings,
+    bigBet: { ...notificationSettings.bigBet, enabled: !notificationSettings.bigBet.enabled }
+  })}
+  style={{
+    width: '42px',
+    height: '24px',
+    background: notificationSettings.bigBet.enabled ? colors.accentWin : colors.textTertiary,
+    borderRadius: '12px',
+    position: 'relative',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  }}
+>
+  <div style={{
+    position: 'absolute',
+    right: notificationSettings.bigBet.enabled ? '2px' : 'auto',
+    left: notificationSettings.bigBet.enabled ? 'auto' : '2px',
+    top: '2px',
+    width: '20px',
+    height: '20px',
+    background: '#FFFFFF',
+    borderRadius: '50%',
+    transition: 'all 0.2s ease'
+  }} />
+</div>
                     <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
                       Big Bet Warning
                     </span>
