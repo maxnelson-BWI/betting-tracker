@@ -918,7 +918,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     // Sport filter
     if (historyFilter.sport !== 'all') {
       filtered = filtered.filter(bet => bet.sport === historyFilter.sport);
-    }
+      }
 
     // Bet type filter
     if (historyFilter.betType !== 'all') {
@@ -948,6 +948,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
 
     return filtered;
   };
+
   const filteredBets = getFilteredBets();
 
   // Get recent bets for home page
@@ -1282,182 +1283,155 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   // ============================================
   const StatsPage = () => (
     <div style={{ paddingBottom: '100px' }}>
-      <h2 style={{
-        fontSize: '24px',
-        fontWeight: '800',
-        color: colors.textPrimary,
-        marginBottom: '24px',
-        ...headerStyle
-      }}>
-        Performance Stats
-      </h2>
-
-      {/* Performance Breakdown */}
+      {/* By Sport */}
       <div style={{
         background: colors.bgElevated,
         borderRadius: '20px',
         padding: '20px',
-        marginBottom: '24px',
-        boxShadow: `0 2px 8px ${colors.shadow}`,
-        border: `1px solid ${colors.border}`
+        marginBottom: '16px',
+        border: `1px solid ${colors.border}`,
+        boxShadow: `0 2px 8px ${colors.shadow}`
       }}>
-        <button
-          onClick={() => setBreakdownExpanded(!breakdownExpanded)}
-          style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-            marginBottom: breakdownExpanded ? '16px' : 0
-          }}
-        >
-          <h3 style={{
-            fontSize: '16px',
-            fontWeight: '700',
-            color: colors.textPrimary,
-            margin: 0,
-            ...headerStyle
-          }}>
-            Performance Breakdown
-          </h3>
-          <ChevronDown isOpen={breakdownExpanded} />
-        </button>
-        
-        {breakdownExpanded && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
-            <div style={{
-              background: colors.bgSecondary,
-              padding: '16px',
-              borderRadius: '16px',
-              border: `1px solid ${colors.border}`
+        <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px', margin: '0 0 16px 0', ...headerStyle }}>
+          By Sport
+        </h3>
+        {Object.keys(stats.bySport).length === 0 ? (
+          <p style={{ fontSize: '13px', color: colors.textTertiary }}>No settled bets</p>
+        ) : (
+          Object.entries(stats.bySport).map(([sport, dollars]) => (
+            <div key={sport} style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '14px 0',
+              borderBottom: `1px solid ${colors.border}`
             }}>
-              <h4 style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', margin: '0 0 12px 0' }}>
-                By Bet Type
-              </h4>
-              {Object.keys(stats.byType).length === 0 ? (
-                <p style={{ fontSize: '13px', color: colors.textTertiary }}>No settled bets</p>
-              ) : (
-                Object.entries(stats.byType).map(([type, dollars]) => (
-                  <div key={type} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '4px 0' }}>
-                    <span style={{ color: colors.textSecondary }}>{formatBetType(type)}</span>
-                    <span style={{ color: dollars >= 0 ? colors.accentWin : colors.accentLoss, fontWeight: '600', ...numberStyle }}>
-                      {formatMoney(dollars)}
-                    </span>
-                  </div>
-                ))
-              )}
+              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>{sport.toUpperCase()}</span>
+              <span style={{
+                fontSize: '15px',
+                fontWeight: '800',
+                color: dollars >= 0 ? colors.accentWin : colors.accentLoss,
+                ...numberStyle
+              }}>
+                {formatMoney(dollars)}
+              </span>
             </div>
-
-            <div style={{
-              background: colors.bgSecondary,
-              padding: '16px',
-              borderRadius: '16px',
-              border: `1px solid ${colors.border}`
-            }}>
-              <h4 style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', margin: '0 0 12px 0' }}>
-                By Sport
-              </h4>
-              {Object.keys(stats.bySport).length === 0 ? (
-                <p style={{ fontSize: '13px', color: colors.textTertiary }}>No settled bets</p>
-              ) : (
-                Object.entries(stats.bySport).map(([sport, dollars]) => (
-                  <div key={sport} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '4px 0' }}>
-                    <span style={{ color: colors.textSecondary }}>{sport.toUpperCase()}</span>
-                    <span style={{ color: dollars >= 0 ? colors.accentWin : colors.accentLoss, fontWeight: '600', ...numberStyle }}>
-                      {formatMoney(dollars)}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+          ))
         )}
       </div>
 
-      {/* Favorite Team & Prime Time */}
+      {/* By Bet Type */}
       <div style={{
         background: colors.bgElevated,
         borderRadius: '20px',
         padding: '20px',
-        marginBottom: '24px',
-        boxShadow: `0 2px 8px ${colors.shadow}`,
-        border: `1px solid ${colors.border}`
+        marginBottom: '16px',
+        border: `1px solid ${colors.border}`,
+        boxShadow: `0 2px 8px ${colors.shadow}`
       }}>
-        <button
-          onClick={() => setTeamTimeExpanded(!teamTimeExpanded)}
-          style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-            marginBottom: teamTimeExpanded ? '16px' : 0
-          }}
-        >
-          <h3 style={{
-            fontSize: '16px',
-            fontWeight: '700',
-            color: colors.textPrimary,
-            margin: 0,
-            ...headerStyle
-          }}>
-            Favorite Team & Prime Time
-          </h3>
-          <ChevronDown isOpen={teamTimeExpanded} />
-        </button>
-        
-        {teamTimeExpanded && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
-            <div style={{
-              background: `${colors.accentFavoriteTeam}20`,
-              padding: '16px',
-              borderRadius: '16px',
-              border: `1px solid ${colors.accentFavoriteTeam}40`
+        <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px', margin: '0 0 16px 0', ...headerStyle }}>
+          By Bet Type
+        </h3>
+        {Object.keys(stats.byType).length === 0 ? (
+          <p style={{ fontSize: '13px', color: colors.textTertiary }}>No settled bets</p>
+        ) : (
+          Object.entries(stats.byType).map(([type, dollars]) => (
+            <div key={type} style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '14px 0',
+              borderBottom: `1px solid ${colors.border}`
             }}>
-              <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Favorite Team</div>
-              <div style={{
-                fontSize: '20px',
+              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>{formatBetType(type)}</span>
+              <span style={{
+                fontSize: '15px',
                 fontWeight: '800',
-                color: parseFloat(stats.favoriteTeamDollars) >= 0 ? colors.accentWin : colors.accentLoss,
-                marginBottom: '4px',
+                color: dollars >= 0 ? colors.accentWin : colors.accentLoss,
                 ...numberStyle
               }}>
-                {formatMoney(parseFloat(stats.favoriteTeamDollars))}
-              </div>
-              <div style={{ fontSize: '11px', color: colors.textTertiary }}>
-                {stats.favoriteTeamRecord}
-              </div>
+                {formatMoney(dollars)}
+              </span>
             </div>
-            
-            <div style={{
-              background: `${colors.accentPrimeTime}20`,
-              padding: '16px',
-              borderRadius: '16px',
-              border: `1px solid ${colors.accentPrimeTime}40`
-            }}>
-              <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Prime Time</div>
-              <div style={{
-                fontSize: '20px',
-                fontWeight: '800',
-                color: parseFloat(stats.primeTimeDollars) >= 0 ? colors.accentWin : colors.accentLoss,
-                marginBottom: '4px',
-                ...numberStyle
-              }}>
-                {formatMoney(parseFloat(stats.primeTimeDollars))}
-              </div>
-              <div style={{ fontSize: '11px', color: colors.textTertiary }}>
-                {stats.primeTimeRecord}
-              </div>
-            </div>
-          </div>
+          ))
         )}
+      </div>
+
+      {/* Favorite Team Stats */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '20px',
+        marginBottom: '16px',
+        border: `2px solid ${colors.accentFavoriteTeam}`,
+        boxShadow: `0 2px 8px ${colors.shadow}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: colors.accentFavoriteTeam
+          }} />
+          <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, margin: 0, ...headerStyle }}>
+            Favorite Team
+          </h3>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Total P/L</span>
+          <span style={{
+            fontSize: '20px',
+            fontWeight: '800',
+            color: parseFloat(stats.favoriteTeamDollars) >= 0 ? colors.accentWin : colors.accentLoss,
+            ...numberStyle
+          }}>
+            {formatMoney(parseFloat(stats.favoriteTeamDollars))}
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Record</span>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, ...numberStyle }}>
+            {stats.favoriteTeamRecord}
+          </span>
+        </div>
+      </div>
+
+      {/* Prime Time Stats */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '20px',
+        border: `2px solid ${colors.accentPrimeTime}`,
+        boxShadow: `0 2px 8px ${colors.shadow}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: colors.accentPrimeTime
+          }} />
+          <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, margin: 0, ...headerStyle }}>
+            Prime Time
+          </h3>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Total P/L</span>
+          <span style={{
+            fontSize: '20px',
+            fontWeight: '800',
+            color: parseFloat(stats.primeTimeDollars) >= 0 ? colors.accentWin : colors.accentLoss,
+            ...numberStyle
+          }}>
+            {formatMoney(parseFloat(stats.primeTimeDollars))}
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Record</span>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, ...numberStyle }}>
+            {stats.primeTimeRecord}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -1739,7 +1713,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                 }}>
                   {resource.name}
                 </span>
-                <ExternalLink />
               </a>
             ))}
           </div>
@@ -2002,49 +1975,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                     </span>
                   </label>
                 </div>
-              </div>
-            </div>
-
-            {/* Display Mode */}
-            <div>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', margin: '0 0 12px 0' }}>
-                Display
-              </h3>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button
-                  onClick={() => setDisplayMode('dollars')}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: displayMode === 'dollars' ? colors.accentPrimary : colors.bgSecondary,
-                    color: displayMode === 'dollars' ? '#FFFFFF' : colors.textPrimary,
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    boxShadow: displayMode === 'dollars' ? `0 2px 8px ${colors.shadow}` : 'none'
-                  }}
-                >
-                  Dollars ($)
-                </button>
-                <button
-                  onClick={() => setDisplayMode('units')}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: displayMode === 'units' ? colors.accentPrimary : colors.bgSecondary,
-                    color: displayMode === 'units' ? '#FFFFFF' : colors.textPrimary,
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    boxShadow: displayMode === 'units' ? `0 2px 8px ${colors.shadow}` : 'none'
-                  }}
-                >
-                  Units (u)
-                </button>
               </div>
             </div>
           </div>
