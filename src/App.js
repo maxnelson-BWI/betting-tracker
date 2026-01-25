@@ -115,20 +115,15 @@ const Filter = () => (
   </svg>
 );
 
-const ChevronDown = ({ isOpen }) => (
-  <svg 
-    width="20" 
-    height="20" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2"
-    style={{ 
-      transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-      transition: 'transform 0.2s ease'
-    }}
-  >
+const ChevronDown = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <polyline points="6 9 12 15 18 9"></polyline>
+  </svg>
+);
+
+const ChevronUp = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <polyline points="18 15 12 9 6 15"></polyline>
   </svg>
 );
 
@@ -953,7 +948,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
 
     return filtered;
   };
-
   const filteredBets = getFilteredBets();
 
   // Get recent bets for home page
