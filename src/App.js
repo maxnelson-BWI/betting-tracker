@@ -462,8 +462,8 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     // Determine favorite/underdog based on bet type
     let favoriteUnderdog = 'none';
     
-    // Teasers, Parlays, Futures: skip entirely (not useful indicators)
-    if (['teaser', 'parlay', 'longshot-parlay', 'future'].includes(betType)) {
+    // Teasers, Parlays, Futures, Props: skip entirely (not useful indicators)
+    if (['teaser', 'parlay', 'longshot-parlay', 'future', 'prop'].includes(betType)) {
       favoriteUnderdog = 'none';
     }
     // Straight bets and Over/Under: check description for spread
@@ -475,8 +475,8 @@ const [systemExpanded, setSystemExpanded] = useState(false);
         favoriteUnderdog = 'favorite';
       }
     }
-    // Money Line, Prop: check odds field
-    else if (['money-line', 'prop'].includes(betType)) {
+    // Money Line: check odds field
+    else if (betType === 'money-line') {
       if (odds > 0) {
         favoriteUnderdog = 'underdog';
       } else if (odds < 0) {
@@ -1595,6 +1595,17 @@ const [systemExpanded, setSystemExpanded] = useState(false);
               OTHER FILTERS
             </div>
             <div className="flex items-center gap-2 overflow-x-auto pb-2">
+              <button
+                onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'all', overUnder: 'all'})}
+                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                style={{
+                  background: historyFilter.favoriteUnderdog === 'all' && historyFilter.overUnder === 'all' ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.favoriteUnderdog === 'all' && historyFilter.overUnder === 'all' ? '#FFFFFF' : colors.textPrimary,
+                  fontWeight: '600'
+                }}
+              >
+                All
+              </button>
               <button
                 onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'favorite'})}
                 className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
