@@ -255,6 +255,62 @@ const numberStyle = {
   fontFeatureSettings: '"tnum"'
 };
 
+// ============================================
+// SMART DEFAULT SPORT FUNCTION
+// ============================================
+const getDefaultSport = () => {
+  const now = new Date();
+  const month = now.getMonth(); // 0-11 (Jan = 0)
+  const day = now.getDate(); // 1-31
+  const dayOfWeek = now.getDay(); // 0 = Sunday, 6 = Saturday
+  
+  const isSaturday = dayOfWeek === 6;
+  const isSunday = dayOfWeek === 0;
+  const isMonday = dayOfWeek === 1;
+  const isThursday = dayOfWeek === 4;
+  
+  // Sept 1 - Dec 31: Football season
+  if (month >= 8 && month <= 11) {
+    if (isSaturday) return 'ncaaf';
+    if (isThursday || isSunday || isMonday) return 'nfl';
+    return 'ncaaf'; // Tue/Wed/Fri = NCAAF (MACtion, weeknight CFB)
+  }
+  
+  // Jan 1 - Jan 15
+  if (month === 0 && day <= 15) {
+    if (isSaturday || isSunday || isMonday) return 'nfl'; // NFL Playoffs
+    return 'ncaab'; // Tue/Wed/Thu/Fri = College hoops
+  }
+  
+  // Jan 16 - Feb 14: NFL Playoffs / Super Bowl
+  if ((month === 0 && day >= 16) || (month === 1 && day <= 14)) {
+    return 'nfl';
+  }
+  
+  // Feb 15 - April 7: March Madness season
+  if ((month === 1 && day >= 15) || month === 2 || (month === 3 && day <= 7)) {
+    return 'ncaab';
+  }
+  
+  // April 8 - April 15: Gap period
+  if (month === 3 && day >= 8 && day <= 15) {
+    return 'mlb';
+  }
+  
+  // April 16 - June 20: NBA Playoffs
+  if ((month === 3 && day >= 16) || month === 4 || (month === 5 && day <= 20)) {
+    return 'nba';
+  }
+  
+  // June 21 - Aug 31: Baseball season
+  if ((month === 5 && day >= 21) || month === 6 || month === 7) {
+    return 'mlb';
+  }
+  
+  // Fallback (shouldn't hit this)
+  return '';
+};
+
 function App() {
   const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
@@ -296,7 +352,7 @@ const [addBetStep, setAddBetStep] = useState(1); // NEW: Multi-step modal
   
   const [formData, setFormData] = useState({
     date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
-    sport: '',
+    sport: getDefaultSport(),
     betType: '',
     description: '',
     units: '',
@@ -595,7 +651,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       await addDoc(collection(db, 'bets'), newBet);
       setFormData({
         date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
-        sport: '',
+        sport: getDefaultSport(),
         betType: '',
         description: '',
         units: '',
@@ -659,7 +715,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       await updateDoc(doc(db, 'bets', editingBet), updatedBet);
       setFormData({
         date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
-        sport: '',
+        sport: getDefaultSport(),
         betType: '',
         description: '',
         units: '',
@@ -684,7 +740,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     setEditingBet(null);
     setFormData({
       date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
-      sport: '',
+      sport: getDefaultSport(),
       betType: '',
       description: '',
       units: '',
