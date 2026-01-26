@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
 import './animations.css';
@@ -383,6 +383,8 @@ const [addBetStep, setAddBetStep] = useState(1); // NEW: Multi-step modal
   const [showAllBets, setShowAllBets] = useState(false);
 const [showFilters, setShowFilters] = useState(false); // NEW: Collapsible filters
 const [searchQuery, setSearchQuery] = useState(''); // NEW: Search functionality
+const searchInputRef = useRef(null);
+
 
 // Collapsible sections state
 const [systemExpanded, setSystemExpanded] = useState(false);
@@ -1566,10 +1568,14 @@ const [systemExpanded, setSystemExpanded] = useState(false);
             <Search />
           </div>
           <input
+            ref={searchInputRef}
             type="text"
             placeholder="Search teams, bets, notes..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setTimeout(() => searchInputRef.current?.focus(), 0);
+            }}
             style={{
               width: '100%',
               padding: '14px 44px',
