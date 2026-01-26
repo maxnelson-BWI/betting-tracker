@@ -320,34 +320,35 @@ const getDefaultSport = () => {
 
 
 
-// SearchBar Component - uses local state with debounce
+// SearchBar Component - uses local state with debounce and refocus
 const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
   const [localValue, setLocalValue] = React.useState(searchQuery);
   const timeoutRef = React.useRef(null);
+  const inputRef = React.useRef(null);
 
   const handleChange = (e) => {
     const newValue = e.target.value;
     setLocalValue(newValue);
     
-    // Clear existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     
-    // Set new timeout to update parent after 400ms
     timeoutRef.current = setTimeout(() => {
       setSearchQuery(newValue);
+      // Refocus after state update
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
     }, 400);
   };
 
-  // Sync local state if parent clears it
   React.useEffect(() => {
     if (searchQuery === '' && localValue !== '') {
       setLocalValue('');
     }
   }, [searchQuery]);
 
-  // Cleanup timeout on unmount
   React.useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -357,7 +358,7 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
   }, []);
 
   return (
-    <div style={{ marginBottom: '24px', position: 'relative' }}>
+    <div style={{ marginBottom: '28px', position: 'relative' }}>
       <div style={{
         position: 'absolute',
         left: '12px',
@@ -369,6 +370,7 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
         <Search />
       </div>
       <input
+        ref={inputRef}
         type="text"
         placeholder="Search teams, bets, notes..."
         value={localValue}
@@ -1674,7 +1676,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     BetCard
   }) => (
     <div className="pb-20 animate-fadeIn">
-      <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
+      <div className="rounded-2xl shadow-2xl p-3 md:p-4" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
         <h2 className="text-xl font-bold mb-6" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
         
         {/* SEARCH BAR */}
