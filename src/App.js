@@ -942,6 +942,92 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     }
   };
 
+// Key Trends Analysis
+  const trends = useMemo(() => {
+    const settledBets = bets.filter(b => b.result !== 'pending' && b.result !== 'push');
+    if (settledBets.length < 10) return { winning: [], losing: [] };
+
+    const combinations = {};
+
+    settledBets.forEach(bet => {
+      const { favoriteUnderdog, overUnder } = parseBetDetails(bet);
+      const sport = bet.sport?.toUpperCase() || 'OTHER';
+      const betType = formatBetType(bet.betType);
+      const systemPlay = bet.systemPlay;
+
+      // Helper to add to a combination
+      const addToCombination = (key, label) => {
+        if (!combinations[key]) {
+          combinations[key] = { label, bets: [], wins: 0, losses: 0, payout: 0 };
+        }
+        combinations[key].bets.push(bet);
+        combinations[key].payout += bet.payout;
+        if (bet.result === 'win') combinations[key].wins++;
+        if (bet.result === 'loss') combinations[key].losses++;
+      };
+
+      // Sport + Bet Type (e.g., "NFL Spread")
+      addToCombination(`${sport}-${bet.betType}`, `${sport} ${betType}`);
+
+      // Sport + Favorite/Underdog (e.g., "NFL Favorites")
+      if (favoriteUnderdog !== 'none') {
+        const favDogLabel = favoriteUnderdog === 'favorite' ? 'Favorites' : 'Underdogs';
+        addToCombination(`${sport}-${favoriteUnderdog}`, `${sport} ${favDogLabel}`);
+      }
+
+      // Sport + Over/Under (e.g., "NFL Overs")
+      if (overUnder !== 'none') {
+        const ouLabel = overUnder === 'over' ? 'Overs' : 'Unders';
+        addToCombination(`${sport}-${overUnder}`, `${sport} ${ouLabel}`);
+      }
+
+      // Bet Type + Favorite/Underdog (e.g., "ML Underdogs")
+      if (favoriteUnderdog !== 'none') {
+        const favDogLabel = favoriteUnderdog === 'favorite' ? 'Favorites' : 'Underdogs';
+        addToCombination(`${bet.betType}-${favoriteUnderdog}`, `${betType} ${favDogLabel}`);
+      }
+
+      // Sport + Bet Type + Favorite/Underdog (e.g., "NFL ML Underdogs")
+      if (favoriteUnderdog !== 'none') {
+        const favDogLabel = favoriteUnderdog === 'favorite' ? 'Favorites' : 'Underdogs';
+        addToCombination(`${sport}-${bet.betType}-${favoriteUnderdog}`, `${sport} ${betType} ${favDogLabel}`);
+      }
+
+      // Sport + System Play (e.g., "NFL Clear System")
+      if (systemPlay && systemPlay !== 'none' && systemPlay !== 'no-system') {
+        const systemLabel = systemPlay === 'clear' ? 'Clear System' : systemPlay === 'kind-of' ? 'Kind Of System' : 'Anti System';
+        addToCombination(`${sport}-${systemPlay}`, `${sport} ${systemLabel}`);
+      }
+    });
+
+    // Filter to 10+ bets and calculate significance
+    const validCombos = Object.values(combinations)
+      .filter(combo => combo.bets.length >= 10)
+      .map(combo => {
+        const winRate = combo.wins / combo.bets.length;
+        const significance = Math.abs(combo.payout) * Math.sqrt(combo.bets.length / 10);
+        return {
+          ...combo,
+          winRate,
+          significance,
+          record: `${combo.wins}-${combo.losses}`
+        };
+      });
+
+    // Split into winning and losing, sort by significance
+    const winning = validCombos
+      .filter(c => c.payout > 0)
+      .sort((a, b) => b.significance - a.significance)
+      .slice(0, 3);
+
+    const losing = validCombos
+      .filter(c => c.payout < 0)
+      .sort((a, b) => b.significance - a.significance)
+      .slice(0, 3);
+
+    return { winning, losing };
+  }, [bets]);
+
   const stats = useMemo(() => {
     const settledBets = bets.filter(b => b.result !== 'pending');
     const totalDollars = settledBets.reduce((sum, bet) => sum + bet.payout, 0);
@@ -1478,11 +1564,142 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       </div>
     </div>
   );
+  
+  // Helper function to get trend message
+  const getTrendMessage = (index, isWinning) => {
+    if (isWinning) {
+      return index === 0 ? "These have been your top plays" : "This is working";
+    } else {
+      return index === 0 ? "Your worst plays" : "This hasn't been working";
+    }
+  };
+
   // ============================================
-  // STATS PAGE COMPONENT - NEW PAGE
+  // STATS PAGE COMPONENT - WITH KEY TRENDS
   // ============================================
   const StatsPage = () => (
     <div style={{ paddingBottom: '100px' }}>
+      {/* KEY TRENDS - New Section */}
+      {(trends.winning.length > 0 || trends.losing.length > 0) && (
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          marginBottom: '16px',
+          border: `1px solid ${colors.border}`,
+          boxShadow: `0 2px 8px ${colors.shadow}`
+        }}>
+          <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '20px', margin: '0 0 20px 0', ...headerStyle }}>
+            📈 Key Trends
+          </h3>
+
+          {/* Winning Trends */}
+          {trends.winning.length > 0 && (
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{
+                fontSize: '12px',
+                fontWeight: '700',
+                color: colors.accentWin,
+                marginBottom: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                🔥 Where You're Winning
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {trends.winning.map((trend, index) => (
+                  <div key={trend.label} style={{
+                    background: 'rgba(124, 152, 133, 0.1)',
+                    border: `1px solid rgba(124, 152, 133, 0.3)`,
+                    borderRadius: '12px',
+                    padding: '14px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                      <div style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
+                        {trend.label}
+                      </div>
+                      <div style={{ fontSize: '17px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
+                        {formatMoney(trend.payout)}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary }}>
+                        {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
+                      </div>
+                      <div style={{ fontSize: '11px', color: colors.accentWin, fontStyle: 'italic' }}>
+                        {getTrendMessage(index, true)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Losing Trends */}
+          {trends.losing.length > 0 && (
+            <div>
+              <div style={{
+                fontSize: '12px',
+                fontWeight: '700',
+                color: colors.accentLoss,
+                marginBottom: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                ⚠️ Where You're Losing
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {trends.losing.map((trend, index) => (
+                  <div key={trend.label} style={{
+                    background: 'rgba(184, 92, 80, 0.1)',
+                    border: `1px solid rgba(184, 92, 80, 0.3)`,
+                    borderRadius: '12px',
+                    padding: '14px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                      <div style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
+                        {trend.label}
+                      </div>
+                      <div style={{ fontSize: '17px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
+                        {formatMoney(trend.payout)}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: '12px', color: colors.textSecondary }}>
+                        {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
+                      </div>
+                      <div style={{ fontSize: '11px', color: colors.accentLoss, fontStyle: 'italic' }}>
+                        {getTrendMessage(index, false)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Not enough data message - shows when no trends but user has some bets */}
+      {trends.winning.length === 0 && trends.losing.length === 0 && bets.length > 0 && (
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          marginBottom: '16px',
+          border: `1px solid ${colors.border}`,
+          boxShadow: `0 2px 8px ${colors.shadow}`
+        }}>
+          <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', margin: '0 0 12px 0', ...headerStyle }}>
+            📈 Key Trends
+          </h3>
+          <p style={{ fontSize: '13px', color: colors.textTertiary, textAlign: 'center', padding: '20px' }}>
+            Need more settled bets to identify trends (10+ per category)
+          </p>
+        </div>
+      )}
+
       {/* By Sport */}
       <div style={{
         background: colors.bgElevated,
