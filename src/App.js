@@ -140,6 +140,13 @@ const ArrowLeft = () => (
     <polyline points="12 19 5 12 12 5"></polyline>
   </svg>
 );
+// Search Icon - NEW
+const Search = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="11" cy="11" r="8"></circle>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+);
 
 // ============================================
 // LOGO COMPONENT
@@ -375,6 +382,7 @@ const [addBetStep, setAddBetStep] = useState(1); // NEW: Multi-step modal
   });
   const [showAllBets, setShowAllBets] = useState(false);
 const [showFilters, setShowFilters] = useState(false); // NEW: Collapsible filters
+const [searchQuery, setSearchQuery] = useState(''); // NEW: Search functionality
 
 // Collapsible sections state
 const [systemExpanded, setSystemExpanded] = useState(false);
@@ -1002,6 +1010,15 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   // Filter bets for history page
   const getFilteredBets = () => {
     let filtered = [...bets];
+    // Search filter - NEW
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(bet => {
+        const description = (bet.description || '').toLowerCase();
+        const notes = (bet.notes || '').toLowerCase();
+        return description.includes(query) || notes.includes(query);
+      });
+    }
 
     // Time range filter
     if (historyFilter.timeRange === '30days' && !showAllBets) {
@@ -1536,6 +1553,54 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     <div className="pb-20 animate-fadeIn">
       <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
         <h2 className="text-xl font-bold mb-4" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
+        {/* SEARCH BAR - NEW */}
+        <div style={{ marginBottom: '16px', position: 'relative' }}>
+          <div style={{
+            position: 'absolute',
+            left: '14px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: colors.textTertiary,
+            pointerEvents: 'none'
+          }}>
+            <Search />
+          </div>
+          <input
+            type="text"
+            placeholder="Search teams, bets, notes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '14px 44px',
+              background: colors.bgSecondary,
+              border: `1px solid ${colors.border}`,
+              borderRadius: '16px',
+              fontSize: '15px',
+              color: colors.textPrimary,
+              outline: 'none',
+              boxSizing: 'border-box'
+            }}
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              style={{
+                position: 'absolute',
+                right: '14px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'transparent',
+                border: 'none',
+                color: colors.textTertiary,
+                cursor: 'pointer',
+                padding: '4px'
+              }}
+            >
+              <X />
+            </button>
+          )}
+        </div>
         
         {/* Filter Pills */}
         <div className="mb-4 space-y-4">
@@ -1743,13 +1808,13 @@ const [systemExpanded, setSystemExpanded] = useState(false);
               <div>
                 <div className="text-xs mb-1" style={{ color: colors.textSecondary }}>Current Filter</div>
                 <div className="text-sm font-medium" style={{ color: colors.textPrimary }}>
+                  {searchQuery && `"${searchQuery}" • `}
                   {historyFilter.sport !== 'all' && `${historyFilter.sport.toUpperCase()} • `}
                   {historyFilter.betType !== 'all' && `${formatBetType(historyFilter.betType)} • `}
                   {historyFilter.result !== 'all' && `${historyFilter.result.charAt(0).toUpperCase() + historyFilter.result.slice(1)} • `}
                   {historyFilter.favoriteUnderdog !== 'all' && `${historyFilter.favoriteUnderdog === 'favorite' ? 'Favorites' : 'Underdogs'} • `}
                   {historyFilter.overUnder !== 'all' && `${historyFilter.overUnder === 'over' ? 'Overs' : 'Unders'} • `}
-                  {historyFilter.sport === 'all' && historyFilter.betType === 'all' && historyFilter.result === 'all' && historyFilter.favoriteUnderdog === 'all' && historyFilter.overUnder === 'all' && 'All Bets'}
-                </div>
+{!searchQuery && historyFilter.sport === 'all' && historyFilter.betType === 'all' && historyFilter.result === 'all' && historyFilter.favoriteUnderdog === 'all' && historyFilter.overUnder === 'all' && 'All Bets'}                </div>
               </div>
               <div className="text-right">
                 <div className="text-xs mb-1" style={{ color: colors.textSecondary }}>Record & P/L</div>
@@ -1769,12 +1834,14 @@ const [systemExpanded, setSystemExpanded] = useState(false);
         <div className="text-sm mb-4" style={{ color: colors.textSecondary }}>
           Showing {filteredBets.length} {filteredBets.length === 1 ? 'bet' : 'bets'}
           {!showAllBets && ' (Last 30 days)'}
+          {searchQuery && ` matching "${searchQuery}"`}
         </div>
 
         <div className="space-y-3">
           {filteredBets.length === 0 ? (
-            <p className="text-center py-8" style={{ color: colors.textTertiary }}>No bets match your filters</p>
-          ) : (
+<p className="text-center py-8" style={{ color: colors.textTertiary }}>
+              {searchQuery ? `No bets found matching "${searchQuery}"` : 'No bets match your filters'}
+            </p>          ) : (
             filteredBets.map(bet => (
               <BetCard key={bet.id} bet={bet} showActions />
             ))
