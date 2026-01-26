@@ -1040,7 +1040,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
         
         {/* Add Bet Button */}
         <button
-          onClick={() => !isRetired && setShowAddBetModal(true)}
+          onClick={() => { if (!isRetired) { setAddBetStep(1); setShowAddBetModal(true); } }}
           disabled={isRetired}
           style={{
             width: '100%',
@@ -2317,7 +2317,10 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                   <input
                     type="date"
                     value={localFormData.date}
-                    onChange={(e) => setLocalFormData({...localFormData, date: e.target.value})}
+                    onChange={(e) => {
+                      setLocalFormData({...localFormData, date: e.target.value});
+                      e.target.blur(); // Auto-close the picker after selection
+                    }}
                     style={{
                       width: '100%',
                       padding: '12px',
@@ -2449,7 +2452,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
                           border: `2px solid ${localFormData.units === btn.value.toString() ? colors.accentPrimary : colors.border}`,
                           borderRadius: '12px',
                           cursor: 'pointer',
-                          fontSize: '16px',
+                          fontSize: '14px',
                           fontWeight: '700',
                           color: colors.textPrimary,
                           transition: 'all 0.2s ease'
@@ -3232,7 +3235,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
             </button>
 
             <button
-              onClick={() => !isRetired && setShowAddBetModal(true)}
+              onClick={() => { if (!isRetired) { setAddBetStep(1); setShowAddBetModal(true); } }}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
                 isRetired 
                   ? 'cursor-not-allowed' 
