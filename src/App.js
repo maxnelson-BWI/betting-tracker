@@ -1901,7 +1901,6 @@ const [systemExpanded, setSystemExpanded] = useState(false);
           )}
         </div>
       </div>
-    </div>
   );
 
  /// MORE PAGE COMPONENT
