@@ -345,7 +345,7 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
   }, [searchQuery]);
 
   return (
-    <div style={{ marginBottom: '12px', position: 'relative' }}>
+    <div style={{ marginBottom: '20px', position: 'relative' }}>
       <div style={{
         position: 'absolute',
         left: '12px',
@@ -369,7 +369,7 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
           background: colors.bgSecondary,
           border: `1px solid ${colors.border}`,
           borderRadius: '12px',
-          fontSize: '14px',
+          fontSize: '16px',
           color: colors.textPrimary,
           outline: 'none',
           boxSizing: 'border-box'
