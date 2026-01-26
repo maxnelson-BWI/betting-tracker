@@ -320,24 +320,35 @@ const getDefaultSport = () => {
 
 
 
-/// SearchBar Component - uses local state to prevent focus loss
+// SearchBar Component - uses local state to prevent focus loss
 const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
   const [localValue, setLocalValue] = React.useState(searchQuery);
   
+  // Only sync to parent when user presses Enter or clicks away
+  const handleBlur = () => {
+    if (localValue !== searchQuery) {
+      setSearchQuery(localValue);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      setSearchQuery(localValue);
+    }
+  };
+
+  // Sync local state if parent clears it (e.g., from a "clear filters" button)
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localValue !== searchQuery) {
-        setSearchQuery(localValue);
-      }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [localValue, searchQuery, setSearchQuery]);
+    if (searchQuery === '' && localValue !== '') {
+      setLocalValue('');
+    }
+  }, [searchQuery]);
 
   return (
-    <div style={{ marginBottom: '16px', position: 'relative' }}>
+    <div style={{ marginBottom: '12px', position: 'relative' }}>
       <div style={{
         position: 'absolute',
-        left: '14px',
+        left: '12px',
         top: '50%',
         transform: 'translateY(-50%)',
         color: colors.textTertiary,
@@ -350,13 +361,15 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
         placeholder="Search teams, bets, notes..."
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
         style={{
           width: '100%',
-          padding: '14px 44px',
+          padding: '12px 40px',
           background: colors.bgSecondary,
           border: `1px solid ${colors.border}`,
-          borderRadius: '16px',
-          fontSize: '15px',
+          borderRadius: '12px',
+          fontSize: '14px',
           color: colors.textPrimary,
           outline: 'none',
           boxSizing: 'border-box'
@@ -370,7 +383,7 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
           }}
           style={{
             position: 'absolute',
-            right: '14px',
+            right: '12px',
             top: '50%',
             transform: 'translateY(-50%)',
             background: 'transparent',
