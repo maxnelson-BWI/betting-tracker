@@ -1085,7 +1085,20 @@ const [systemExpanded, setSystemExpanded] = useState(false);
       case 'stats':
         return <StatsPage />;
       case 'history':
-        return <HistoryPage />;
+        return <HistoryPage 
+          colors={colors}
+          filteredBets={filteredBets}
+          historyFilter={historyFilter}
+          setHistoryFilter={setHistoryFilter}
+          showAllBets={showAllBets}
+          setShowAllBets={setShowAllBets}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          getSportLabel={getSportLabel}
+          formatBetType={formatBetType}
+          formatMoney={formatMoney}
+          BetCard={BetCard}
+        />;
       case 'more':
         return <MorePage />;
       default:
@@ -1551,7 +1564,20 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   );
 
   // HISTORY PAGE COMPONENT
-  const HistoryPage = () => (
+  const HistoryPage = ({ 
+    colors, 
+    filteredBets, 
+    historyFilter, 
+    setHistoryFilter, 
+    showAllBets, 
+    setShowAllBets, 
+    searchQuery, 
+    setSearchQuery,
+    getSportLabel,
+    formatBetType,
+    formatMoney,
+    BetCard
+  }) => (
     <div className="pb-20 animate-fadeIn">
       <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
         <h2 className="text-xl font-bold mb-4" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
