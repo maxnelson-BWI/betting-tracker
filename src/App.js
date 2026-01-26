@@ -453,19 +453,44 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     }
   };
 
-  // Parse odds to determine favorite/underdog and over/under
+  // Parse bet details to determine favorite/underdog and over/under
   const parseBetDetails = (bet) => {
+    const desc = bet.description || '';
     const odds = parseFloat(bet.odds);
-    const favoriteUnderdog = odds < 0 ? 'favorite' : odds > 0 ? 'underdog' : 'even';
+    const betType = bet.betType || '';
     
-    // Check description or odds field for O/U notation
-    const desc = bet.description?.toLowerCase() || '';
-    const oddsStr = bet.odds?.toString() || '';
+    // Determine favorite/underdog based on bet type
+    let favoriteUnderdog = 'none';
+    
+    // Teasers, Parlays, Futures: skip entirely (not useful indicators)
+    if (['teaser', 'parlay', 'longshot-parlay', 'future'].includes(betType)) {
+      favoriteUnderdog = 'none';
+    }
+    // Straight bets and Over/Under: check description for spread
+    else if (betType === 'straight' || betType === 'over-under') {
+      // +number = underdog (getting points), -number = favorite (giving points)
+      if (/\+\s*\d/.test(desc)) {
+        favoriteUnderdog = 'underdog';
+      } else if (/(?:^|\s)-\s*\d/.test(desc)) {
+        favoriteUnderdog = 'favorite';
+      }
+    }
+    // Money Line, Prop: check odds field
+    else if (['money-line', 'prop'].includes(betType)) {
+      if (odds > 0) {
+        favoriteUnderdog = 'underdog';
+      } else if (odds < 0) {
+        favoriteUnderdog = 'favorite';
+      }
+    }
+    
+    // Determine over/under from description (applies to all bet types)
     let overUnder = 'none';
+    const descLower = desc.toLowerCase();
     
-    if (desc.includes('over') || oddsStr.match(/^o\s?\d/i)) {
+    if (/\bo\s*\d/i.test(desc) || descLower.includes('over')) {
       overUnder = 'over';
-    } else if (desc.includes('under') || oddsStr.match(/^u\s?\d/i)) {
+    } else if (/\bu\s*\d/i.test(desc) || descLower.includes('under')) {
       overUnder = 'under';
     }
     
