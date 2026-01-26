@@ -320,27 +320,14 @@ const getDefaultSport = () => {
 
 
 
-// SearchBar Component - uses local state with debounce and refocus
+// SearchBar Component - searches on Enter key
 const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
   const [localValue, setLocalValue] = React.useState(searchQuery);
-  const timeoutRef = React.useRef(null);
-  const inputRef = React.useRef(null);
 
-  const handleChange = (e) => {
-    const newValue = e.target.value;
-    setLocalValue(newValue);
-    
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      setSearchQuery(localValue);
     }
-    
-    timeoutRef.current = setTimeout(() => {
-      setSearchQuery(newValue);
-      // Refocus after state update
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 0);
-    }, 400);
   };
 
   React.useEffect(() => {
@@ -349,16 +336,8 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
     }
   }, [searchQuery]);
 
-  React.useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
   return (
-    <div style={{ marginBottom: '28px', position: 'relative' }}>
+    <div style={{ position: 'relative' }}>
       <div style={{
         position: 'absolute',
         left: '12px',
@@ -370,11 +349,11 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
         <Search />
       </div>
       <input
-        ref={inputRef}
         type="text"
-        placeholder="Search teams, bets, notes..."
+        placeholder="Search and press Enter..."
         value={localValue}
-        onChange={handleChange}
+        onChange={(e) => setLocalValue(e.target.value)}
+        onKeyDown={handleKeyDown}
         style={{
           width: '100%',
           padding: '12px 40px',
@@ -392,9 +371,6 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
           onClick={() => {
             setLocalValue('');
             setSearchQuery('');
-            if (timeoutRef.current) {
-              clearTimeout(timeoutRef.current);
-            }
           }}
           style={{
             position: 'absolute',
@@ -1677,10 +1653,11 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   }) => (
     <div className="pb-20 animate-fadeIn">
       <div className="rounded-2xl shadow-2xl p-3 md:p-4" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
-        <h2 className="text-xl font-bold mb-6" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
+        <h2 className="text-xl font-bold mb-3" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
         
         {/* SEARCH BAR */}
         <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} colors={colors} />
+        <div style={{ height: '20px' }} />
         </div>
         
         {/* Filter Pills */}
