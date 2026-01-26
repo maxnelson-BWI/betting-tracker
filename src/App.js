@@ -320,56 +320,72 @@ const getDefaultSport = () => {
 
 
 
-// SearchBar Component - defined outside App to prevent re-creation
-const SearchBar = ({ searchQuery, setSearchQuery, colors }) => (
-  <div style={{ marginBottom: '16px', position: 'relative' }}>
-    <div style={{
-      position: 'absolute',
-      left: '14px',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      color: colors.textTertiary,
-      pointerEvents: 'none'
-    }}>
-      <Search />
-    </div>
-    <input
-      type="text"
-      placeholder="Search teams, bets, notes..."
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      style={{
-        width: '100%',
-        padding: '14px 44px',
-        background: colors.bgSecondary,
-        border: `1px solid ${colors.border}`,
-        borderRadius: '16px',
-        fontSize: '15px',
-        color: colors.textPrimary,
-        outline: 'none',
-        boxSizing: 'border-box'
-      }}
-    />
-    {searchQuery && (
-      <button
-        onClick={() => setSearchQuery('')}
+/// SearchBar Component - uses local state to prevent focus loss
+const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
+  const [localValue, setLocalValue] = React.useState(searchQuery);
+  
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localValue !== searchQuery) {
+        setSearchQuery(localValue);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [localValue, searchQuery, setSearchQuery]);
+
+  return (
+    <div style={{ marginBottom: '16px', position: 'relative' }}>
+      <div style={{
+        position: 'absolute',
+        left: '14px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        color: colors.textTertiary,
+        pointerEvents: 'none'
+      }}>
+        <Search />
+      </div>
+      <input
+        type="text"
+        placeholder="Search teams, bets, notes..."
+        value={localValue}
+        onChange={(e) => setLocalValue(e.target.value)}
         style={{
-          position: 'absolute',
-          right: '14px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          background: 'transparent',
-          border: 'none',
-          color: colors.textTertiary,
-          cursor: 'pointer',
-          padding: '4px'
+          width: '100%',
+          padding: '14px 44px',
+          background: colors.bgSecondary,
+          border: `1px solid ${colors.border}`,
+          borderRadius: '16px',
+          fontSize: '15px',
+          color: colors.textPrimary,
+          outline: 'none',
+          boxSizing: 'border-box'
         }}
-      >
-        <X />
-      </button>
-    )}
-  </div>
-);
+      />
+      {localValue && (
+        <button
+          onClick={() => {
+            setLocalValue('');
+            setSearchQuery('');
+          }}
+          style={{
+            position: 'absolute',
+            right: '14px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'transparent',
+            border: 'none',
+            color: colors.textTertiary,
+            cursor: 'pointer',
+            padding: '4px'
+          }}
+        >
+          <X />
+        </button>
+      )}
+    </div>
+  );
+};
 
 function App() {
       const [bets, setBets] = useState([]);
@@ -1634,58 +1650,9 @@ const [systemExpanded, setSystemExpanded] = useState(false);
     <div className="pb-20 animate-fadeIn">
       <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
         <h2 className="text-xl font-bold mb-4" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
+        
         {/* SEARCH BAR */}
         <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} colors={colors} />
-        <div style={{ marginBottom: '16px', position: 'relative' }}>
-          <div style={{
-            position: 'absolute',
-            left: '14px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            color: colors.textTertiary,
-            pointerEvents: 'none'
-          }}>
-            <Search />
-          </div>
-          <input
-            ref={searchInputRef}
-            type="text"
-            placeholder="Search teams, bets, notes..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setTimeout(() => searchInputRef.current?.focus(), 0);
-            }}
-            style={{
-              width: '100%',
-              padding: '14px 44px',
-              background: colors.bgSecondary,
-              border: `1px solid ${colors.border}`,
-              borderRadius: '16px',
-              fontSize: '15px',
-              color: colors.textPrimary,
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              style={{
-                position: 'absolute',
-                right: '14px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'transparent',
-                border: 'none',
-                color: colors.textTertiary,
-                cursor: 'pointer',
-                padding: '4px'
-              }}
-            >
-              <X />
-            </button>
-          )}
         </div>
         
         {/* Filter Pills */}
