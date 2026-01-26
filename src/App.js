@@ -320,32 +320,44 @@ const getDefaultSport = () => {
 
 
 
-// SearchBar Component - uses local state to prevent focus loss
+// SearchBar Component - uses local state with debounce
 const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
   const [localValue, setLocalValue] = React.useState(searchQuery);
-  
-  // Only sync to parent when user presses Enter or clicks away
-  const handleBlur = () => {
-    if (localValue !== searchQuery) {
-      setSearchQuery(localValue);
+  const timeoutRef = React.useRef(null);
+
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+    
+    // Clear existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
+    
+    // Set new timeout to update parent after 400ms
+    timeoutRef.current = setTimeout(() => {
+      setSearchQuery(newValue);
+    }, 400);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      setSearchQuery(localValue);
-    }
-  };
-
-  // Sync local state if parent clears it (e.g., from a "clear filters" button)
+  // Sync local state if parent clears it
   React.useEffect(() => {
     if (searchQuery === '' && localValue !== '') {
       setLocalValue('');
     }
   }, [searchQuery]);
 
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div style={{ marginBottom: '20px', position: 'relative' }}>
+    <div style={{ marginBottom: '24px', position: 'relative' }}>
       <div style={{
         position: 'absolute',
         left: '12px',
@@ -360,9 +372,7 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
         type="text"
         placeholder="Search teams, bets, notes..."
         value={localValue}
-        onChange={(e) => setLocalValue(e.target.value)}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
+        onChange={handleChange}
         style={{
           width: '100%',
           padding: '12px 40px',
@@ -380,6 +390,9 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
           onClick={() => {
             setLocalValue('');
             setSearchQuery('');
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
           }}
           style={{
             position: 'absolute',
@@ -1662,7 +1675,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   }) => (
     <div className="pb-20 animate-fadeIn">
       <div className="rounded-2xl shadow-2xl p-4 md:p-6" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
-        <h2 className="text-xl font-bold mb-4" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
+        <h2 className="text-xl font-bold mb-6" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
         
         {/* SEARCH BAR */}
         <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} colors={colors} />
@@ -1672,7 +1685,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
         <div className="mb-4 space-y-4">
           {/* SPORT Section */}
           <div>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '8px', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               SPORT
             </div>
             <div className="flex items-center gap-2 overflow-x-auto pb-2">
