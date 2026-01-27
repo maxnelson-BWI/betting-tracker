@@ -367,6 +367,20 @@ const numberStyle = {
   fontFeatureSettings: '"tnum"'
 };
 
+const getSportLabel = (sport) => {
+  const labels = {
+    'nfl': 'NFL',
+    'nba': 'NBA',
+    'mlb': 'MLB',
+    'nhl': 'NHL',
+    'ncaaf': 'NCAAF',
+    'ncaab': 'NCAAB',
+    'boxing': 'Boxing/UFC',
+    'other': 'OTHER'
+  };
+  return labels[sport?.toLowerCase()] || 'OTHER';
+};
+
 // ============================================
 // SMART DEFAULT SPORT FUNCTION
 // ============================================
@@ -910,20 +924,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
   const formatBetType = (type) => {
     if (type === 'money-line') return 'ML';
     return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  };
-
-  const getSportLabel = (sport) => {
-    const labels = {
-      'nfl': 'NFL',
-      'nba': 'NBA',
-      'mlb': 'MLB',
-      'nhl': 'NHL',
-      'ncaaf': 'NCAAF',
-      'ncaab': 'NCAAB',
-      'boxing': 'Boxing/UFC',
-      'other': 'OTHER'
-    };
-    return labels[sport?.toLowerCase()] || 'OTHER';
   };
 
   const calculateRiskAndWin = (units, odds) => {
