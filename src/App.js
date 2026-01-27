@@ -216,6 +216,45 @@ const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
 };
 
 // ============================================
+// SPARKLINE COMPONENT
+// ============================================
+const Sparkline = ({ data, width = 100, height = 30, color }) => {
+  if (!data || data.length < 2) return null;
+  
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  
+  const points = data.map((value, index) => {
+    const x = (index / (data.length - 1)) * width;
+    const y = height - ((value - min) / range) * (height - 4) - 2;
+    return `${x},${y}`;
+  });
+  
+  const pathD = `M ${points.join(' L ')}`;
+  const trendColor = color || (data[data.length - 1] >= data[0] ? '#7C9885' : '#B85C50');
+  
+  return (
+    <svg width={width} height={height} style={{ display: 'block', margin: '0 auto' }}>
+      <path
+        d={pathD}
+        fill="none"
+        stroke={trendColor}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle
+        cx={width}
+        cy={height - ((data[data.length - 1] - min) / range) * (height - 4) - 2}
+        r="3"
+        fill={trendColor}
+      />
+    </svg>
+  );
+};
+
+// ============================================
 // LOGO COMPONENT
 // ============================================
 const CindyLogo = () => (
@@ -1218,7 +1257,16 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       kindOfSystemRecord: `${kindOfSystemBets.filter(b => b.result === 'win').length}-${kindOfSystemBets.filter(b => b.result === 'loss').length}`,
       notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notSystemBets.filter(b => b.result === 'loss').length}`,
       monthlyLossWarning: monthlyLoss < -monthlyLimit,
-      totalLossWarning: totalDollars < -5000
+    totalLossWarning: totalDollars < -5000,
+      // Sparkline data: cumulative P/L over last 20 settled bets (oldest to newest)
+      sparklineData: (() => {
+        const last20 = settledBets.slice(0, 20).reverse();
+        let cumulative = 0;
+        return last20.map(bet => {
+          cumulative += bet.payout;
+          return cumulative;
+        });
+      })()
     };
   }, [bets, monthlyLimit]);
 
@@ -1423,6 +1471,16 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
   formatFn={formatMoney}
 />
         </div>
+        {/* Sparkline */}
+        {stats.sparklineData && stats.sparklineData.length >= 2 && (
+          <div style={{ marginBottom: '16px' }}>
+            <Sparkline data={stats.sparklineData} width={120} height={32} />
+            <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '4px' }}>
+              Last {stats.sparklineData.length} bets
+            </div>
+          </div>
+        )}
+        
         <div style={{
           fontSize: '13px',
           color: colors.textTertiary,
