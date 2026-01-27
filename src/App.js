@@ -755,6 +755,357 @@ const BetCard = memo(({
   </div>
 ));
 
+// HISTORY PAGE COMPONENT - Redesigned with 2-row filters + More button
+const HistoryPage = memo(({
+    colors, 
+    filteredBets, 
+    historyFilter, 
+    setHistoryFilter, 
+    showAllBets, 
+    setShowAllBets, 
+    searchQuery, 
+    setSearchQuery,
+    getSportLabel,
+    formatBetType,
+    formatMoney,
+    updateBetResult,
+    startEdit,
+    deleteBet,
+    isRetired
+  }) => {
+    // Count active filters in the "More" modal
+    const moreFilterCount = [
+      historyFilter.result !== 'all',
+      historyFilter.favoriteUnderdog !== 'all',
+      historyFilter.overUnder !== 'all'
+    ].filter(Boolean).length;
+
+    return (
+      <div style={{ paddingBottom: '100px' }}>
+        {/* Header */}
+        <h2 style={{ 
+          fontSize: '20px', 
+          fontWeight: '700', 
+          color: colors.textPrimary, 
+          marginBottom: '16px',
+          ...headerStyle 
+        }}>
+          Bet History
+        </h2>
+
+        {/* Search Bar */}
+        <div style={{ marginBottom: '16px' }}>
+          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} colors={colors} />
+        </div>
+
+        {/* Sport Filter Pills */}
+        <div style={{ marginBottom: '12px' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            overflowX: 'auto', 
+            paddingBottom: '4px',
+            WebkitOverflowScrolling: 'touch'
+          }}>
+            {['all', 'nfl', 'ncaaf', 'nba', 'ncaab', 'mlb', 'boxing'].map(sport => (
+              <button
+                key={sport}
+                onClick={() => setHistoryFilter({...historyFilter, sport})}
+                style={{
+                  padding: '10px 16px',
+                  background: historyFilter.sport === sport ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.sport === sport ? '#FFFFFF' : colors.textPrimary,
+                  border: 'none',
+                  borderRadius: '20px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+              >
+                {sport === 'all' ? 'All Sports' : getSportLabel(sport)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Bet Type Filter Pills */}
+        <div style={{ marginBottom: '12px' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            overflowX: 'auto', 
+            paddingBottom: '4px',
+            WebkitOverflowScrolling: 'touch'
+          }}>
+            {['all', 'straight', 'money-line', 'over-under', 'parlay', 'teaser', 'prop'].map(type => (
+              <button
+                key={type}
+                onClick={() => setHistoryFilter({...historyFilter, betType: type})}
+                style={{
+                  padding: '10px 16px',
+                  background: historyFilter.betType === type ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.betType === type ? '#FFFFFF' : colors.textPrimary,
+                  border: 'none',
+                  borderRadius: '20px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+              >
+                {type === 'all' ? 'All Types' : 
+                 type === 'straight' ? 'Spread' : 
+                 type === 'money-line' ? 'ML' : 
+                 type === 'over-under' ? 'O/U' :
+                 formatBetType(type)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* More Filters Button + Time Range - Same Row */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          marginBottom: '16px',
+          alignItems: 'center'
+        }}>
+          {/* More Filters Button */}
+          <button
+            onClick={() => setShowFilterModal(true)}
+            style={{
+              padding: '12px 16px',
+              background: moreFilterCount > 0 ? colors.accentPrimary : colors.bgElevated,
+              color: moreFilterCount > 0 ? '#FFFFFF' : colors.textPrimary,
+              border: `1px solid ${moreFilterCount > 0 ? colors.accentPrimary : colors.border}`,
+              borderRadius: '12px',
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            <Filter />
+            More Filters
+            {moreFilterCount > 0 && (
+              <span style={{
+                background: '#FFFFFF',
+                color: colors.accentPrimary,
+                borderRadius: '50%',
+                width: '20px',
+                height: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '11px',
+                fontWeight: '700'
+              }}>
+                {moreFilterCount}
+              </span>
+            )}
+          </button>
+
+          {/* Time Range Toggle */}
+          <div style={{ display: 'flex', flex: 1, gap: '8px' }}>
+            <button
+              onClick={() => setShowAllBets(false)}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: !showAllBets ? colors.accentPrimary : colors.bgSecondary,
+                color: !showAllBets ? '#FFFFFF' : colors.textSecondary,
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              30 Days
+            </button>
+            <button
+              onClick={() => setShowAllBets(true)}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: showAllBets ? colors.accentPrimary : colors.bgSecondary,
+                color: showAllBets ? '#FFFFFF' : colors.textSecondary,
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              All Time
+            </button>
+          </div>
+        </div>
+
+        {/* Active Filter Tags */}
+        {(historyFilter.result !== 'all' || historyFilter.favoriteUnderdog !== 'all' || historyFilter.overUnder !== 'all') && (
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            flexWrap: 'wrap', 
+            marginBottom: '16px' 
+          }}>
+            {historyFilter.result !== 'all' && (
+              <span style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                background: 'rgba(212, 165, 116, 0.2)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: colors.textPrimary
+              }}>
+                {historyFilter.result.charAt(0).toUpperCase() + historyFilter.result.slice(1)}
+                <button
+                  onClick={() => setHistoryFilter({...historyFilter, result: 'all'})}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    color: colors.textSecondary,
+                    fontSize: '14px',
+                    lineHeight: 1
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {historyFilter.favoriteUnderdog !== 'all' && (
+              <span style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                background: 'rgba(212, 165, 116, 0.2)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: colors.textPrimary
+              }}>
+                {historyFilter.favoriteUnderdog === 'favorite' ? 'Favorites' : 'Underdogs'}
+                <button
+                  onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'all'})}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    color: colors.textSecondary,
+                    fontSize: '14px',
+                    lineHeight: 1
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {historyFilter.overUnder !== 'all' && (
+              <span style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                background: 'rgba(212, 165, 116, 0.2)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: colors.textPrimary
+              }}>
+                {historyFilter.overUnder === 'over' ? 'Overs' : 'Unders'}
+                <button
+                  onClick={() => setHistoryFilter({...historyFilter, overUnder: 'all'})}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    color: colors.textSecondary,
+                    fontSize: '14px',
+                    lineHeight: 1
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Results Summary */}
+        {filteredBets.length > 0 && (
+          <div style={{
+            background: colors.bgElevated,
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '16px',
+            border: `1px solid ${colors.border}`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div>
+              <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '2px' }}>
+                {filteredBets.length} {filteredBets.length === 1 ? 'bet' : 'bets'}
+              </div>
+              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, ...numberStyle }}>
+                {filteredBets.filter(b => b.result === 'win').length}W - {filteredBets.filter(b => b.result === 'loss').length}L
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '2px' }}>P/L</div>
+              <div style={{ 
+                fontSize: '20px', 
+                fontWeight: '800', 
+                color: filteredBets.reduce((sum, b) => sum + b.payout, 0) >= 0 ? colors.accentWin : colors.accentLoss,
+                ...numberStyle 
+              }}>
+                {formatMoney(filteredBets.reduce((sum, b) => sum + b.payout, 0))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bet List */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {filteredBets.length === 0 ? (
+            <p style={{ textAlign: 'center', padding: '32px', color: colors.textTertiary }}>
+              {searchQuery ? `No bets found matching "${searchQuery}"` : 'No bets match your filters'}
+            </p>
+          ) : (
+            filteredBets.map(bet => (
+              <BetCard 
+                key={bet.id} 
+                bet={bet} 
+                showActions
+                colors={colors}
+                formatMoney={formatMoney}
+                onUpdateResult={updateBetResult}
+                onStartEdit={startEdit}
+                onDelete={deleteBet}
+                isRetired={isRetired}
+              />
+            ))
+          )}
+        </div>
+      </div>
+  );
+});
+
 function App() {
       const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
@@ -2512,357 +2863,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       </div>
     </div>
   );
-
-  // HISTORY PAGE COMPONENT - Redesigned with 2-row filters + More button
-  const HistoryPage = ({ 
-    colors, 
-    filteredBets, 
-    historyFilter, 
-    setHistoryFilter, 
-    showAllBets, 
-    setShowAllBets, 
-    searchQuery, 
-    setSearchQuery,
-    getSportLabel,
-    formatBetType,
-    formatMoney,
-    updateBetResult,
-    startEdit,
-    deleteBet,
-    isRetired
-  }) => {
-    // Count active filters in the "More" modal
-    const moreFilterCount = [
-      historyFilter.result !== 'all',
-      historyFilter.favoriteUnderdog !== 'all',
-      historyFilter.overUnder !== 'all'
-    ].filter(Boolean).length;
-
-    return (
-      <div style={{ paddingBottom: '100px' }}>
-        {/* Header */}
-        <h2 style={{ 
-          fontSize: '20px', 
-          fontWeight: '700', 
-          color: colors.textPrimary, 
-          marginBottom: '16px',
-          ...headerStyle 
-        }}>
-          Bet History
-        </h2>
-
-        {/* Search Bar */}
-        <div style={{ marginBottom: '16px' }}>
-          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} colors={colors} />
-        </div>
-
-        {/* Sport Filter Pills */}
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ 
-            display: 'flex', 
-            gap: '8px', 
-            overflowX: 'auto', 
-            paddingBottom: '4px',
-            WebkitOverflowScrolling: 'touch'
-          }}>
-            {['all', 'nfl', 'ncaaf', 'nba', 'ncaab', 'mlb', 'boxing'].map(sport => (
-              <button
-                key={sport}
-                onClick={() => setHistoryFilter({...historyFilter, sport})}
-                style={{
-                  padding: '10px 16px',
-                  background: historyFilter.sport === sport ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.sport === sport ? '#FFFFFF' : colors.textPrimary,
-                  border: 'none',
-                  borderRadius: '20px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
-                }}
-              >
-                {sport === 'all' ? 'All Sports' : getSportLabel(sport)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Bet Type Filter Pills */}
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ 
-            display: 'flex', 
-            gap: '8px', 
-            overflowX: 'auto', 
-            paddingBottom: '4px',
-            WebkitOverflowScrolling: 'touch'
-          }}>
-            {['all', 'straight', 'money-line', 'over-under', 'parlay', 'teaser', 'prop'].map(type => (
-              <button
-                key={type}
-                onClick={() => setHistoryFilter({...historyFilter, betType: type})}
-                style={{
-                  padding: '10px 16px',
-                  background: historyFilter.betType === type ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.betType === type ? '#FFFFFF' : colors.textPrimary,
-                  border: 'none',
-                  borderRadius: '20px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
-                }}
-              >
-                {type === 'all' ? 'All Types' : 
-                 type === 'straight' ? 'Spread' : 
-                 type === 'money-line' ? 'ML' : 
-                 type === 'over-under' ? 'O/U' :
-                 formatBetType(type)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* More Filters Button + Time Range - Same Row */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '12px', 
-          marginBottom: '16px',
-          alignItems: 'center'
-        }}>
-          {/* More Filters Button */}
-          <button
-            onClick={() => setShowFilterModal(true)}
-            style={{
-              padding: '12px 16px',
-              background: moreFilterCount > 0 ? colors.accentPrimary : colors.bgElevated,
-              color: moreFilterCount > 0 ? '#FFFFFF' : colors.textPrimary,
-              border: `1px solid ${moreFilterCount > 0 ? colors.accentPrimary : colors.border}`,
-              borderRadius: '12px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            <Filter />
-            More Filters
-            {moreFilterCount > 0 && (
-              <span style={{
-                background: '#FFFFFF',
-                color: colors.accentPrimary,
-                borderRadius: '50%',
-                width: '20px',
-                height: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '11px',
-                fontWeight: '700'
-              }}>
-                {moreFilterCount}
-              </span>
-            )}
-          </button>
-
-          {/* Time Range Toggle */}
-          <div style={{ display: 'flex', flex: 1, gap: '8px' }}>
-            <button
-              onClick={() => setShowAllBets(false)}
-              style={{
-                flex: 1,
-                padding: '12px',
-                background: !showAllBets ? colors.accentPrimary : colors.bgSecondary,
-                color: !showAllBets ? '#FFFFFF' : colors.textSecondary,
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              30 Days
-            </button>
-            <button
-              onClick={() => setShowAllBets(true)}
-              style={{
-                flex: 1,
-                padding: '12px',
-                background: showAllBets ? colors.accentPrimary : colors.bgSecondary,
-                color: showAllBets ? '#FFFFFF' : colors.textSecondary,
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              All Time
-            </button>
-          </div>
-        </div>
-
-        {/* Active Filter Tags */}
-        {(historyFilter.result !== 'all' || historyFilter.favoriteUnderdog !== 'all' || historyFilter.overUnder !== 'all') && (
-          <div style={{ 
-            display: 'flex', 
-            gap: '8px', 
-            flexWrap: 'wrap', 
-            marginBottom: '16px' 
-          }}>
-            {historyFilter.result !== 'all' && (
-              <span style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                background: 'rgba(212, 165, 116, 0.2)',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: '600',
-                color: colors.textPrimary
-              }}>
-                {historyFilter.result.charAt(0).toUpperCase() + historyFilter.result.slice(1)}
-                <button
-                  onClick={() => setHistoryFilter({...historyFilter, result: 'all'})}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    color: colors.textSecondary,
-                    fontSize: '14px',
-                    lineHeight: 1
-                  }}
-                >
-                  ×
-                </button>
-              </span>
-            )}
-            {historyFilter.favoriteUnderdog !== 'all' && (
-              <span style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                background: 'rgba(212, 165, 116, 0.2)',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: '600',
-                color: colors.textPrimary
-              }}>
-                {historyFilter.favoriteUnderdog === 'favorite' ? 'Favorites' : 'Underdogs'}
-                <button
-                  onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'all'})}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    color: colors.textSecondary,
-                    fontSize: '14px',
-                    lineHeight: 1
-                  }}
-                >
-                  ×
-                </button>
-              </span>
-            )}
-            {historyFilter.overUnder !== 'all' && (
-              <span style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                background: 'rgba(212, 165, 116, 0.2)',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: '600',
-                color: colors.textPrimary
-              }}>
-                {historyFilter.overUnder === 'over' ? 'Overs' : 'Unders'}
-                <button
-                  onClick={() => setHistoryFilter({...historyFilter, overUnder: 'all'})}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    color: colors.textSecondary,
-                    fontSize: '14px',
-                    lineHeight: 1
-                  }}
-                >
-                  ×
-                </button>
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Results Summary */}
-        {filteredBets.length > 0 && (
-          <div style={{
-            background: colors.bgElevated,
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '16px',
-            border: `1px solid ${colors.border}`,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <div>
-              <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '2px' }}>
-                {filteredBets.length} {filteredBets.length === 1 ? 'bet' : 'bets'}
-              </div>
-              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, ...numberStyle }}>
-                {filteredBets.filter(b => b.result === 'win').length}W - {filteredBets.filter(b => b.result === 'loss').length}L
-              </div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '2px' }}>P/L</div>
-              <div style={{ 
-                fontSize: '20px', 
-                fontWeight: '800', 
-                color: filteredBets.reduce((sum, b) => sum + b.payout, 0) >= 0 ? colors.accentWin : colors.accentLoss,
-                ...numberStyle 
-              }}>
-                {formatMoney(filteredBets.reduce((sum, b) => sum + b.payout, 0))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Bet List */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {filteredBets.length === 0 ? (
-            <p style={{ textAlign: 'center', padding: '32px', color: colors.textTertiary }}>
-              {searchQuery ? `No bets found matching "${searchQuery}"` : 'No bets match your filters'}
-            </p>
-          ) : (
-            filteredBets.map(bet => (
-              <BetCard 
-                key={bet.id} 
-                bet={bet} 
-                showActions
-                colors={colors}
-                formatMoney={formatMoney}
-                onUpdateResult={updateBetResult}
-                onStartEdit={startEdit}
-                onDelete={deleteBet}
-                isRetired={isRetired}
-              />
-            ))
-          )}
-        </div>
-      </div>
-    );
-  };
 
  /// MORE PAGE COMPONENT
   const MorePage = () => {
