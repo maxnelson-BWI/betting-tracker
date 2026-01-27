@@ -1483,6 +1483,461 @@ const HomePage = memo(({
     </div>
   ));
 
+// ============================================
+// STATS PAGE COMPONENT - WITH KEY TRENDS
+// ============================================
+const StatsPage = memo(({
+  colors,
+  stats,
+  trends,
+  formatMoney,
+  recentPerfExpanded,
+  setRecentPerfExpanded,
+  trendsExpanded,
+  setTrendsExpanded
+}) => (
+    <div style={{ paddingBottom: '100px' }}>
+      {/* Recent Performance - Collapsible */}
+      {stats.sparklineData && stats.sparklineData.length >= 2 && (
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          marginBottom: '16px',
+          border: `1px solid ${colors.border}`,
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          overflow: 'hidden'
+        }}>
+          <button
+            onClick={() => setRecentPerfExpanded(!recentPerfExpanded)}
+            style={{
+              width: '100%',
+              padding: '20px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '20px' }}>📈</span>
+              <span style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, ...headerStyle }}>
+                Recent Performance
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ 
+                fontSize: '18px', 
+                fontWeight: '700', 
+                color: stats.sparklineData[stats.sparklineData.length - 1] >= 0 ? colors.accentWin : colors.accentLoss,
+                ...numberStyle
+              }}>
+                {stats.sparklineData[stats.sparklineData.length - 1] >= 0 ? '+' : ''}${stats.sparklineData[stats.sparklineData.length - 1].toFixed(0)}
+              </div>
+              <div style={{ color: colors.textTertiary }}>
+                {recentPerfExpanded ? <ChevronUp /> : <ChevronDown />}
+              </div>
+            </div>
+          </button>
+
+          {recentPerfExpanded && (
+            <div style={{
+              padding: '0 20px 20px 20px',
+              borderTop: `1px solid ${colors.border}`
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                gap: '20px',
+                paddingTop: '20px'
+              }}>
+                <Sparkline data={stats.sparklineData} width={200} height={50} />
+              </div>
+              <div style={{ 
+                fontSize: '12px', 
+                color: colors.textTertiary, 
+                textAlign: 'center',
+                marginTop: '12px'
+              }}>
+                Cumulative P/L over last {stats.sparklineData.length} settled bets
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {/* KEY TRENDS SECTION - Collapsible */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        marginBottom: '16px',
+        border: `1px solid ${colors.border}`,
+        boxShadow: `0 2px 8px ${colors.shadow}`,
+        overflow: 'hidden'
+      }}>
+        <button
+          onClick={() => setTrendsExpanded(!trendsExpanded)}
+          style={{
+            width: '100%',
+            padding: '20px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '18px' }}>📈</span>
+            <span style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, ...headerStyle }}>
+              Key Trends
+            </span>
+          </div>
+          <div style={{ color: colors.textTertiary }}>
+            {trendsExpanded ? <ChevronUp /> : <ChevronDown />}
+          </div>
+        </button>
+
+        {trendsExpanded && (
+          <div style={{ padding: '0 20px 20px 20px', borderTop: `1px solid ${colors.border}` }}>
+            {/* HOT RIGHT NOW - Last 30 Days */}
+            {(trends.recent.winning.length > 0 || trends.recent.losing.length > 0) && (
+              <div style={{ marginBottom: '24px', marginTop: '20px' }}>
+                <div style={{
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  color: colors.accentPrimary,
+                  marginBottom: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  🔥 HOT RIGHT NOW
+                  <span style={{ fontSize: '11px', fontWeight: '500', color: colors.textTertiary }}>(Last 30 Days)</span>
+                </div>
+                
+                {/* Recent Winning */}
+                {trends.recent.winning.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: trends.recent.losing.length > 0 ? '12px' : '0' }}>
+                    {trends.recent.winning.map((trend, index) => (
+                      <div key={trend.key} style={{
+                        background: 'rgba(124, 152, 133, 0.1)',
+                        border: `1px solid rgba(124, 152, 133, 0.3)`,
+                        borderRadius: '12px',
+                        padding: '12px 14px'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                              {trend.label}
+                            </div>
+                            <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
+                              {trend.record} ({(trend.winRate * 100).toFixed(0)}%) • {getTrendMessage(index, true, false)}
+                            </div>
+                          </div>
+                          <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
+                            {formatMoney(trend.payout)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Recent Losing */}
+                {trends.recent.losing.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {trends.recent.losing.map((trend, index) => (
+                      <div key={trend.key} style={{
+                        background: 'rgba(184, 92, 80, 0.1)',
+                        border: `1px solid rgba(184, 92, 80, 0.3)`,
+                        borderRadius: '12px',
+                        padding: '12px 14px'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                              {trend.label}
+                            </div>
+                            <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
+                              {trend.record} ({(trend.winRate * 100).toFixed(0)}%) • {getTrendMessage(index, false, false)}
+                            </div>
+                          </div>
+                          <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
+                            {formatMoney(trend.payout)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ALL-TIME TRENDS */}
+            {(trends.allTime.winning.length > 0 || trends.allTime.losing.length > 0) ? (
+              <div style={{ marginTop: (trends.recent.winning.length > 0 || trends.recent.losing.length > 0) ? '0' : '20px' }}>
+                <div style={{
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  color: colors.textSecondary,
+                  marginBottom: '12px'
+                }}>
+                  📊 ALL-TIME TRENDS
+                </div>
+                
+                {/* All-Time Winning */}
+                {trends.allTime.winning.length > 0 && (
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '600', color: colors.accentWin, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Where You're Winning
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {trends.allTime.winning.map((trend, index) => (
+                        <div key={trend.key} style={{
+                          background: 'rgba(124, 152, 133, 0.1)',
+                          border: `1px solid rgba(124, 152, 133, 0.3)`,
+                          borderRadius: '12px',
+                          padding: '14px'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
+                                {trend.label}
+                              </span>
+                              {trend.isHotRecently && (
+                                <span style={{
+                                  fontSize: '10px',
+                                  background: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)',
+                                  color: '#FFFFFF',
+                                  padding: '2px 6px',
+                                  borderRadius: '6px',
+                                  fontWeight: '700'
+                                }}>
+                                  🔥 HOT
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '17px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
+                              {formatMoney(trend.payout)}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ fontSize: '12px', color: colors.textSecondary }}>
+                              {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
+                            </div>
+                            <div style={{ fontSize: '11px', color: colors.accentWin, fontStyle: 'italic' }}>
+                              {getTrendMessage(index, true, true)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* All-Time Losing */}
+                {trends.allTime.losing.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: '600', color: colors.accentLoss, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Where You're Losing
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {trends.allTime.losing.map((trend, index) => (
+                        <div key={trend.key} style={{
+                          background: 'rgba(184, 92, 80, 0.1)',
+                          border: `1px solid rgba(184, 92, 80, 0.3)`,
+                          borderRadius: '12px',
+                          padding: '14px'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                            <div style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
+                              {trend.label}
+                            </div>
+                            <div style={{ fontSize: '17px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
+                              {formatMoney(trend.payout)}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ fontSize: '12px', color: colors.textSecondary }}>
+                              {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
+                            </div>
+                            <div style={{ fontSize: '11px', color: colors.accentLoss, fontStyle: 'italic' }}>
+                              {getTrendMessage(index, false, true)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Not enough data message */
+              <div style={{ textAlign: 'center', padding: '20px' }}>
+                <p style={{ fontSize: '13px', color: colors.textTertiary }}>
+                  Need more settled bets to identify trends (10+ per category)
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* By Sport */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '20px',
+        marginBottom: '16px',
+        border: `1px solid ${colors.border}`,
+        boxShadow: `0 2px 8px ${colors.shadow}`
+      }}>
+        <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px', margin: '0 0 16px 0', ...headerStyle }}>
+          By Sport
+        </h3>
+        {Object.keys(stats.bySport).length === 0 ? (
+          <p style={{ fontSize: '13px', color: colors.textTertiary }}>No settled bets</p>
+        ) : (
+          Object.entries(stats.bySport).map(([sport, dollars]) => (
+            <div key={sport} style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '14px 0',
+              borderBottom: `1px solid ${colors.border}`
+            }}>
+<span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>{getSportLabel(sport)}</span>              <span style={{
+                fontSize: '15px',
+                fontWeight: '800',
+                color: dollars >= 0 ? colors.accentWin : colors.accentLoss,
+                ...numberStyle
+              }}>
+                {formatMoney(dollars)}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* By Bet Type */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '20px',
+        marginBottom: '16px',
+        border: `1px solid ${colors.border}`,
+        boxShadow: `0 2px 8px ${colors.shadow}`
+      }}>
+        <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px', margin: '0 0 16px 0', ...headerStyle }}>
+          By Bet Type
+        </h3>
+        {Object.keys(stats.byType).length === 0 ? (
+          <p style={{ fontSize: '13px', color: colors.textTertiary }}>No settled bets</p>
+        ) : (
+          Object.entries(stats.byType).map(([type, dollars]) => (
+            <div key={type} style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '14px 0',
+              borderBottom: `1px solid ${colors.border}`
+            }}>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>{formatBetType(type)}</span>
+              <span style={{
+                fontSize: '15px',
+                fontWeight: '800',
+                color: dollars >= 0 ? colors.accentWin : colors.accentLoss,
+                ...numberStyle
+              }}>
+                {formatMoney(dollars)}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Favorite Team Stats */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '20px',
+        marginBottom: '16px',
+        border: `2px solid ${colors.accentFavoriteTeam}`,
+        boxShadow: `0 2px 8px ${colors.shadow}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: colors.accentFavoriteTeam
+          }} />
+          <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, margin: 0, ...headerStyle }}>
+            Favorite Team
+          </h3>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Total P/L</span>
+          <span style={{
+            fontSize: '20px',
+            fontWeight: '800',
+            color: parseFloat(stats.favoriteTeamDollars) >= 0 ? colors.accentWin : colors.accentLoss,
+            ...numberStyle
+          }}>
+            {formatMoney(parseFloat(stats.favoriteTeamDollars))}
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Record</span>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, ...numberStyle }}>
+            {stats.favoriteTeamRecord}
+          </span>
+        </div>
+      </div>
+
+      {/* Prime Time Stats */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '20px',
+        border: `2px solid ${colors.accentPrimeTime}`,
+        boxShadow: `0 2px 8px ${colors.shadow}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: colors.accentPrimeTime
+          }} />
+          <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, margin: 0, ...headerStyle }}>
+            Prime Time
+          </h3>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Total P/L</span>
+          <span style={{
+            fontSize: '20px',
+            fontWeight: '800',
+            color: parseFloat(stats.primeTimeDollars) >= 0 ? colors.accentWin : colors.accentLoss,
+            ...numberStyle
+          }}>
+            {formatMoney(parseFloat(stats.primeTimeDollars))}
+          </span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Record</span>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, ...numberStyle }}>
+            {stats.primeTimeRecord}
+          </span>
+        </div>
+      </div>
+  </div>
+  ));
+
 function App() {
       const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
@@ -2408,7 +2863,16 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           setSystemExpanded={setSystemExpanded}
         />;
       case 'stats':
-        return <StatsPage />;
+        return <StatsPage 
+          colors={colors}
+          stats={stats}
+          trends={trends}
+          formatMoney={formatMoney}
+          recentPerfExpanded={recentPerfExpanded}
+          setRecentPerfExpanded={setRecentPerfExpanded}
+          trendsExpanded={trendsExpanded}
+          setTrendsExpanded={setTrendsExpanded}
+        />;
       case 'history':
         return <HistoryPage 
           colors={colors}
@@ -2450,451 +2914,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       }
     }
   };
-  // ============================================
-  // STATS PAGE COMPONENT - WITH KEY TRENDS
-  // ============================================
-  const StatsPage = () => (
-    <div style={{ paddingBottom: '100px' }}>
-      {/* Recent Performance - Collapsible */}
-      {stats.sparklineData && stats.sparklineData.length >= 2 && (
-        <div style={{
-          background: colors.bgElevated,
-          borderRadius: '20px',
-          marginBottom: '16px',
-          border: `1px solid ${colors.border}`,
-          boxShadow: `0 2px 8px ${colors.shadow}`,
-          overflow: 'hidden'
-        }}>
-          <button
-            onClick={() => setRecentPerfExpanded(!recentPerfExpanded)}
-            style={{
-              width: '100%',
-              padding: '20px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '20px' }}>📈</span>
-              <span style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, ...headerStyle }}>
-                Recent Performance
-              </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ 
-                fontSize: '18px', 
-                fontWeight: '700', 
-                color: stats.sparklineData[stats.sparklineData.length - 1] >= 0 ? colors.accentWin : colors.accentLoss,
-                ...numberStyle
-              }}>
-                {stats.sparklineData[stats.sparklineData.length - 1] >= 0 ? '+' : ''}${stats.sparklineData[stats.sparklineData.length - 1].toFixed(0)}
-              </div>
-              <div style={{ color: colors.textTertiary }}>
-                {recentPerfExpanded ? <ChevronUp /> : <ChevronDown />}
-              </div>
-            </div>
-          </button>
-
-          {recentPerfExpanded && (
-            <div style={{
-              padding: '0 20px 20px 20px',
-              borderTop: `1px solid ${colors.border}`
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                gap: '20px',
-                paddingTop: '20px'
-              }}>
-                <Sparkline data={stats.sparklineData} width={200} height={50} />
-              </div>
-              <div style={{ 
-                fontSize: '12px', 
-                color: colors.textTertiary, 
-                textAlign: 'center',
-                marginTop: '12px'
-              }}>
-                Cumulative P/L over last {stats.sparklineData.length} settled bets
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-      {/* KEY TRENDS SECTION - Collapsible */}
-      <div style={{
-        background: colors.bgElevated,
-        borderRadius: '20px',
-        marginBottom: '16px',
-        border: `1px solid ${colors.border}`,
-        boxShadow: `0 2px 8px ${colors.shadow}`,
-        overflow: 'hidden'
-      }}>
-        <button
-          onClick={() => setTrendsExpanded(!trendsExpanded)}
-          style={{
-            width: '100%',
-            padding: '20px',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '18px' }}>📈</span>
-            <span style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, ...headerStyle }}>
-              Key Trends
-            </span>
-          </div>
-          <div style={{ color: colors.textTertiary }}>
-            {trendsExpanded ? <ChevronUp /> : <ChevronDown />}
-          </div>
-        </button>
-
-        {trendsExpanded && (
-          <div style={{ padding: '0 20px 20px 20px', borderTop: `1px solid ${colors.border}` }}>
-            {/* HOT RIGHT NOW - Last 30 Days */}
-            {(trends.recent.winning.length > 0 || trends.recent.losing.length > 0) && (
-              <div style={{ marginBottom: '24px', marginTop: '20px' }}>
-                <div style={{
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  color: colors.accentPrimary,
-                  marginBottom: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}>
-                  🔥 HOT RIGHT NOW
-                  <span style={{ fontSize: '11px', fontWeight: '500', color: colors.textTertiary }}>(Last 30 Days)</span>
-                </div>
-                
-                {/* Recent Winning */}
-                {trends.recent.winning.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: trends.recent.losing.length > 0 ? '12px' : '0' }}>
-                    {trends.recent.winning.map((trend, index) => (
-                      <div key={trend.key} style={{
-                        background: 'rgba(124, 152, 133, 0.1)',
-                        border: `1px solid rgba(124, 152, 133, 0.3)`,
-                        borderRadius: '12px',
-                        padding: '12px 14px'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div>
-                            <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
-                              {trend.label}
-                            </div>
-                            <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
-                              {trend.record} ({(trend.winRate * 100).toFixed(0)}%) • {getTrendMessage(index, true, false)}
-                            </div>
-                          </div>
-                          <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
-                            {formatMoney(trend.payout)}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Recent Losing */}
-                {trends.recent.losing.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {trends.recent.losing.map((trend, index) => (
-                      <div key={trend.key} style={{
-                        background: 'rgba(184, 92, 80, 0.1)',
-                        border: `1px solid rgba(184, 92, 80, 0.3)`,
-                        borderRadius: '12px',
-                        padding: '12px 14px'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div>
-                            <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
-                              {trend.label}
-                            </div>
-                            <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
-                              {trend.record} ({(trend.winRate * 100).toFixed(0)}%) • {getTrendMessage(index, false, false)}
-                            </div>
-                          </div>
-                          <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
-                            {formatMoney(trend.payout)}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ALL-TIME TRENDS */}
-            {(trends.allTime.winning.length > 0 || trends.allTime.losing.length > 0) ? (
-              <div style={{ marginTop: (trends.recent.winning.length > 0 || trends.recent.losing.length > 0) ? '0' : '20px' }}>
-                <div style={{
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  color: colors.textSecondary,
-                  marginBottom: '12px'
-                }}>
-                  📊 ALL-TIME TRENDS
-                </div>
-                
-                {/* All-Time Winning */}
-                {trends.allTime.winning.length > 0 && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{ fontSize: '11px', fontWeight: '600', color: colors.accentWin, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                      Where You're Winning
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {trends.allTime.winning.map((trend, index) => (
-                        <div key={trend.key} style={{
-                          background: 'rgba(124, 152, 133, 0.1)',
-                          border: `1px solid rgba(124, 152, 133, 0.3)`,
-                          borderRadius: '12px',
-                          padding: '14px'
-                        }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
-                                {trend.label}
-                              </span>
-                              {trend.isHotRecently && (
-                                <span style={{
-                                  fontSize: '10px',
-                                  background: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)',
-                                  color: '#FFFFFF',
-                                  padding: '2px 6px',
-                                  borderRadius: '6px',
-                                  fontWeight: '700'
-                                }}>
-                                  🔥 HOT
-                                </span>
-                              )}
-                            </div>
-                            <div style={{ fontSize: '17px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
-                              {formatMoney(trend.payout)}
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                              {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
-                            </div>
-                            <div style={{ fontSize: '11px', color: colors.accentWin, fontStyle: 'italic' }}>
-                              {getTrendMessage(index, true, true)}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* All-Time Losing */}
-                {trends.allTime.losing.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: '11px', fontWeight: '600', color: colors.accentLoss, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                      Where You're Losing
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {trends.allTime.losing.map((trend, index) => (
-                        <div key={trend.key} style={{
-                          background: 'rgba(184, 92, 80, 0.1)',
-                          border: `1px solid rgba(184, 92, 80, 0.3)`,
-                          borderRadius: '12px',
-                          padding: '14px'
-                        }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                            <div style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
-                              {trend.label}
-                            </div>
-                            <div style={{ fontSize: '17px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
-                              {formatMoney(trend.payout)}
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                              {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
-                            </div>
-                            <div style={{ fontSize: '11px', color: colors.accentLoss, fontStyle: 'italic' }}>
-                              {getTrendMessage(index, false, true)}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* Not enough data message */
-              <div style={{ textAlign: 'center', padding: '20px' }}>
-                <p style={{ fontSize: '13px', color: colors.textTertiary }}>
-                  Need more settled bets to identify trends (10+ per category)
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* By Sport */}
-      <div style={{
-        background: colors.bgElevated,
-        borderRadius: '20px',
-        padding: '20px',
-        marginBottom: '16px',
-        border: `1px solid ${colors.border}`,
-        boxShadow: `0 2px 8px ${colors.shadow}`
-      }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px', margin: '0 0 16px 0', ...headerStyle }}>
-          By Sport
-        </h3>
-        {Object.keys(stats.bySport).length === 0 ? (
-          <p style={{ fontSize: '13px', color: colors.textTertiary }}>No settled bets</p>
-        ) : (
-          Object.entries(stats.bySport).map(([sport, dollars]) => (
-            <div key={sport} style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '14px 0',
-              borderBottom: `1px solid ${colors.border}`
-            }}>
-<span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>{getSportLabel(sport)}</span>              <span style={{
-                fontSize: '15px',
-                fontWeight: '800',
-                color: dollars >= 0 ? colors.accentWin : colors.accentLoss,
-                ...numberStyle
-              }}>
-                {formatMoney(dollars)}
-              </span>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* By Bet Type */}
-      <div style={{
-        background: colors.bgElevated,
-        borderRadius: '20px',
-        padding: '20px',
-        marginBottom: '16px',
-        border: `1px solid ${colors.border}`,
-        boxShadow: `0 2px 8px ${colors.shadow}`
-      }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px', margin: '0 0 16px 0', ...headerStyle }}>
-          By Bet Type
-        </h3>
-        {Object.keys(stats.byType).length === 0 ? (
-          <p style={{ fontSize: '13px', color: colors.textTertiary }}>No settled bets</p>
-        ) : (
-          Object.entries(stats.byType).map(([type, dollars]) => (
-            <div key={type} style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '14px 0',
-              borderBottom: `1px solid ${colors.border}`
-            }}>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>{formatBetType(type)}</span>
-              <span style={{
-                fontSize: '15px',
-                fontWeight: '800',
-                color: dollars >= 0 ? colors.accentWin : colors.accentLoss,
-                ...numberStyle
-              }}>
-                {formatMoney(dollars)}
-              </span>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Favorite Team Stats */}
-      <div style={{
-        background: colors.bgElevated,
-        borderRadius: '20px',
-        padding: '20px',
-        marginBottom: '16px',
-        border: `2px solid ${colors.accentFavoriteTeam}`,
-        boxShadow: `0 2px 8px ${colors.shadow}`
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: colors.accentFavoriteTeam
-          }} />
-          <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, margin: 0, ...headerStyle }}>
-            Favorite Team
-          </h3>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Total P/L</span>
-          <span style={{
-            fontSize: '20px',
-            fontWeight: '800',
-            color: parseFloat(stats.favoriteTeamDollars) >= 0 ? colors.accentWin : colors.accentLoss,
-            ...numberStyle
-          }}>
-            {formatMoney(parseFloat(stats.favoriteTeamDollars))}
-          </span>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Record</span>
-          <span style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, ...numberStyle }}>
-            {stats.favoriteTeamRecord}
-          </span>
-        </div>
-      </div>
-
-      {/* Prime Time Stats */}
-      <div style={{
-        background: colors.bgElevated,
-        borderRadius: '20px',
-        padding: '20px',
-        border: `2px solid ${colors.accentPrimeTime}`,
-        boxShadow: `0 2px 8px ${colors.shadow}`
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: colors.accentPrimeTime
-          }} />
-          <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, margin: 0, ...headerStyle }}>
-            Prime Time
-          </h3>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Total P/L</span>
-          <span style={{
-            fontSize: '20px',
-            fontWeight: '800',
-            color: parseFloat(stats.primeTimeDollars) >= 0 ? colors.accentWin : colors.accentLoss,
-            ...numberStyle
-          }}>
-            {formatMoney(parseFloat(stats.primeTimeDollars))}
-          </span>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>Record</span>
-          <span style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, ...numberStyle }}>
-            {stats.primeTimeRecord}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
 
  /// MORE PAGE COMPONENT
   const MorePage = () => {
