@@ -1679,7 +1679,10 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           getSportLabel={getSportLabel}
           formatBetType={formatBetType}
           formatMoney={formatMoney}
-          BetCard={BetCard}
+          updateBetResult={updateBetResult}
+          startEdit={startEdit}
+          deleteBet={deleteBet}
+          isRetired={isRetired}
         />;
       case 'more':
         return <MorePage />;
@@ -2523,7 +2526,10 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     getSportLabel,
     formatBetType,
     formatMoney,
-    BetCard
+    updateBetResult,
+    startEdit,
+    deleteBet,
+    isRetired
   }) => {
     // Count active filters in the "More" modal
     const moreFilterCount = [
@@ -2840,7 +2846,17 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
             </p>
           ) : (
             filteredBets.map(bet => (
-              <BetCard key={bet.id} bet={bet} showActions />
+              <BetCard 
+                key={bet.id} 
+                bet={bet} 
+                showActions
+                colors={colors}
+                formatMoney={formatMoney}
+                onUpdateResult={updateBetResult}
+                onStartEdit={startEdit}
+                onDelete={deleteBet}
+                isRetired={isRetired}
+              />
             ))
           )}
         </div>
