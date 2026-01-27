@@ -149,38 +149,50 @@ const Search = () => (
 );
 
 // ============================================
+// ============================================
 // ANIMATED NUMBER COMPONENT
 // ============================================
 const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
   const [displayValue, setDisplayValue] = useState(value);
   const [isAnimating, setIsAnimating] = useState(false);
-  const prevValueRef = useRef(null);
-  const isFirstRender = useRef(true);
+  const prevValueRef = useRef(value);
+  const animationRef = useRef(null);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    // On first render, just set the value without animating
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    // Cancel any ongoing animation first
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+
+    // On first effect run, just set values without animation
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
       prevValueRef.current = value;
       setDisplayValue(value);
       return;
     }
 
-    // If value hasn't changed, skip
-    if (prevValueRef.current === value) {
-      console.log('Values are the same, skipping animation');
+    const startValue = prevValueRef.current ?? 0;
+    const endValue = value;
+
+    // Skip animation if values are essentially the same (within $0.01)
+    if (Math.abs(startValue - endValue) < 0.01) {
+      setDisplayValue(endValue);
+      prevValueRef.current = endValue;
       return;
     }
 
-    console.log('Starting animation from', prevValueRef.current, 'to', value);
+    // Update prevValueRef immediately to the target value
+    prevValueRef.current = endValue;
+    
     setIsAnimating(true);
-    const startValue = prevValueRef.current;
-    const endValue = value;
-    const startTime = Date.now();
+    const startTime = performance.now();
 
-    const animate = () => {
-      const now = Date.now();
-      const progress = Math.min((now - startTime) / duration, 1);
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
       
       // Easing function (ease-out cubic)
       const easeProgress = 1 - Math.pow(1 - progress, 3);
@@ -189,15 +201,23 @@ const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
       setDisplayValue(currentValue);
 
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        animationRef.current = requestAnimationFrame(animate);
       } else {
         setDisplayValue(endValue);
         setIsAnimating(false);
-        prevValueRef.current = endValue;
+        animationRef.current = null;
       }
     };
 
-    requestAnimationFrame(animate);
+    animationRef.current = requestAnimationFrame(animate);
+
+    // Cleanup function
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+    };
   }, [value, duration]);
 
   return (
@@ -205,9 +225,9 @@ const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
       style={{
         ...style,
         transition: isAnimating ? 'all 0.3s ease' : 'none',
-        transform: isAnimating ? 'scale(1.15)' : 'scale(1)',
+        transform: isAnimating ? 'scale(1.05)' : 'scale(1)',
         display: 'inline-block',
-        filter: isAnimating ? 'brightness(1.2)' : 'brightness(1)'
+        filter: isAnimating ? 'brightness(1.1)' : 'brightness(1)'
       }}
     >
       {formatFn(displayValue)}
