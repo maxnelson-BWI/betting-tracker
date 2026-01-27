@@ -381,6 +381,11 @@ const getSportLabel = (sport) => {
   return labels[sport?.toLowerCase()] || 'OTHER';
 };
 
+const formatBetType = (type) => {
+  if (type === 'money-line') return 'ML';
+  return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
+
 // ============================================
 // SMART DEFAULT SPORT FUNCTION
 // ============================================
@@ -899,14 +904,14 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     return () => unsubscribe();
   }, []);
 
-  const formatMoney = (dollarAmount) => {
+  const formatMoney = useCallback((dollarAmount) => {
     if (displayMode === 'units') {
       const units = dollarAmount / unitValue;
       return `${units >= 0 ? '+' : ''}${units.toFixed(2)}u`;
     } else {
       return `${dollarAmount >= 0 ? '+' : ''}$${Math.abs(dollarAmount).toFixed(2)}`;
     }
-  };
+  }, [displayMode, unitValue]);
 
   const formatMoneyNoSign = (dollarAmount) => {
     if (displayMode === 'units') {
@@ -919,11 +924,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
 
   const toggleDisplayMode = () => {
     setDisplayMode(prev => prev === 'dollars' ? 'units' : 'dollars');
-  };
-
-  const formatBetType = (type) => {
-    if (type === 'money-line') return 'ML';
-    return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
   const calculateRiskAndWin = (units, odds) => {
