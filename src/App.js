@@ -3168,10 +3168,17 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                       { name: 'Future', value: 'future' },
                       { name: '+500 Parlay', value: 'longshot-parlay' }
                     ].map(type => (
-                      <button
-                        key={type.value}
-                        type="button"
-                        onClick={() => setLocalFormData({ ...localFormData, betType: type.value })}
+  <button
+    key={type.value}
+    type="button"
+    onClick={() => {
+      const newData = { ...localFormData, betType: type.value };
+      // Auto-fill -110 for spread and over-under if odds is empty
+      if ((type.value === 'straight' || type.value === 'over-under') && !localFormData.odds) {
+        newData.odds = '-110';
+      }
+      setLocalFormData(newData);
+    }}
                         style={{
                           padding: '12px 8px',
                           background: localFormData.betType === type.value ? colors.accentPrimary : colors.bgSecondary,
