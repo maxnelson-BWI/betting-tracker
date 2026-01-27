@@ -521,6 +521,221 @@ const SearchBar = memo(({ searchQuery, setSearchQuery, colors }) => {
   );
 });
 
+// ============================================
+// BET CARD COMPONENT (Memoized - moved outside App for performance)
+// ============================================
+const BetCard = memo(({ 
+  bet, 
+  showActions = false, 
+  isPending = false,
+  colors,
+  formatMoney,
+  onUpdateResult,
+  onStartEdit,
+  onDelete,
+  isRetired
+}) => (
+  <div style={{ 
+    background: colors.bgSecondary, 
+    borderRadius: '20px', 
+    padding: '16px', 
+    border: `1px solid ${colors.border}`,
+    boxShadow: `0 2px 8px ${colors.shadow}`
+  }}>
+    {/* Top Row: Sport Badge + Description + P/L Amount */}
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+        <span style={{ 
+          background: colors.accentPrimary, 
+          color: '#FFFFFF',
+          fontSize: '13px',
+          fontWeight: '700',
+          padding: '6px 14px',
+          borderRadius: '8px',
+          letterSpacing: '0.3px'
+        }}>
+          {getSportLabel(bet.sport)}
+        </span>
+        <span style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
+          {bet.description}
+        </span>
+      </div>
+      {bet.result !== 'pending' && (
+        <div style={{ 
+          fontSize: '20px', 
+          fontWeight: '800', 
+          color: bet.payout >= 0 ? colors.accentWin : colors.accentLoss,
+          ...numberStyle
+        }}>
+          {formatMoney(bet.payout)}
+        </div>
+      )}
+    </div>
+
+    {/* Second Row: Date • Sport • Units @ Odds */}
+    <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '6px' }}>
+      {bet.date} • {getSportLabel(bet.sport)} • {bet.units}u @ {bet.odds > 0 ? '+' : ''}{bet.odds}
+    </div>
+
+    {/* Third Row: Risk and Win amounts */}
+    <div style={{ fontSize: '12px', color: colors.textTertiary, marginBottom: '12px' }}>
+      Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
+    </div>
+
+    {/* Bottom Section */}
+    {bet.result === 'pending' ? (
+      <div>
+        {/* Win/Loss/Push buttons */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: showActions && !isRetired ? '12px' : '0' }}>
+          <button
+            onClick={() => onUpdateResult(bet.id, 'win')}
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              minHeight: '48px',
+              background: colors.accentWin,
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: '700',
+              cursor: 'pointer'
+            }}
+          >
+            WIN
+          </button>
+          <button
+            onClick={() => onUpdateResult(bet.id, 'loss')}
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              minHeight: '48px',
+              background: colors.accentLoss,
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: '700',
+              cursor: 'pointer'
+            }}
+          >
+            LOSS
+          </button>
+          <button
+            onClick={() => onUpdateResult(bet.id, 'push')}
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              minHeight: '48px',
+              background: colors.textTertiary,
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: '700',
+              cursor: 'pointer'
+            }}
+          >
+            PUSH
+          </button>
+        </div>
+        
+        {/* Edit/Delete on separate row for pending */}
+        {showActions && !isRetired && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            gap: '16px',
+            paddingTop: '8px',
+            borderTop: `1px solid ${colors.border}`
+          }}>
+            <button
+              onClick={() => onStartEdit(bet)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: colors.accentPrimary,
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                padding: '4px 8px'
+              }}
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => onDelete(bet.id)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#E74C3C',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                padding: '4px 8px'
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
+    ) : (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{
+          fontSize: '12px',
+          fontWeight: '700',
+          padding: '8px 16px',
+          borderRadius: '8px',
+          background: bet.result === 'win' ? 'rgba(124, 152, 133, 0.2)' : 
+                      bet.result === 'loss' ? 'rgba(184, 92, 80, 0.2)' : 
+                      'rgba(156, 163, 175, 0.2)',
+          color: bet.result === 'win' ? colors.accentWin : 
+                 bet.result === 'loss' ? colors.accentLoss : 
+                 colors.textTertiary,
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px'
+        }}>
+          {bet.result}
+        </span>
+        
+        {showActions && !isRetired && (
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <button
+              onClick={() => onStartEdit(bet)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: colors.accentPrimary,
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                padding: '4px 8px'
+              }}
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => onDelete(bet.id)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#E74C3C',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                padding: '4px 8px'
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+));
+
 function App() {
       const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
@@ -1760,8 +1975,18 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
             Pending Bets ({pendingBets.length})
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {pendingBets.map(bet => (
-              <BetCard key={bet.id} bet={bet} isPending={true} />
+         {pendingBets.map(bet => (
+              <BetCard 
+                key={bet.id} 
+                bet={bet} 
+                isPending={true}
+                colors={colors}
+                formatMoney={formatMoney}
+                onUpdateResult={updateBetResult}
+                onStartEdit={startEdit}
+                onDelete={deleteBet}
+                isRetired={isRetired}
+              />
             ))}
           </div>
         </div>
@@ -1806,7 +2031,16 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
             </p>
           ) : (
             recentBets.map(bet => (
-              <BetCard key={bet.id} bet={bet} />
+              <BetCard 
+                key={bet.id} 
+                bet={bet}
+                colors={colors}
+                formatMoney={formatMoney}
+                onUpdateResult={updateBetResult}
+                onStartEdit={startEdit}
+                onDelete={deleteBet}
+                isRetired={isRetired}
+              />
             ))
           )}
         </div>
@@ -2969,210 +3203,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     );
   };
 
-// BET CARD COMPONENT - UPDATED with isPending prop
-  const BetCard = ({ bet, showActions = false, isPending = false }) => (
-    <div style={{ 
-      background: colors.bgSecondary, 
-      borderRadius: '20px', 
-      padding: '16px', 
-      border: `1px solid ${colors.border}`,
-      boxShadow: `0 2px 8px ${colors.shadow}`
-    }}>
-      {/* Top Row: Sport Badge + Description + P/L Amount */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-          <span style={{ 
-            background: colors.accentPrimary, 
-            color: '#FFFFFF',
-            fontSize: '13px',
-            fontWeight: '700',
-            padding: '6px 14px',
-            borderRadius: '8px',
-            letterSpacing: '0.3px'
-          }}>
-            {getSportLabel(bet.sport)}
-          </span>
-          <span style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
-            {bet.description}
-          </span>
-        </div>
-        {bet.result !== 'pending' && (
-          <div style={{ 
-            fontSize: '20px', 
-            fontWeight: '800', 
-            color: bet.payout >= 0 ? colors.accentWin : colors.accentLoss,
-            ...numberStyle
-          }}>
-            {formatMoney(bet.payout)}
-          </div>
-        )}
-      </div>
-
-      {/* Second Row: Date • Sport • Units @ Odds */}
-      <div style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '6px' }}>
-        {bet.date} • {getSportLabel(bet.sport)} • {bet.units}u @ {bet.odds > 0 ? '+' : ''}{bet.odds}
-      </div>
-
-      {/* Third Row: Risk and Win amounts */}
-      <div style={{ fontSize: '12px', color: colors.textTertiary, marginBottom: '12px' }}>
-        Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
-      </div>
-
-      {/* Bottom Section */}
-      {bet.result === 'pending' ? (
-        <div>
-          {/* Win/Loss/Push buttons */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: showActions && !isRetired ? '12px' : '0' }}>
-            <button
-              onClick={() => updateBetResult(bet.id, 'win')}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                minHeight: '48px',
-                background: colors.accentWin,
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '14px',
-                fontWeight: '700',
-                cursor: 'pointer'
-              }}
-            >
-              WIN
-            </button>
-            <button
-              onClick={() => updateBetResult(bet.id, 'loss')}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                minHeight: '48px',
-                background: colors.accentLoss,
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '14px',
-                fontWeight: '700',
-                cursor: 'pointer'
-              }}
-            >
-              LOSS
-            </button>
-            <button
-              onClick={() => updateBetResult(bet.id, 'push')}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                minHeight: '48px',
-                background: colors.textTertiary,
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '14px',
-                fontWeight: '700',
-                cursor: 'pointer'
-              }}
-            >
-              PUSH
-            </button>
-          </div>
-          
-          {/* Edit/Delete on separate row for pending */}
-          {showActions && !isRetired && (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'flex-end', 
-              gap: '16px',
-              paddingTop: '8px',
-              borderTop: `1px solid ${colors.border}`
-            }}>
-              <button
-                onClick={() => startEdit(bet)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: colors.accentPrimary,
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  padding: '4px 8px'
-                }}
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteBet(bet.id)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#E74C3C',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  padding: '4px 8px'
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{
-            fontSize: '12px',
-            fontWeight: '700',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            background: bet.result === 'win' ? 'rgba(124, 152, 133, 0.2)' : 
-                        bet.result === 'loss' ? 'rgba(184, 92, 80, 0.2)' : 
-                        'rgba(156, 163, 175, 0.2)',
-            color: bet.result === 'win' ? colors.accentWin : 
-                   bet.result === 'loss' ? colors.accentLoss : 
-                   colors.textTertiary,
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            {bet.result}
-          </span>
-          
-          {showActions && !isRetired && (
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <button
-                onClick={() => startEdit(bet)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: colors.accentPrimary,
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  padding: '4px 8px'
-                }}
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteBet(bet.id)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#E74C3C',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  padding: '4px 8px'
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-
-  // ADD BET MODAL COMPONENT
 
   // ============================================
   // ADD BET MODAL - NEW MULTI-STEP VERSION
