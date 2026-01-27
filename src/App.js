@@ -1184,28 +1184,28 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       }
     }
 
-    return {
-      totalDollars: totalDollars.toFixed(2),
-      monthlyLoss: monthlyLoss.toFixed(2),
-      lastMonthPL: lastMonthPL.toFixed(2), // ADDED
+   return {
+      totalDollars: totalDollars,
+      monthlyLoss: monthlyLoss,
+      lastMonthPL: lastMonthPL.toFixed(2),
       totalBets: settledBets.length,
       wins: settledBets.filter(b => b.result === 'win').length,
       losses: settledBets.filter(b => b.result === 'loss').length,
       winRate: settledBets.length ? ((settledBets.filter(b => b.result === 'win').length / settledBets.length) * 100).toFixed(1) : 0,
-      winStreak: currentStreak, // ADDED
+      winStreak: currentStreak,
       byType,
       bySport,
-      favoriteTeamDollars: favoriteTeamBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
+      favoriteTeamDollars: favoriteTeamBets.reduce((sum, bet) => sum + bet.payout, 0),
       favoriteTeamRecord: `${favoriteTeamBets.filter(b => b.result === 'win').length}-${favoriteTeamBets.filter(b => b.result === 'loss').length}`,
-      primeTimeDollars: primeTimeBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
+      primeTimeDollars: primeTimeBets.reduce((sum, bet) => sum + bet.payout, 0),
       primeTimeRecord: `${primeTimeBets.filter(b => b.result === 'win').length}-${primeTimeBets.filter(b => b.result === 'loss').length}`,
-      systemDollars: systemBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
+      systemDollars: systemBets.reduce((sum, bet) => sum + bet.payout, 0),
       systemRecord: `${systemBets.filter(b => b.result === 'win').length}-${systemBets.filter(b => b.result === 'loss').length}`,
       systemWinRate: systemBets.length ? ((systemBets.filter(b => b.result === 'win').length / systemBets.length) * 100).toFixed(1) : 0,
-      clearSystemDollars: clearSystemBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
+      clearSystemDollars: clearSystemBets.reduce((sum, bet) => sum + bet.payout, 0),
       clearSystemRecord: `${clearSystemBets.filter(b => b.result === 'win').length}-${clearSystemBets.filter(b => b.result === 'loss').length}`,
-      kindOfSystemDollars: kindOfSystemBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
-      notSystemDollars: notSystemBets.reduce((sum, bet) => sum + bet.payout, 0).toFixed(2),
+      kindOfSystemDollars: kindOfSystemBets.reduce((sum, bet) => sum + bet.payout, 0),
+      notSystemDollars: notSystemBets.reduce((sum, bet) => sum + bet.payout, 0),
       kindOfSystemRecord: `${kindOfSystemBets.filter(b => b.result === 'win').length}-${kindOfSystemBets.filter(b => b.result === 'loss').length}`,
       notSystemRecord: `${notSystemBets.filter(b => b.result === 'win').length}-${notSystemBets.filter(b => b.result === 'loss').length}`,
       monthlyLossWarning: monthlyLoss < -monthlyLimit,
