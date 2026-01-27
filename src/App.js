@@ -345,7 +345,7 @@ const colors = {
   accentPrimary: '#D4A574',
   accentWin: '#7C9885',
   accentLoss: '#B85C50',
-  accentSystem: '#8B7B9B',
+accentSystem: '#6B8CAE',
   accentFavoriteTeam: '#E8926F',
   accentPrimeTime: '#6B8CAE',
   textPrimary: '#2C3E50',
@@ -425,14 +425,22 @@ const getDefaultSport = () => {
 
 
 
-// SearchBar Component - searches on Enter key
+// SearchBar Component - search as you type with debounce
 const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
   const [localValue, setLocalValue] = React.useState(searchQuery);
+  const debounceRef = React.useRef(null);
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      setSearchQuery(localValue);
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setLocalValue(value);
+    
+    // Debounce: wait 300ms after typing stops
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
     }
+    debounceRef.current = setTimeout(() => {
+      setSearchQuery(value);
+    }, 300);
   };
 
   React.useEffect(() => {
@@ -440,6 +448,15 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
       setLocalValue('');
     }
   }, [searchQuery]);
+
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -455,10 +472,9 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
       </div>
       <input
         type="text"
-        placeholder="Search and press Enter..."
+        placeholder="Search bets..."
         value={localValue}
-        onChange={(e) => setLocalValue(e.target.value)}
-        onKeyDown={handleKeyDown}
+        onChange={handleChange}
         style={{
           width: '100%',
           padding: '12px 40px',
@@ -476,6 +492,9 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
           onClick={() => {
             setLocalValue('');
             setSearchQuery('');
+            if (debounceRef.current) {
+              clearTimeout(debounceRef.current);
+            }
           }}
           style={{
             position: 'absolute',
@@ -561,6 +580,7 @@ const [addBetStep, setAddBetStep] = useState(1); // NEW: Multi-step modal
   const [showAllBets, setShowAllBets] = useState(false);
 const [showFilters, setShowFilters] = useState(false); // NEW: Collapsible filters
 const [searchQuery, setSearchQuery] = useState(''); // NEW: Search functionality
+const [showFilterModal, setShowFilterModal] = useState(false); // NEW: Filter modal
 const searchInputRef = useRef(null);
 
 
@@ -1111,6 +1131,18 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           const systemLabel = systemPlay === 'clear' ? 'Clear System' : systemPlay === 'kind-of' ? 'Kind Of System' : 'Anti System';
           addToCombination(`${sport}-${systemPlay}`, `${sport} ${systemLabel}`);
         }
+
+        // Favorite Team bets
+        if (bet.favoriteTeam) {
+          addToCombination('favorite-team', 'Favorite Team Bets');
+          addToCombination(`${sport}-favorite-team`, `${sport} Favorite Team`);
+        }
+
+        // Prime Time bets
+        if (bet.primeTime) {
+          addToCombination('prime-time', 'Prime Time Bets');
+          addToCombination(`${sport}-prime-time`, `${sport} Prime Time`);
+        }
       });
 
       // Filter to minimum bets and calculate significance
@@ -1266,7 +1298,11 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           cumulative += bet.payout;
           return cumulative;
         });
-      })()
+      })(),
+      // Pending exposure stats
+      pendingCount: bets.filter(b => b.result === 'pending').length,
+      pendingRisk: bets.filter(b => b.result === 'pending').reduce((sum, b) => sum + (b.riskAmount || 0), 0),
+      pendingToWin: bets.filter(b => b.result === 'pending').reduce((sum, b) => sum + (b.winAmount || 0), 0)
     };
   }, [bets, monthlyLimit]);
 
@@ -1310,8 +1346,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     { label: '0.5u', value: 0.5 },
     { label: '1u', value: 1 },
     { label: '2u', value: 2 },
-    { label: '3u', value: 3 },
-    { label: '5u', value: 5 }
   ];
 
   const getSystemLabel = (systemPlay) => {
@@ -1475,11 +1509,45 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
         <div style={{
           fontSize: '13px',
           color: colors.textTertiary,
-          marginBottom: '24px',
+          marginBottom: '16px',
           fontWeight: '500'
         }}>
           {parseFloat(stats.monthlyLoss) >= parseFloat(stats.lastMonthPL) ? '↑' : '↓'} ${Math.abs(parseFloat(stats.monthlyLoss) - parseFloat(stats.lastMonthPL)).toFixed(2)} vs. last month
         </div>
+
+        {/* Pending Exposure Widget */}
+        {stats.pendingCount > 0 && (
+          <div style={{
+            background: colors.bgSecondary,
+            borderRadius: '12px',
+            padding: '12px 16px',
+            marginBottom: '20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '14px' }}>⏳</span>
+              <span style={{ fontSize: '13px', fontWeight: '600', color: colors.textPrimary }}>
+                {stats.pendingCount} Active {stats.pendingCount === 1 ? 'Bet' : 'Bets'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '10px', color: colors.textTertiary }}>Risk</div>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: colors.accentLoss, ...numberStyle }}>
+                  ${stats.pendingRisk.toFixed(0)}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '10px', color: colors.textTertiary }}>To Win</div>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: colors.accentWin, ...numberStyle }}>
+                  ${stats.pendingToWin.toFixed(0)}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Add Bet Button */}
         <button
@@ -2201,7 +2269,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     </div>
   );
 
-  // HISTORY PAGE COMPONENT
+  // HISTORY PAGE COMPONENT - Redesigned with 2-row filters + More button
   const HistoryPage = ({ 
     colors, 
     filteredBets, 
@@ -2215,263 +2283,323 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     formatBetType,
     formatMoney,
     BetCard
-  }) => (
-    <div className="pb-20 animate-fadeIn">
-      <div className="rounded-2xl shadow-2xl p-3 md:p-4" style={{ background: colors.bgElevated, border: `1px solid ${colors.border}` }}>
-        <h2 className="text-xl font-bold mb-3" style={{ color: colors.textPrimary, fontFamily: "'Outfit', sans-serif" }}>Bet History</h2>
-        
-        {/* SEARCH BAR */}
-        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} colors={colors} />
-        <div style={{ height: '20px' }} />
+  }) => {
+    // Count active filters in the "More" modal
+    const moreFilterCount = [
+      historyFilter.result !== 'all',
+      historyFilter.favoriteUnderdog !== 'all',
+      historyFilter.overUnder !== 'all'
+    ].filter(Boolean).length;
+
+    return (
+      <div style={{ paddingBottom: '100px' }}>
+        {/* Header */}
+        <h2 style={{ 
+          fontSize: '20px', 
+          fontWeight: '700', 
+          color: colors.textPrimary, 
+          marginBottom: '16px',
+          ...headerStyle 
+        }}>
+          Bet History
+        </h2>
+
+        {/* Search Bar */}
+        <div style={{ marginBottom: '16px' }}>
+          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} colors={colors} />
         </div>
-        
-        {/* Filter Pills */}
-        <div className="mb-4 space-y-4">
-          {/* SPORT Section */}
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '8px', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              SPORT
-            </div>
-            <div className="flex items-center gap-2 overflow-x-auto pb-2">
-              <button
-                onClick={() => setHistoryFilter({...historyFilter, sport: 'all'})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-                style={{
-                  background: historyFilter.sport === 'all' ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.sport === 'all' ? '#FFFFFF' : colors.textPrimary,
-                  fontWeight: '600'
-                }}
-              >
-                All
-              </button>
-              {['nfl', 'nba', 'mlb', 'ncaaf', 'ncaab', 'boxing'].map(sport => (
-                <button
-                  key={sport}
-                  onClick={() => setHistoryFilter({...historyFilter, sport})}
-                  className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-                  style={{
-                    background: historyFilter.sport === sport ? colors.accentPrimary : colors.bgSecondary,
-                    color: historyFilter.sport === sport ? '#FFFFFF' : colors.textPrimary,
-                    fontWeight: '600'
-                  }}
-                >
-                  {getSportLabel(sport)}
-                </button>
-              ))}
-            </div>
-          </div>
 
-          {/* BET TYPE Section */}
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              BET TYPE
-            </div>
-            <div className="flex items-center gap-2 overflow-x-auto pb-2">
+        {/* Sport Filter Pills */}
+        <div style={{ marginBottom: '12px' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            overflowX: 'auto', 
+            paddingBottom: '4px',
+            WebkitOverflowScrolling: 'touch'
+          }}>
+            {['all', 'nfl', 'ncaaf', 'nba', 'ncaab', 'mlb', 'boxing'].map(sport => (
               <button
-                onClick={() => setHistoryFilter({...historyFilter, betType: 'all'})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
+                key={sport}
+                onClick={() => setHistoryFilter({...historyFilter, sport})}
                 style={{
-                  background: historyFilter.betType === 'all' ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.betType === 'all' ? '#FFFFFF' : colors.textPrimary,
-                  fontWeight: '600'
+                  padding: '10px 16px',
+                  background: historyFilter.sport === sport ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.sport === sport ? '#FFFFFF' : colors.textPrimary,
+                  border: 'none',
+                  borderRadius: '20px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
                 }}
               >
-                All
+                {sport === 'all' ? 'All Sports' : getSportLabel(sport)}
               </button>
-              {['straight', 'money-line', 'over-under', 'parlay', 'teaser', 'prop', 'future', 'longshot-parlay'].map(type => (
-                <button
-                  key={type}
-                  onClick={() => setHistoryFilter({...historyFilter, betType: type})}
-                  className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-                  style={{
-                    background: historyFilter.betType === type ? colors.accentPrimary : colors.bgSecondary,
-                    color: historyFilter.betType === type ? '#FFFFFF' : colors.textPrimary,
-                    fontWeight: '600'
-                  }}
-                >
-                  {type === 'straight' ? 'Spread' : 
-                   type === 'money-line' ? 'ML' : 
-                   type === 'over-under' ? 'O/U' :
-                   type === 'longshot-parlay' ? '+500 Parlay' :
-                   formatBetType(type)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* RESULT Section */}
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              RESULT
-            </div>
-            <div className="flex items-center gap-2 overflow-x-auto pb-2">
-              <button
-                onClick={() => setHistoryFilter({...historyFilter, result: 'all'})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-                style={{
-                  background: historyFilter.result === 'all' ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.result === 'all' ? '#FFFFFF' : colors.textPrimary,
-                  fontWeight: '600'
-                }}
-              >
-                All
-              </button>
-              {['win', 'loss', 'push', 'pending'].map(result => (
-                <button
-                  key={result}
-                  onClick={() => setHistoryFilter({...historyFilter, result})}
-                  className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-                  style={{
-                    background: historyFilter.result === result ? colors.accentPrimary : colors.bgSecondary,
-                    color: historyFilter.result === result ? '#FFFFFF' : colors.textPrimary,
-                    fontWeight: '600'
-                  }}
-                >
-                  {result.charAt(0).toUpperCase() + result.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* OTHER FILTERS Section */}
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: colors.textSecondary, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              OTHER FILTERS
-            </div>
-            <div className="flex items-center gap-2 overflow-x-auto pb-2">
-              <button
-                onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'all', overUnder: 'all'})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-                style={{
-                  background: historyFilter.favoriteUnderdog === 'all' && historyFilter.overUnder === 'all' ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.favoriteUnderdog === 'all' && historyFilter.overUnder === 'all' ? '#FFFFFF' : colors.textPrimary,
-                  fontWeight: '600'
-                }}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'favorite'})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-                style={{
-                  background: historyFilter.favoriteUnderdog === 'favorite' ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.favoriteUnderdog === 'favorite' ? '#FFFFFF' : colors.textPrimary,
-                  fontWeight: '600'
-                }}
-              >
-                Favorite
-              </button>
-              <button
-                onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'underdog'})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-                style={{
-                  background: historyFilter.favoriteUnderdog === 'underdog' ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.favoriteUnderdog === 'underdog' ? '#FFFFFF' : colors.textPrimary,
-                  fontWeight: '600'
-                }}
-              >
-                Underdog
-              </button>
-              <button
-                onClick={() => setHistoryFilter({...historyFilter, overUnder: 'over'})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-                style={{
-                  background: historyFilter.overUnder === 'over' ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.overUnder === 'over' ? '#FFFFFF' : colors.textPrimary,
-                  fontWeight: '600'
-                }}
-              >
-                Over
-              </button>
-              <button
-                onClick={() => setHistoryFilter({...historyFilter, overUnder: 'under'})}
-                className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all`}
-                style={{
-                  background: historyFilter.overUnder === 'under' ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.overUnder === 'under' ? '#FFFFFF' : colors.textPrimary,
-                  fontWeight: '600'
-                }}
-              >
-                Under
-              </button>
-            </div>
+            ))}
           </div>
         </div>
+
+        {/* Bet Type Filter Pills + More Button */}
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            overflowX: 'auto', 
+            paddingBottom: '4px',
+            WebkitOverflowScrolling: 'touch',
+            alignItems: 'center'
+          }}>
+            {['all', 'straight', 'money-line', 'over-under', 'parlay', 'teaser', 'prop'].map(type => (
+              <button
+                key={type}
+                onClick={() => setHistoryFilter({...historyFilter, betType: type})}
+                style={{
+                  padding: '10px 16px',
+                  background: historyFilter.betType === type ? colors.accentPrimary : colors.bgSecondary,
+                  color: historyFilter.betType === type ? '#FFFFFF' : colors.textPrimary,
+                  border: 'none',
+                  borderRadius: '20px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+              >
+                {type === 'all' ? 'All Types' : 
+                 type === 'straight' ? 'Spread' : 
+                 type === 'money-line' ? 'ML' : 
+                 type === 'over-under' ? 'O/U' :
+                 formatBetType(type)}
+              </button>
+            ))}
+            
+            {/* More Filters Button */}
+            <button
+              onClick={() => setShowFilterModal(true)}
+              style={{
+                padding: '10px 16px',
+                background: moreFilterCount > 0 ? colors.accentPrimary : colors.bgSecondary,
+                color: moreFilterCount > 0 ? '#FFFFFF' : colors.textPrimary,
+                border: 'none',
+                borderRadius: '20px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Filter />
+              More
+              {moreFilterCount > 0 && (
+                <span style={{
+                  background: '#FFFFFF',
+                  color: colors.accentPrimary,
+                  borderRadius: '50%',
+                  width: '18px',
+                  height: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '11px',
+                  fontWeight: '700'
+                }}>
+                  {moreFilterCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Active Filter Tags */}
+        {(historyFilter.result !== 'all' || historyFilter.favoriteUnderdog !== 'all' || historyFilter.overUnder !== 'all') && (
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            flexWrap: 'wrap', 
+            marginBottom: '16px' 
+          }}>
+            {historyFilter.result !== 'all' && (
+              <span style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                background: 'rgba(212, 165, 116, 0.2)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: colors.textPrimary
+              }}>
+                {historyFilter.result.charAt(0).toUpperCase() + historyFilter.result.slice(1)}
+                <button
+                  onClick={() => setHistoryFilter({...historyFilter, result: 'all'})}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    color: colors.textSecondary,
+                    fontSize: '14px',
+                    lineHeight: 1
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {historyFilter.favoriteUnderdog !== 'all' && (
+              <span style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                background: 'rgba(212, 165, 116, 0.2)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: colors.textPrimary
+              }}>
+                {historyFilter.favoriteUnderdog === 'favorite' ? 'Favorites' : 'Underdogs'}
+                <button
+                  onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: 'all'})}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    color: colors.textSecondary,
+                    fontSize: '14px',
+                    lineHeight: 1
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {historyFilter.overUnder !== 'all' && (
+              <span style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                background: 'rgba(212, 165, 116, 0.2)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: colors.textPrimary
+              }}>
+                {historyFilter.overUnder === 'over' ? 'Overs' : 'Unders'}
+                <button
+                  onClick={() => setHistoryFilter({...historyFilter, overUnder: 'all'})}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    color: colors.textSecondary,
+                    fontSize: '14px',
+                    lineHeight: 1
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Time Range Toggle */}
-        <div className="flex gap-3 mb-4">
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
           <button
             onClick={() => setShowAllBets(false)}
-            className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all`}
             style={{
+              flex: 1,
+              padding: '14px',
               background: !showAllBets ? colors.accentPrimary : colors.bgSecondary,
               color: !showAllBets ? '#FFFFFF' : colors.textSecondary,
-              boxShadow: !showAllBets ? `0 4px 12px ${colors.shadow}` : 'none'
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer'
             }}
           >
             Last 30 Days
           </button>
           <button
             onClick={() => setShowAllBets(true)}
-            className={`flex-1 py-3 rounded-2xl text-sm font-medium transition-all`}
             style={{
+              flex: 1,
+              padding: '14px',
               background: showAllBets ? colors.accentPrimary : colors.bgSecondary,
               color: showAllBets ? '#FFFFFF' : colors.textSecondary,
-              boxShadow: showAllBets ? `0 4px 12px ${colors.shadow}` : 'none'
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer'
             }}
           >
             All Time
           </button>
         </div>
 
-        {/* Filter Stats Box */}
+        {/* Results Summary */}
         {filteredBets.length > 0 && (
-          <div className="p-4 rounded-2xl mb-4" style={{ background: 'linear-gradient(135deg, rgba(52, 152, 219, 0.15) 0%, rgba(155, 89, 182, 0.15) 100%)', border: '1px solid rgba(52, 152, 219, 0.3)' }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs mb-1" style={{ color: colors.textSecondary }}>Current Filter</div>
-                <div className="text-sm font-medium" style={{ color: colors.textPrimary }}>
-                  {searchQuery && `"${searchQuery}" • `}
-                  {historyFilter.sport !== 'all' && `${historyFilter.sport.toUpperCase()} • `}
-                  {historyFilter.betType !== 'all' && `${formatBetType(historyFilter.betType)} • `}
-                  {historyFilter.result !== 'all' && `${historyFilter.result.charAt(0).toUpperCase() + historyFilter.result.slice(1)} • `}
-                  {historyFilter.favoriteUnderdog !== 'all' && `${historyFilter.favoriteUnderdog === 'favorite' ? 'Favorites' : 'Underdogs'} • `}
-                  {historyFilter.overUnder !== 'all' && `${historyFilter.overUnder === 'over' ? 'Overs' : 'Unders'} • `}
-{!searchQuery && historyFilter.sport === 'all' && historyFilter.betType === 'all' && historyFilter.result === 'all' && historyFilter.favoriteUnderdog === 'all' && historyFilter.overUnder === 'all' && 'All Bets'}                </div>
+          <div style={{
+            background: colors.bgElevated,
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '16px',
+            border: `1px solid ${colors.border}`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div>
+              <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '2px' }}>
+                {filteredBets.length} {filteredBets.length === 1 ? 'bet' : 'bets'}
               </div>
-              <div className="text-right">
-                <div className="text-xs mb-1" style={{ color: colors.textSecondary }}>Record & P/L</div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium" style={{ color: colors.textPrimary }}>
-                    {filteredBets.filter(b => b.result === 'win').length}-{filteredBets.filter(b => b.result === 'loss').length}
-                  </span>
-                  <span className={`text-lg font-bold`} style={{ color: filteredBets.reduce((sum, b) => sum + b.payout, 0) >= 0 ? colors.accentWin : colors.accentLoss }}>
-                    {formatMoney(filteredBets.reduce((sum, b) => sum + b.payout, 0))}
-                  </span>
-                </div>
+              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, ...numberStyle }}>
+                {filteredBets.filter(b => b.result === 'win').length}W - {filteredBets.filter(b => b.result === 'loss').length}L
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '2px' }}>P/L</div>
+              <div style={{ 
+                fontSize: '20px', 
+                fontWeight: '800', 
+                color: filteredBets.reduce((sum, b) => sum + b.payout, 0) >= 0 ? colors.accentWin : colors.accentLoss,
+                ...numberStyle 
+              }}>
+                {formatMoney(filteredBets.reduce((sum, b) => sum + b.payout, 0))}
               </div>
             </div>
           </div>
         )}
 
-        <div className="text-sm mb-4" style={{ color: colors.textSecondary }}>
-          Showing {filteredBets.length} {filteredBets.length === 1 ? 'bet' : 'bets'}
-          {!showAllBets && ' (Last 30 days)'}
-          {searchQuery && ` matching "${searchQuery}"`}
-        </div>
-
-        <div className="space-y-3">
+        {/* Bet List */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {filteredBets.length === 0 ? (
-<p className="text-center py-8" style={{ color: colors.textTertiary }}>
+            <p style={{ textAlign: 'center', padding: '32px', color: colors.textTertiary }}>
               {searchQuery ? `No bets found matching "${searchQuery}"` : 'No bets match your filters'}
-            </p>          ) : (
+            </p>
+          ) : (
             filteredBets.map(bet => (
               <BetCard key={bet.id} bet={bet} showActions />
             ))
           )}
         </div>
       </div>
-  );
+    );
+  };
 
  /// MORE PAGE COMPONENT
   const MorePage = () => {
@@ -2724,15 +2852,33 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                 {/* Favorite Team */}
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <input
-                      type="checkbox"
-                      checked={notificationSettings.favoriteTeam.enabled}
-                      onChange={(e) => setNotificationSettings({
+                    <div
+                      onClick={() => setNotificationSettings({
                         ...notificationSettings,
-                        favoriteTeam: { ...notificationSettings.favoriteTeam, enabled: e.target.checked }
+                        favoriteTeam: { ...notificationSettings.favoriteTeam, enabled: !notificationSettings.favoriteTeam.enabled }
                       })}
-                      style={{ width: '18px', height: '18px', accentColor: colors.accentPrimary }}
-                    />
+                      style={{
+                        width: '42px',
+                        height: '24px',
+                        background: notificationSettings.favoriteTeam.enabled ? colors.accentWin : colors.textTertiary,
+                        borderRadius: '12px',
+                        position: 'relative',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        right: notificationSettings.favoriteTeam.enabled ? '2px' : 'auto',
+                        left: notificationSettings.favoriteTeam.enabled ? 'auto' : '2px',
+                        top: '2px',
+                        width: '20px',
+                        height: '20px',
+                        background: '#FFFFFF',
+                        borderRadius: '50%',
+                        transition: 'all 0.2s ease'
+                      }} />
+                    </div>
                     <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
                       Favorite Team Warning
                     </span>
@@ -2770,15 +2916,33 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                 {/* Monthly Limit */}
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <input
-                      type="checkbox"
-                      checked={notificationSettings.monthlyLimit.enabled}
-                      onChange={(e) => setNotificationSettings({
+                    <div
+                      onClick={() => setNotificationSettings({
                         ...notificationSettings,
-                        monthlyLimit: { ...notificationSettings.monthlyLimit, enabled: e.target.checked }
+                        monthlyLimit: { ...notificationSettings.monthlyLimit, enabled: !notificationSettings.monthlyLimit.enabled }
                       })}
-                      style={{ width: '18px', height: '18px', accentColor: colors.accentPrimary }}
-                    />
+                      style={{
+                        width: '42px',
+                        height: '24px',
+                        background: notificationSettings.monthlyLimit.enabled ? colors.accentWin : colors.textTertiary,
+                        borderRadius: '12px',
+                        position: 'relative',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        right: notificationSettings.monthlyLimit.enabled ? '2px' : 'auto',
+                        left: notificationSettings.monthlyLimit.enabled ? 'auto' : '2px',
+                        top: '2px',
+                        width: '20px',
+                        height: '20px',
+                        background: '#FFFFFF',
+                        borderRadius: '50%',
+                        transition: 'all 0.2s ease'
+                      }} />
+                    </div>
                     <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
                       Monthly Limit Warning
                     </span>
@@ -2853,12 +3017,13 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
               <button
                 onClick={() => updateBetResult(bet.id, 'win')}
                 style={{
-                  padding: '8px 16px',
+                  padding: '12px 20px',
+                  minHeight: '48px',
                   background: colors.accentWin,
                   color: '#FFFFFF',
                   border: 'none',
-                  borderRadius: '10px',
-                  fontSize: '13px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
                   fontWeight: '700',
                   cursor: 'pointer'
                 }}
@@ -2868,12 +3033,13 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
               <button
                 onClick={() => updateBetResult(bet.id, 'loss')}
                 style={{
-                  padding: '8px 16px',
+                  padding: '12px 20px',
+                  minHeight: '48px',
                   background: colors.accentLoss,
                   color: '#FFFFFF',
                   border: 'none',
-                  borderRadius: '10px',
-                  fontSize: '13px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
                   fontWeight: '700',
                   cursor: 'pointer'
                 }}
@@ -2883,12 +3049,13 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
               <button
                 onClick={() => updateBetResult(bet.id, 'push')}
                 style={{
-                  padding: '8px 16px',
+                  padding: '12px 20px',
+                  minHeight: '48px',
                   background: colors.textTertiary,
                   color: '#FFFFFF',
                   border: 'none',
-                  borderRadius: '10px',
-                  fontSize: '13px',
+                  borderRadius: '12px',
+                  fontSize: '14px',
                   fontWeight: '700',
                   cursor: 'pointer'
                 }}
@@ -3142,7 +3309,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                           cursor: 'pointer',
                           fontSize: '13px',
                           fontWeight: '700',
-                          color: colors.textPrimary,
+                          color: localFormData.sport === sport.value ? '#FFFFFF' : colors.textPrimary,
                           transition: 'all 0.2s ease'
                         }}
                       >
@@ -3187,7 +3354,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                           cursor: 'pointer',
                           fontSize: '12px',
                           fontWeight: '700',
-                          color: colors.textPrimary,
+                          color: localFormData.betType === type.value ? '#FFFFFF' : colors.textPrimary,
                           transition: 'all 0.2s ease'
                         }}
                       >
@@ -3242,7 +3409,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                           cursor: 'pointer',
                           fontSize: '14px',
                           fontWeight: '700',
-                          color: colors.textPrimary,
+                          color: localFormData.units === btn.value.toString() ? '#FFFFFF' : colors.textPrimary,
                           transition: 'all 0.2s ease'
                         }}
                       >
@@ -3784,6 +3951,173 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     );
   };
 
+  // Filter Modal Component
+  const FilterModal = () => {
+    if (!showFilterModal) return null;
+    
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'flex-end',
+          zIndex: 100,
+          backdropFilter: 'blur(4px)'
+        }}
+        onClick={() => setShowFilterModal(false)}
+      >
+        <div
+          style={{
+            background: colors.bgElevated,
+            borderRadius: '20px 20px 0 0',
+            padding: '20px',
+            width: '100%',
+            maxHeight: '70vh',
+            overflowY: 'auto'
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '20px'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, margin: 0, ...headerStyle }}>
+              More Filters
+            </h3>
+            <button
+              onClick={() => setShowFilterModal(false)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textTertiary }}
+            >
+              <X />
+            </button>
+          </div>
+
+          {/* Result */}
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '10px', textTransform: 'uppercase' }}>
+              Result
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {['all', 'win', 'loss', 'push', 'pending'].map(result => (
+                <button
+                  key={result}
+                  onClick={() => setHistoryFilter({...historyFilter, result})}
+                  style={{
+                    padding: '10px 16px',
+                    background: historyFilter.result === result ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.result === result ? '#FFFFFF' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {result === 'all' ? 'All' : result.charAt(0).toUpperCase() + result.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Favorite/Underdog */}
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '10px', textTransform: 'uppercase' }}>
+              Side
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {['all', 'favorite', 'underdog'].map(side => (
+                <button
+                  key={side}
+                  onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: side})}
+                  style={{
+                    padding: '10px 16px',
+                    background: historyFilter.favoriteUnderdog === side ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.favoriteUnderdog === side ? '#FFFFFF' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {side === 'all' ? 'All' : side.charAt(0).toUpperCase() + side.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Over/Under */}
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '10px', textTransform: 'uppercase' }}>
+              Total
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {['all', 'over', 'under'].map(ou => (
+                <button
+                  key={ou}
+                  onClick={() => setHistoryFilter({...historyFilter, overUnder: ou})}
+                  style={{
+                    padding: '10px 16px',
+                    background: historyFilter.overUnder === ou ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.overUnder === ou ? '#FFFFFF' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {ou === 'all' ? 'All' : ou.charAt(0).toUpperCase() + ou.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={() => {
+                setHistoryFilter({ ...historyFilter, result: 'all', favoriteUnderdog: 'all', overUnder: 'all' });
+              }}
+              style={{
+                flex: 1,
+                padding: '14px',
+                background: colors.bgSecondary,
+                color: colors.textSecondary,
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Clear All
+            </button>
+            <button
+              onClick={() => setShowFilterModal(false)}
+              style={{
+                flex: 2,
+                padding: '14px',
+                background: colors.accentPrimary,
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
     <div className="min-h-screen" style={{ background: colors.bgPrimary }}>
       {/* Animation Overlay */}
@@ -3939,6 +4273,9 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           </div>
         </div>
       )}
+
+      {/* Filter Modal */}
+      <FilterModal />
 
       {/* Retired Overlay */}
       {isRetired && (
