@@ -1410,9 +1410,9 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           ...numberStyle
         }}>
           <AnimatedNumber 
-            value={parseFloat(stats.totalDollars)} 
-            formatFn={formatMoney}
-          />
+  value={stats.totalDollars} 
+  formatFn={formatMoney}
+/>
         </div>
         <div style={{
           fontSize: '13px',
