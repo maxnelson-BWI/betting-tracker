@@ -460,10 +460,12 @@ const SearchBar = memo(({ searchQuery, setSearchQuery, colors }) => {
     }
     debounceRef.current = setTimeout(() => {
       setSearchQuery(value);
-      // Restore focus after state update
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+      // Restore focus after React finishes re-rendering
+      requestAnimationFrame(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      });
     }, 300);
   };
 
