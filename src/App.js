@@ -1102,7 +1102,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     }
   };
 
-  const startEdit = (bet) => {
+  const startEdit = useCallback((bet) => {
     setEditingBet(bet.id);
     setFormData({
       date: bet.date,
@@ -1118,7 +1118,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       notes: bet.notes || ''
     });
     setShowAddBetModal(true);
-  };
+  }, []);
 
   const saveEdit = async (dataToSubmit = formData) => {
     if (!dataToSubmit.sport || !dataToSubmit.betType || !dataToSubmit.description || !dataToSubmit.units || !dataToSubmit.odds) {
@@ -1260,7 +1260,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     }, 2000);
   };
 
-  const updateBetResult = async (id, result) => {
+  const updateBetResult = useCallback(async (id, result) => {
     const bet = bets.find(b => b.id === id);
     if (!bet) return;
 
@@ -1276,11 +1276,11 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     } catch (error) {
       console.error("Error updating bet:", error);
     }
-  };
+  }, [bets]);
 
-  const deleteBet = async (id) => {
+  const deleteBet = useCallback((id) => {
     setDeleteModal({ show: true, betId: id });
-  };
+  }, []);
 
   const confirmDelete = async () => {
     try {
