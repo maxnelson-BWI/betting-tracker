@@ -149,6 +149,58 @@ const Search = () => (
 );
 
 // ============================================
+// ANIMATED NUMBER COMPONENT
+// ============================================
+const AnimatedNumber = ({ value, formatFn, duration = 800, style = {} }) => {
+  const [displayValue, setDisplayValue] = useState(value);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const prevValueRef = useRef(value);
+
+  useEffect(() => {
+    if (prevValueRef.current === value) return;
+
+    setIsAnimating(true);
+    const startValue = prevValueRef.current;
+    const endValue = value;
+    const startTime = Date.now();
+
+    const animate = () => {
+      const now = Date.now();
+      const progress = Math.min((now - startTime) / duration, 1);
+      
+      // Easing function (ease-out cubic)
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      
+      const currentValue = startValue + (endValue - startValue) * easeProgress;
+      setDisplayValue(currentValue);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setDisplayValue(endValue);
+        setIsAnimating(false);
+        prevValueRef.current = endValue;
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [value, duration]);
+
+  return (
+    <span 
+      style={{
+        ...style,
+        transition: isAnimating ? 'transform 0.15s ease' : 'none',
+        transform: isAnimating ? 'scale(1.05)' : 'scale(1)',
+        display: 'inline-block'
+      }}
+    >
+      {formatFn(displayValue)}
+    </span>
+  );
+};
+
+// ============================================
 // LOGO COMPONENT
 // ============================================
 const CindyLogo = () => (
@@ -1351,7 +1403,10 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           letterSpacing: '-2px',
           ...numberStyle
         }}>
-          {formatMoney(parseFloat(stats.totalDollars))}
+          <AnimatedNumber 
+            value={parseFloat(stats.totalDollars)} 
+            formatFn={formatMoney}
+          />
         </div>
         <div style={{
           fontSize: '13px',
@@ -1405,13 +1460,16 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           border: `1px solid ${colors.border}`
         }}>
           <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>This Month</div>
-          <div style={{
+         <div style={{
             fontSize: '20px',
             fontWeight: '800',
             color: parseFloat(stats.monthlyLoss) >= 0 ? colors.accentWin : colors.accentLoss,
             ...numberStyle
           }}>
-            {formatMoney(parseFloat(stats.monthlyLoss))}
+            <AnimatedNumber 
+              value={parseFloat(stats.monthlyLoss)} 
+              formatFn={formatMoney}
+            />
           </div>
         </div>
 
