@@ -1108,6 +1108,381 @@ const HistoryPage = memo(({
   );
 });
 
+// ============================================
+// HOME PAGE COMPONENT - MATCHES MOCKUP EXACTLY
+// ============================================
+const HomePage = memo(({
+  colors,
+  stats,
+  pendingBets,
+  recentBets,
+  formatMoney,
+  updateBetResult,
+  startEdit,
+  deleteBet,
+  isRetired,
+  setShowAddBetModal,
+  setAddBetStep,
+  setCurrentPage,
+  systemExpanded,
+  setSystemExpanded
+}) => (
+    <div style={{ paddingBottom: '100px' }}>
+      {/* HERO SECTION - Big P/L Number with Add Bet Button */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '32px 24px',
+        marginBottom: '24px',
+        boxShadow: `0 4px 12px ${colors.shadow}`,
+        textAlign: 'center',
+        border: `1px solid ${colors.border}`
+      }}>
+        <div style={{
+          fontSize: '12px',
+          color: colors.textSecondary,
+          marginBottom: '8px',
+          fontWeight: '800',
+          letterSpacing: '1.5px',
+          textTransform: 'uppercase',
+          ...headerStyle
+        }}>
+          Total Profit/Loss
+        </div>
+        <div style={{
+          fontSize: '48px',
+          fontWeight: '800',
+          color: parseFloat(stats.totalDollars) >= 0 ? colors.accentWin : colors.accentLoss,
+          marginBottom: '8px',
+          letterSpacing: '-2px',
+          ...numberStyle
+        }}>
+          <AnimatedNumber 
+  value={stats.totalDollars} 
+  formatFn={formatMoney}
+/>
+        </div>
+        
+        <div style={{
+          fontSize: '13px',
+          color: colors.textTertiary,
+          marginBottom: '16px',
+          fontWeight: '500'
+        }}>
+          {parseFloat(stats.monthlyLoss) >= parseFloat(stats.lastMonthPL) ? '↑' : '↓'} ${Math.abs(parseFloat(stats.monthlyLoss) - parseFloat(stats.lastMonthPL)).toFixed(2)} vs. last month
+        </div>
+
+        {/* Pending Exposure Widget */}
+        {stats.pendingCount > 0 && (
+          <div style={{
+            background: colors.bgSecondary,
+            borderRadius: '12px',
+            padding: '12px 16px',
+            marginBottom: '20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '14px' }}>⏳</span>
+              <span style={{ fontSize: '13px', fontWeight: '600', color: colors.textPrimary }}>
+                {stats.pendingCount} Active {stats.pendingCount === 1 ? 'Bet' : 'Bets'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '10px', color: colors.textTertiary }}>Risk</div>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: colors.accentLoss, ...numberStyle }}>
+                  ${stats.pendingRisk.toFixed(0)}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '10px', color: colors.textTertiary }}>To Win</div>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: colors.accentWin, ...numberStyle }}>
+                  ${stats.pendingToWin.toFixed(0)}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Add Bet Button */}
+        <button
+          onClick={() => { if (!isRetired) { setAddBetStep(1); setShowAddBetModal(true); } }}
+          disabled={isRetired}
+          style={{
+            width: '100%',
+            padding: '16px',
+            background: isRetired
+              ? colors.textTertiary
+              : `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
+            color: colors.textPrimary,
+            border: 'none',
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: '600',
+            cursor: isRetired ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            boxShadow: `0 4px 12px ${colors.shadow}`
+          }}
+        >
+          <PlusCircle />
+          Add New Bet
+        </button>
+      </div>
+
+      {/* KEY METRICS - 3 Cards in a Row */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '12px',
+        marginBottom: '24px'
+      }}>
+        <div style={{
+          background: colors.bgElevated,
+          padding: '20px 16px',
+          borderRadius: '20px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>This Month</div>
+         <div style={{
+            fontSize: '20px',
+            fontWeight: '800',
+            color: parseFloat(stats.monthlyLoss) >= 0 ? colors.accentWin : colors.accentLoss,
+            ...numberStyle
+          }}>
+            <AnimatedNumber 
+              value={parseFloat(stats.monthlyLoss)} 
+              formatFn={formatMoney}
+            />
+          </div>
+        </div>
+
+        <div style={{
+          background: colors.bgElevated,
+          padding: '20px 16px',
+          borderRadius: '20px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Win Rate</div>
+          <div style={{ fontSize: '20px', fontWeight: '800', color: colors.textPrimary, ...numberStyle }}>
+            {stats.winRate}%
+          </div>
+          <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px', ...numberStyle }}>
+            {stats.wins}W-{stats.losses}L
+          </div>
+        </div>
+
+        <div style={{
+          background: colors.bgElevated,
+          padding: '20px 16px',
+          borderRadius: '20px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Streak</div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: colors.accentPrimary }}>
+            {stats.winStreak >= 1 ? `${stats.winStreak} 🔥` : '—'}
+          </div>
+        </div>
+      </div>
+
+      {/* THE SYSTEM SECTION - Purple Border, Collapsible */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        marginBottom: '24px',
+        border: `2px solid ${colors.accentSystem}`,
+        boxShadow: `0 4px 12px ${colors.shadow}`,
+        overflow: 'hidden'
+      }}>
+        <button
+          onClick={() => setSystemExpanded(!systemExpanded)}
+          style={{
+            width: '100%',
+            padding: '20px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <TrendingUp />
+            <div style={{ textAlign: 'left' }}>
+              <div style={{
+                fontSize: '12px',
+                color: colors.accentSystem,
+                fontWeight: '600',
+                marginBottom: '2px'
+              }}>
+                THE SYSTEM
+              </div>
+              <div style={{ fontSize: '10px', color: colors.textSecondary }}>
+                Fade the Public
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{
+                fontSize: '20px',
+                fontWeight: '700',
+                color: parseFloat(stats.systemDollars) >= 0 ? colors.accentWin : colors.accentLoss,
+                ...numberStyle
+              }}>
+                {formatMoney(parseFloat(stats.systemDollars))}
+              </div>
+              <div style={{ fontSize: '11px', color: colors.textTertiary }}>
+                {stats.systemWinRate}% Win Rate
+              </div>
+            </div>
+{systemExpanded ? <ChevronUp /> : <ChevronDown />}
+          </div>
+        </button>
+
+        {systemExpanded && (
+          <div style={{
+            padding: '0 20px 20px 20px',
+            borderTop: `1px solid ${colors.border}`,
+            paddingTop: '20px'
+          }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+              <div>
+                <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px' }}>Clear System</div>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: parseFloat(stats.clearSystemDollars) >= 0 ? colors.accentWin : colors.accentLoss, ...numberStyle }}>
+                  {formatMoney(parseFloat(stats.clearSystemDollars))}
+                </div>
+                <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px' }}>
+                  {stats.clearSystemRecord}
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px' }}>Kind Of</div>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: parseFloat(stats.kindOfSystemDollars) >= 0 ? colors.accentWin : colors.accentLoss, ...numberStyle }}>
+                  {formatMoney(parseFloat(stats.kindOfSystemDollars))}
+                </div>
+                <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px' }}>
+                  {stats.kindOfSystemRecord}
+                </div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px' }}>Anti System</div>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: parseFloat(stats.notSystemDollars) >= 0 ? colors.accentWin : colors.accentLoss, ...numberStyle }}>
+                  {formatMoney(parseFloat(stats.notSystemDollars))}
+                </div>
+                <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px' }}>
+                  {stats.notSystemRecord}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* PENDING BETS - Right after System */}
+      {pendingBets.length > 0 && (
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          marginBottom: '24px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            marginBottom: '16px',
+            margin: '0 0 16px 0',
+            ...headerStyle
+          }}>
+            Pending Bets ({pendingBets.length})
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+         {pendingBets.map(bet => (
+              <BetCard 
+                key={bet.id} 
+                bet={bet} 
+                isPending={true}
+                colors={colors}
+                formatMoney={formatMoney}
+                onUpdateResult={updateBetResult}
+                onStartEdit={startEdit}
+                onDelete={deleteBet}
+                isRetired={isRetired}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* RECENT BETS */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '20px',
+        padding: '20px',
+        boxShadow: `0 2px 8px ${colors.shadow}`,
+        border: `1px solid ${colors.border}`
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h3 style={{
+            fontSize: '16px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            margin: 0,
+            ...headerStyle
+          }}>
+            Recent Bets
+          </h3>
+          <button
+  onClick={() => setCurrentPage('history')}
+  style={{
+    background: 'transparent',
+    border: 'none',
+    color: colors.accentPrimary,
+    fontSize: '13px',
+    fontWeight: '700',  // Changed from 600 to 700
+    cursor: 'pointer'
+  }}
+>
+  View All →
+</button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {recentBets.length === 0 ? (
+            <p style={{ textAlign: 'center', padding: '32px', color: colors.textTertiary }}>
+              No bets yet. Add your first bet!
+            </p>
+          ) : (
+            recentBets.map(bet => (
+              <BetCard 
+                key={bet.id} 
+                bet={bet}
+                colors={colors}
+                formatMoney={formatMoney}
+                onUpdateResult={updateBetResult}
+                onStartEdit={startEdit}
+                onDelete={deleteBet}
+                isRetired={isRetired}
+              />
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  ));
+
 function App() {
       const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
@@ -2016,7 +2391,22 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <HomePage />;
+        return <HomePage 
+          colors={colors}
+          stats={stats}
+          pendingBets={pendingBets}
+          recentBets={recentBets}
+          formatMoney={formatMoney}
+          updateBetResult={updateBetResult}
+          startEdit={startEdit}
+          deleteBet={deleteBet}
+          isRetired={isRetired}
+          setShowAddBetModal={setShowAddBetModal}
+          setAddBetStep={setAddBetStep}
+          setCurrentPage={setCurrentPage}
+          systemExpanded={systemExpanded}
+          setSystemExpanded={setSystemExpanded}
+        />;
       case 'stats':
         return <StatsPage />;
       case 'history':
@@ -2043,366 +2433,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
         return <HomePage />;
     }
   };
-
-  // ============================================
-  // HOME PAGE COMPONENT - MATCHES MOCKUP EXACTLY
-  // ============================================
-  const HomePage = () => (
-    <div style={{ paddingBottom: '100px' }}>
-      {/* HERO SECTION - Big P/L Number with Add Bet Button */}
-      <div style={{
-        background: colors.bgElevated,
-        borderRadius: '20px',
-        padding: '32px 24px',
-        marginBottom: '24px',
-        boxShadow: `0 4px 12px ${colors.shadow}`,
-        textAlign: 'center',
-        border: `1px solid ${colors.border}`
-      }}>
-        <div style={{
-          fontSize: '12px',
-          color: colors.textSecondary,
-          marginBottom: '8px',
-          fontWeight: '800',
-          letterSpacing: '1.5px',
-          textTransform: 'uppercase',
-          ...headerStyle
-        }}>
-          Total Profit/Loss
-        </div>
-        <div style={{
-          fontSize: '48px',
-          fontWeight: '800',
-          color: parseFloat(stats.totalDollars) >= 0 ? colors.accentWin : colors.accentLoss,
-          marginBottom: '8px',
-          letterSpacing: '-2px',
-          ...numberStyle
-        }}>
-          <AnimatedNumber 
-  value={stats.totalDollars} 
-  formatFn={formatMoney}
-/>
-        </div>
-        
-        <div style={{
-          fontSize: '13px',
-          color: colors.textTertiary,
-          marginBottom: '16px',
-          fontWeight: '500'
-        }}>
-          {parseFloat(stats.monthlyLoss) >= parseFloat(stats.lastMonthPL) ? '↑' : '↓'} ${Math.abs(parseFloat(stats.monthlyLoss) - parseFloat(stats.lastMonthPL)).toFixed(2)} vs. last month
-        </div>
-
-        {/* Pending Exposure Widget */}
-        {stats.pendingCount > 0 && (
-          <div style={{
-            background: colors.bgSecondary,
-            borderRadius: '12px',
-            padding: '12px 16px',
-            marginBottom: '20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '14px' }}>⏳</span>
-              <span style={{ fontSize: '13px', fontWeight: '600', color: colors.textPrimary }}>
-                {stats.pendingCount} Active {stats.pendingCount === 1 ? 'Bet' : 'Bets'}
-              </span>
-            </div>
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '10px', color: colors.textTertiary }}>Risk</div>
-                <div style={{ fontSize: '13px', fontWeight: '700', color: colors.accentLoss, ...numberStyle }}>
-                  ${stats.pendingRisk.toFixed(0)}
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '10px', color: colors.textTertiary }}>To Win</div>
-                <div style={{ fontSize: '13px', fontWeight: '700', color: colors.accentWin, ...numberStyle }}>
-                  ${stats.pendingToWin.toFixed(0)}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Add Bet Button */}
-        <button
-          onClick={() => { if (!isRetired) { setAddBetStep(1); setShowAddBetModal(true); } }}
-          disabled={isRetired}
-          style={{
-            width: '100%',
-            padding: '16px',
-            background: isRetired
-              ? colors.textTertiary
-              : `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
-            color: colors.textPrimary,
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: isRetired ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            boxShadow: `0 4px 12px ${colors.shadow}`
-          }}
-        >
-          <PlusCircle />
-          Add New Bet
-        </button>
-      </div>
-
-      {/* KEY METRICS - 3 Cards in a Row */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '12px',
-        marginBottom: '24px'
-      }}>
-        <div style={{
-          background: colors.bgElevated,
-          padding: '20px 16px',
-          borderRadius: '20px',
-          boxShadow: `0 2px 8px ${colors.shadow}`,
-          border: `1px solid ${colors.border}`
-        }}>
-          <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>This Month</div>
-         <div style={{
-            fontSize: '20px',
-            fontWeight: '800',
-            color: parseFloat(stats.monthlyLoss) >= 0 ? colors.accentWin : colors.accentLoss,
-            ...numberStyle
-          }}>
-            <AnimatedNumber 
-              value={parseFloat(stats.monthlyLoss)} 
-              formatFn={formatMoney}
-            />
-          </div>
-        </div>
-
-        <div style={{
-          background: colors.bgElevated,
-          padding: '20px 16px',
-          borderRadius: '20px',
-          boxShadow: `0 2px 8px ${colors.shadow}`,
-          border: `1px solid ${colors.border}`
-        }}>
-          <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Win Rate</div>
-          <div style={{ fontSize: '20px', fontWeight: '800', color: colors.textPrimary, ...numberStyle }}>
-            {stats.winRate}%
-          </div>
-          <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px', ...numberStyle }}>
-            {stats.wins}W-{stats.losses}L
-          </div>
-        </div>
-
-        <div style={{
-          background: colors.bgElevated,
-          padding: '20px 16px',
-          borderRadius: '20px',
-          boxShadow: `0 2px 8px ${colors.shadow}`,
-          border: `1px solid ${colors.border}`
-        }}>
-          <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>Streak</div>
-          <div style={{ fontSize: '20px', fontWeight: '700', color: colors.accentPrimary }}>
-            {stats.winStreak >= 1 ? `${stats.winStreak} 🔥` : '—'}
-          </div>
-        </div>
-      </div>
-
-      {/* THE SYSTEM SECTION - Purple Border, Collapsible */}
-      <div style={{
-        background: colors.bgElevated,
-        borderRadius: '20px',
-        marginBottom: '24px',
-        border: `2px solid ${colors.accentSystem}`,
-        boxShadow: `0 4px 12px ${colors.shadow}`,
-        overflow: 'hidden'
-      }}>
-        <button
-          onClick={() => setSystemExpanded(!systemExpanded)}
-          style={{
-            width: '100%',
-            padding: '20px',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <TrendingUp />
-            <div style={{ textAlign: 'left' }}>
-              <div style={{
-                fontSize: '12px',
-                color: colors.accentSystem,
-                fontWeight: '600',
-                marginBottom: '2px'
-              }}>
-                THE SYSTEM
-              </div>
-              <div style={{ fontSize: '10px', color: colors.textSecondary }}>
-                Fade the Public
-              </div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{
-                fontSize: '20px',
-                fontWeight: '700',
-                color: parseFloat(stats.systemDollars) >= 0 ? colors.accentWin : colors.accentLoss,
-                ...numberStyle
-              }}>
-                {formatMoney(parseFloat(stats.systemDollars))}
-              </div>
-              <div style={{ fontSize: '11px', color: colors.textTertiary }}>
-                {stats.systemWinRate}% Win Rate
-              </div>
-            </div>
-{systemExpanded ? <ChevronUp /> : <ChevronDown />}
-          </div>
-        </button>
-
-        {systemExpanded && (
-          <div style={{
-            padding: '0 20px 20px 20px',
-            borderTop: `1px solid ${colors.border}`,
-            paddingTop: '20px'
-          }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-              <div>
-                <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px' }}>Clear System</div>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: parseFloat(stats.clearSystemDollars) >= 0 ? colors.accentWin : colors.accentLoss, ...numberStyle }}>
-                  {formatMoney(parseFloat(stats.clearSystemDollars))}
-                </div>
-                <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px' }}>
-                  {stats.clearSystemRecord}
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px' }}>Kind Of</div>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: parseFloat(stats.kindOfSystemDollars) >= 0 ? colors.accentWin : colors.accentLoss, ...numberStyle }}>
-                  {formatMoney(parseFloat(stats.kindOfSystemDollars))}
-                </div>
-                <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px' }}>
-                  {stats.kindOfSystemRecord}
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: '11px', color: colors.textSecondary, marginBottom: '4px' }}>Anti System</div>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: parseFloat(stats.notSystemDollars) >= 0 ? colors.accentWin : colors.accentLoss, ...numberStyle }}>
-                  {formatMoney(parseFloat(stats.notSystemDollars))}
-                </div>
-                <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '2px' }}>
-                  {stats.notSystemRecord}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* PENDING BETS - Right after System */}
-      {pendingBets.length > 0 && (
-        <div style={{
-          background: colors.bgElevated,
-          borderRadius: '20px',
-          padding: '20px',
-          marginBottom: '24px',
-          boxShadow: `0 2px 8px ${colors.shadow}`,
-          border: `1px solid ${colors.border}`
-        }}>
-          <h3 style={{
-            fontSize: '16px',
-            fontWeight: '700',
-            color: colors.textPrimary,
-            marginBottom: '16px',
-            margin: '0 0 16px 0',
-            ...headerStyle
-          }}>
-            Pending Bets ({pendingBets.length})
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-         {pendingBets.map(bet => (
-              <BetCard 
-                key={bet.id} 
-                bet={bet} 
-                isPending={true}
-                colors={colors}
-                formatMoney={formatMoney}
-                onUpdateResult={updateBetResult}
-                onStartEdit={startEdit}
-                onDelete={deleteBet}
-                isRetired={isRetired}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* RECENT BETS */}
-      <div style={{
-        background: colors.bgElevated,
-        borderRadius: '20px',
-        padding: '20px',
-        boxShadow: `0 2px 8px ${colors.shadow}`,
-        border: `1px solid ${colors.border}`
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{
-            fontSize: '16px',
-            fontWeight: '700',
-            color: colors.textPrimary,
-            margin: 0,
-            ...headerStyle
-          }}>
-            Recent Bets
-          </h3>
-          <button
-  onClick={() => setCurrentPage('history')}
-  style={{
-    background: 'transparent',
-    border: 'none',
-    color: colors.accentPrimary,
-    fontSize: '13px',
-    fontWeight: '700',  // Changed from 600 to 700
-    cursor: 'pointer'
-  }}
->
-  View All →
-</button>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {recentBets.length === 0 ? (
-            <p style={{ textAlign: 'center', padding: '32px', color: colors.textTertiary }}>
-              No bets yet. Add your first bet!
-            </p>
-          ) : (
-            recentBets.map(bet => (
-              <BetCard 
-                key={bet.id} 
-                bet={bet}
-                colors={colors}
-                formatMoney={formatMoney}
-                onUpdateResult={updateBetResult}
-                onStartEdit={startEdit}
-                onDelete={deleteBet}
-                isRetired={isRetired}
-              />
-            ))
-          )}
-        </div>
-      </div>
-    </div>
-  );
   
 // Helper function to get trend message
   const getTrendMessage = (index, isWinning, isAllTime) => {
