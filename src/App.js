@@ -429,6 +429,7 @@ const getDefaultSport = () => {
 const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
   const [localValue, setLocalValue] = React.useState(searchQuery);
   const debounceRef = React.useRef(null);
+  const inputRef = React.useRef(null);
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -440,6 +441,10 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
     }
     debounceRef.current = setTimeout(() => {
       setSearchQuery(value);
+      // Restore focus after state update
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }, 300);
   };
 
@@ -471,6 +476,7 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
         <Search />
       </div>
       <input
+        ref={inputRef}
         type="text"
         placeholder="Search bets..."
         value={localValue}
@@ -581,6 +587,7 @@ const [addBetStep, setAddBetStep] = useState(1); // NEW: Multi-step modal
 const [showFilters, setShowFilters] = useState(false); // NEW: Collapsible filters
 const [searchQuery, setSearchQuery] = useState(''); // NEW: Search functionality
 const [showFilterModal, setShowFilterModal] = useState(false); // NEW: Filter modal
+const [quickAddMode, setQuickAddMode] = useState(true); // Quick Add on by default
 const searchInputRef = useRef(null);
 
 
@@ -1474,7 +1481,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       {/* HERO SECTION - Big P/L Number with Add Bet Button */}
       <div style={{
         background: colors.bgElevated,
-        borderRadius: '24px',
+        borderRadius: '20px',
         padding: '32px 24px',
         marginBottom: '24px',
         boxShadow: `0 4px 12px ${colors.shadow}`,
@@ -1561,7 +1568,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
               : `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
             color: colors.textPrimary,
             border: 'none',
-            borderRadius: '16px',
+            borderRadius: '12px',
             fontSize: '16px',
             fontWeight: '600',
             cursor: isRetired ? 'not-allowed' : 'pointer',
@@ -2341,15 +2348,14 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           </div>
         </div>
 
-        {/* Bet Type Filter Pills + More Button */}
-        <div style={{ marginBottom: '16px' }}>
+        {/* Bet Type Filter Pills */}
+        <div style={{ marginBottom: '12px' }}>
           <div style={{ 
             display: 'flex', 
             gap: '8px', 
             overflowX: 'auto', 
             paddingBottom: '4px',
-            WebkitOverflowScrolling: 'touch',
-            alignItems: 'center'
+            WebkitOverflowScrolling: 'touch'
           }}>
             {['all', 'straight', 'money-line', 'over-under', 'parlay', 'teaser', 'prop'].map(type => (
               <button
@@ -2375,44 +2381,87 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                  formatBetType(type)}
               </button>
             ))}
-            
-            {/* More Filters Button */}
-            <button
-              onClick={() => setShowFilterModal(true)}
-              style={{
-                padding: '10px 16px',
-                background: moreFilterCount > 0 ? colors.accentPrimary : colors.bgSecondary,
-                color: moreFilterCount > 0 ? '#FFFFFF' : colors.textPrimary,
-                border: 'none',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
+          </div>
+        </div>
+
+        {/* More Filters Button + Time Range - Same Row */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          marginBottom: '16px',
+          alignItems: 'center'
+        }}>
+          {/* More Filters Button */}
+          <button
+            onClick={() => setShowFilterModal(true)}
+            style={{
+              padding: '12px 16px',
+              background: moreFilterCount > 0 ? colors.accentPrimary : colors.bgElevated,
+              color: moreFilterCount > 0 ? '#FFFFFF' : colors.textPrimary,
+              border: `1px solid ${moreFilterCount > 0 ? colors.accentPrimary : colors.border}`,
+              borderRadius: '12px',
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            <Filter />
+            More Filters
+            {moreFilterCount > 0 && (
+              <span style={{
+                background: '#FFFFFF',
+                color: colors.accentPrimary,
+                borderRadius: '50%',
+                width: '20px',
+                height: '20px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                justifyContent: 'center',
+                fontSize: '11px',
+                fontWeight: '700'
+              }}>
+                {moreFilterCount}
+              </span>
+            )}
+          </button>
+
+          {/* Time Range Toggle */}
+          <div style={{ display: 'flex', flex: 1, gap: '8px' }}>
+            <button
+              onClick={() => setShowAllBets(false)}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: !showAllBets ? colors.accentPrimary : colors.bgSecondary,
+                color: !showAllBets ? '#FFFFFF' : colors.textSecondary,
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer'
               }}
             >
-              <Filter />
-              More
-              {moreFilterCount > 0 && (
-                <span style={{
-                  background: '#FFFFFF',
-                  color: colors.accentPrimary,
-                  borderRadius: '50%',
-                  width: '18px',
-                  height: '18px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '11px',
-                  fontWeight: '700'
-                }}>
-                  {moreFilterCount}
-                </span>
-              )}
+              30 Days
+            </button>
+            <button
+              onClick={() => setShowAllBets(true)}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: showAllBets ? colors.accentPrimary : colors.bgSecondary,
+                color: showAllBets ? '#FFFFFF' : colors.textSecondary,
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              All Time
             </button>
           </div>
         </div>
@@ -2515,42 +2564,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           </div>
         )}
 
-        {/* Time Range Toggle */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-          <button
-            onClick={() => setShowAllBets(false)}
-            style={{
-              flex: 1,
-              padding: '14px',
-              background: !showAllBets ? colors.accentPrimary : colors.bgSecondary,
-              color: !showAllBets ? '#FFFFFF' : colors.textSecondary,
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            Last 30 Days
-          </button>
-          <button
-            onClick={() => setShowAllBets(true)}
-            style={{
-              flex: 1,
-              padding: '14px',
-              background: showAllBets ? colors.accentPrimary : colors.bgSecondary,
-              color: showAllBets ? '#FFFFFF' : colors.textSecondary,
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            All Time
-          </button>
-        </div>
-
         {/* Results Summary */}
         {filteredBets.length > 0 && (
           <div style={{
@@ -2636,7 +2649,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                   padding: '16px',
                   background: colors.bgSecondary,
                   border: `1px solid ${colors.border}`,
-                  borderRadius: '16px',
+                  borderRadius: '12px',
                   textDecoration: 'none',
                   transition: 'all 0.2s'
                 }}
@@ -2683,8 +2696,8 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                 padding: '16px',
                 background: colors.accentPrimary,
                 color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '16px',
+               border: 'none',
+                borderRadius: '12px',
                 fontSize: '16px',
                 fontWeight: '600',
                 cursor: 'pointer',
@@ -2707,7 +2720,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                 background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)',
                 color: '#FFFFFF',
                 border: '2px solid rgba(231, 76, 60, 0.5)',
-                borderRadius: '16px',
+                borderRadius: '12px',
                 fontSize: '16px',
                 fontWeight: '700',
                 cursor: 'pointer',
@@ -2956,7 +2969,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     );
   };
 
-  // BET CARD COMPONENT - UPDATED with isPending prop
+// BET CARD COMPONENT - UPDATED with isPending prop
   const BetCard = ({ bet, showActions = false, isPending = false }) => (
     <div style={{ 
       background: colors.bgSecondary, 
@@ -2965,7 +2978,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       border: `1px solid ${colors.border}`,
       boxShadow: `0 2px 8px ${colors.shadow}`
     }}>
-      {/* Top Row: Sport Badge + Description + P/L Amount (for settled bets) */}
+      {/* Top Row: Sport Badge + Description + P/L Amount */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
           <span style={{ 
@@ -2974,16 +2987,12 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
             fontSize: '13px',
             fontWeight: '700',
             padding: '6px 14px',
-            borderRadius: '10px',
+            borderRadius: '8px',
             letterSpacing: '0.3px'
           }}>
             {getSportLabel(bet.sport)}
           </span>
-          <span style={{ 
-            fontSize: '16px', 
-            fontWeight: '600', 
-            color: colors.textPrimary 
-          }}>
+          <span style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary }}>
             {bet.description}
           </span>
         </div>
@@ -3009,113 +3018,157 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
         Risk: ${bet.riskAmount.toFixed(2)} | To Win: ${bet.winAmount.toFixed(2)}
       </div>
 
-      {/* Bottom Row: Result badge OR action buttons for pending */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Bottom Section */}
+      {bet.result === 'pending' ? (
         <div>
-          {bet.result === 'pending' ? (
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button
-                onClick={() => updateBetResult(bet.id, 'win')}
-                style={{
-                  padding: '12px 20px',
-                  minHeight: '48px',
-                  background: colors.accentWin,
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
-              >
-                WIN
-              </button>
-              <button
-                onClick={() => updateBetResult(bet.id, 'loss')}
-                style={{
-                  padding: '12px 20px',
-                  minHeight: '48px',
-                  background: colors.accentLoss,
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
-              >
-                LOSS
-              </button>
-              <button
-                onClick={() => updateBetResult(bet.id, 'push')}
-                style={{
-                  padding: '12px 20px',
-                  minHeight: '48px',
-                  background: colors.textTertiary,
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
-              >
-                PUSH
-              </button>
-            </div>
-          ) : (
-            <span style={{
-              fontSize: '12px',
-              fontWeight: '700',
-              padding: '8px 16px',
-              borderRadius: '12px',
-              background: bet.result === 'win' ? 'rgba(124, 152, 133, 0.2)' : 
-                          bet.result === 'loss' ? 'rgba(184, 92, 80, 0.2)' : 
-                          'rgba(156, 163, 175, 0.2)',
-              color: bet.result === 'win' ? colors.accentWin : 
-                     bet.result === 'loss' ? colors.accentLoss : 
-                     colors.textTertiary,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              {bet.result}
-            </span>
-          )}
-        </div>
-        
-        {showActions && !isRetired && (
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          {/* Win/Loss/Push buttons */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: showActions && !isRetired ? '12px' : '0' }}>
             <button
-              onClick={() => startEdit(bet)}
+              onClick={() => updateBetResult(bet.id, 'win')}
               style={{
-                background: 'transparent',
+                flex: 1,
+                padding: '12px 16px',
+                minHeight: '48px',
+                background: colors.accentWin,
+                color: '#FFFFFF',
                 border: 'none',
-                color: colors.accentPrimary,
+                borderRadius: '12px',
                 fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                padding: '4px 8px'
+                fontWeight: '700',
+                cursor: 'pointer'
               }}
             >
-              Edit
+              WIN
             </button>
             <button
-              onClick={() => deleteBet(bet.id)}
+              onClick={() => updateBetResult(bet.id, 'loss')}
               style={{
-                background: 'transparent',
+                flex: 1,
+                padding: '12px 16px',
+                minHeight: '48px',
+                background: colors.accentLoss,
+                color: '#FFFFFF',
                 border: 'none',
-                color: '#E74C3C',
+                borderRadius: '12px',
                 fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                padding: '4px 8px'
+                fontWeight: '700',
+                cursor: 'pointer'
               }}
             >
-              Delete
+              LOSS
+            </button>
+            <button
+              onClick={() => updateBetResult(bet.id, 'push')}
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                minHeight: '48px',
+                background: colors.textTertiary,
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '700',
+                cursor: 'pointer'
+              }}
+            >
+              PUSH
             </button>
           </div>
-        )}
-      </div>
+          
+          {/* Edit/Delete on separate row for pending */}
+          {showActions && !isRetired && (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'flex-end', 
+              gap: '16px',
+              paddingTop: '8px',
+              borderTop: `1px solid ${colors.border}`
+            }}>
+              <button
+                onClick={() => startEdit(bet)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: colors.accentPrimary,
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  padding: '4px 8px'
+                }}
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => deleteBet(bet.id)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#E74C3C',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  padding: '4px 8px'
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{
+            fontSize: '12px',
+            fontWeight: '700',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            background: bet.result === 'win' ? 'rgba(124, 152, 133, 0.2)' : 
+                        bet.result === 'loss' ? 'rgba(184, 92, 80, 0.2)' : 
+                        'rgba(156, 163, 175, 0.2)',
+            color: bet.result === 'win' ? colors.accentWin : 
+                   bet.result === 'loss' ? colors.accentLoss : 
+                   colors.textTertiary,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            {bet.result}
+          </span>
+          
+          {showActions && !isRetired && (
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+              <button
+                onClick={() => startEdit(bet)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: colors.accentPrimary,
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  padding: '4px 8px'
+                }}
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => deleteBet(bet.id)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#E74C3C',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  padding: '4px 8px'
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 
@@ -3170,6 +3223,13 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       }
     };
 
+    const handleQuickSubmit = () => {
+      if (!localFormData.sport || !localFormData.betType || !localFormData.description || !localFormData.units || !localFormData.odds) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+      handleSubmit();
+    };
     const handleStepContinue = () => {
       if (addBetStep === 1) {
         if (!localFormData.sport || !localFormData.betType || !localFormData.description || !localFormData.units || !localFormData.odds) {
@@ -3216,24 +3276,64 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
             zIndex: 10,
             background: colors.bgElevated,
             borderBottom: `1px solid ${colors.border}`,
-            padding: '12px 16px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
+            padding: '12px 16px'
           }}>
-            <h2 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, margin: 0 }}>
-              {editingBet ? 'Edit Bet' : `New Bet - Step ${addBetStep} of 3`}
-            </h2>
-            <button
-              onClick={cancelEdit}
-              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.textTertiary }}
-            >
-              <X />
-            </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, margin: 0 }}>
+                {editingBet ? 'Edit Bet' : (quickAddMode ? 'Quick Add' : `Step ${addBetStep} of 3`)}
+              </h2>
+              <button
+                onClick={cancelEdit}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.textTertiary }}
+              >
+                <X />
+              </button>
+            </div>
+            
+            {/* Quick Add Toggle - only when adding new bet */}
+            {!editingBet && (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                marginTop: '12px',
+                paddingTop: '12px',
+                borderTop: `1px solid ${colors.border}`
+              }}>
+                <span style={{ fontSize: '13px', color: colors.textSecondary }}>Quick Add Mode</span>
+                <div
+                  onClick={() => {
+                    setQuickAddMode(!quickAddMode);
+                    setAddBetStep(1);
+                  }}
+                  style={{
+                    width: '42px',
+                    height: '24px',
+                    background: quickAddMode ? colors.accentPrimary : colors.textTertiary,
+                    borderRadius: '12px',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <div style={{
+                    position: 'absolute',
+                    right: quickAddMode ? '2px' : 'auto',
+                    left: quickAddMode ? 'auto' : '2px',
+                    top: '2px',
+                    width: '20px',
+                    height: '20px',
+                    background: '#FFFFFF',
+                    borderRadius: '50%',
+                    transition: 'all 0.2s ease'
+                  }} />
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Step Indicator */}
-          {!editingBet && (
+          {/* Step Indicator - hide in Quick Add mode */}
+          {!editingBet && !quickAddMode && (
             <div style={{ padding: '16px 20px', display: 'flex', gap: '8px' }}>
               {[1, 2, 3].map(step => (
                 <div key={step} style={{
@@ -3467,14 +3567,14 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                   />
                 </div>
 
-                {!editingBet && (
+              {!editingBet && (
                   <button
-                    onClick={handleStepContinue}
+                    onClick={quickAddMode ? handleQuickSubmit : handleStepContinue}
                     style={{
                       width: '100%',
                       padding: '16px',
                       background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
-                      color: colors.textPrimary,
+                      color: '#FFFFFF',
                       border: 'none',
                       borderRadius: '12px',
                       fontSize: '16px',
@@ -3486,8 +3586,8 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                       gap: '8px'
                     }}
                   >
-                    Continue
-                    <ArrowRight />
+                    {quickAddMode ? 'Add Bet' : 'Continue'}
+                    {!quickAddMode && <ArrowRight />}
                   </button>
                 )}
               </div>
@@ -4307,12 +4407,12 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           <CindyLogo />
           <button
             onClick={toggleDisplayMode}
-            style={{
+           style={{
               padding: '8px 14px',
               background: colors.accentPrimary,
-              color: colors.textPrimary,
+              color: '#FFFFFF',
               border: 'none',
-              borderRadius: '10px',
+              borderRadius: '8px',
               fontSize: '15px',
               fontWeight: '700',
               cursor: 'pointer',
