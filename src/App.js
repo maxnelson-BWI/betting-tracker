@@ -154,10 +154,19 @@ const Search = () => (
 const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
   const [displayValue, setDisplayValue] = useState(value);
   const [isAnimating, setIsAnimating] = useState(false);
-  const prevValueRef = useRef(value);
+  const prevValueRef = useRef(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    console.log('AnimatedNumber update:', { prev: prevValueRef.current, new: value });
+    // On first render, just set the value without animating
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      prevValueRef.current = value;
+      setDisplayValue(value);
+      return;
+    }
+
+    // If value hasn't changed, skip
     if (prevValueRef.current === value) {
       console.log('Values are the same, skipping animation');
       return;
