@@ -149,44 +149,28 @@ const Search = () => (
 );
 
 // ============================================
-// ============================================
+/// ============================================
 // ANIMATED NUMBER COMPONENT
 // ============================================
 const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
   const [displayValue, setDisplayValue] = useState(value);
   const [isAnimating, setIsAnimating] = useState(false);
-  const prevValueRef = useRef(value);
   const animationRef = useRef(null);
-  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    // Cancel any ongoing animation first
+    // Cancel any ongoing animation
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
     }
 
-    // On first effect run, just set values without animation
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      prevValueRef.current = value;
-      setDisplayValue(value);
-      return;
-    }
-
-    const startValue = prevValueRef.current ?? 0;
+    const startValue = displayValue;
     const endValue = value;
 
-    // Skip animation if values are essentially the same (within $0.01)
+    // Skip if no meaningful change
     if (Math.abs(startValue - endValue) < 0.01) {
-      setDisplayValue(endValue);
-      prevValueRef.current = endValue;
       return;
     }
 
-    // Update prevValueRef immediately to the target value
-    prevValueRef.current = endValue;
-    
     setIsAnimating(true);
     const startTime = performance.now();
 
@@ -194,40 +178,35 @@ const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      // Easing function (ease-out cubic)
+      // Ease-out cubic
       const easeProgress = 1 - Math.pow(1 - progress, 3);
-      
       const currentValue = startValue + (endValue - startValue) * easeProgress;
+      
       setDisplayValue(currentValue);
 
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
       } else {
-        setDisplayValue(endValue);
         setIsAnimating(false);
-        animationRef.current = null;
       }
     };
 
     animationRef.current = requestAnimationFrame(animate);
 
-    // Cleanup function
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
       }
     };
-  }, [value, duration]);
+  }, [value]); // Only depend on value, not displayValue
 
   return (
     <span 
       style={{
         ...style,
-        transition: isAnimating ? 'all 0.3s ease' : 'none',
         transform: isAnimating ? 'scale(1.05)' : 'scale(1)',
         display: 'inline-block',
-        filter: isAnimating ? 'brightness(1.1)' : 'brightness(1)'
+        transition: 'transform 0.2s ease'
       }}
     >
       {formatFn(displayValue)}
