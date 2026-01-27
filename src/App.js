@@ -151,7 +151,7 @@ const Search = () => (
 // ============================================
 // ANIMATED NUMBER COMPONENT
 // ============================================
-const AnimatedNumber = ({ value, formatFn, duration = 800, style = {} }) => {
+const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
   const [displayValue, setDisplayValue] = useState(value);
   const [isAnimating, setIsAnimating] = useState(false);
   const prevValueRef = useRef(value);
@@ -190,9 +190,10 @@ const AnimatedNumber = ({ value, formatFn, duration = 800, style = {} }) => {
     <span 
       style={{
         ...style,
-        transition: isAnimating ? 'transform 0.15s ease' : 'none',
-        transform: isAnimating ? 'scale(1.05)' : 'scale(1)',
-        display: 'inline-block'
+        transition: isAnimating ? 'all 0.3s ease' : 'none',
+        transform: isAnimating ? 'scale(1.15)' : 'scale(1)',
+        display: 'inline-block',
+        filter: isAnimating ? 'brightness(1.2)' : 'brightness(1)'
       }}
     >
       {formatFn(displayValue)}
