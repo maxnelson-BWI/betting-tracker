@@ -461,6 +461,7 @@ const searchInputRef = useRef(null);
 
 // Collapsible sections state
 const [systemExpanded, setSystemExpanded] = useState(false);
+const [trendsExpanded, setTrendsExpanded] = useState(false);
 
   // Animation state
   const [animation, setAnimation] = useState({ show: false, type: '', content: null, isStreak: false, streakText: '' });
@@ -1637,197 +1638,221 @@ const [systemExpanded, setSystemExpanded] = useState(false);
   // ============================================
   const StatsPage = () => (
     <div style={{ paddingBottom: '100px' }}>
-      {/* KEY TRENDS SECTION */}
+      {/* KEY TRENDS SECTION - Collapsible */}
       <div style={{
         background: colors.bgElevated,
         borderRadius: '20px',
-        padding: '20px',
         marginBottom: '16px',
         border: `1px solid ${colors.border}`,
-        boxShadow: `0 2px 8px ${colors.shadow}`
+        boxShadow: `0 2px 8px ${colors.shadow}`,
+        overflow: 'hidden'
       }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '20px', margin: '0 0 20px 0', ...headerStyle }}>
-          📈 Key Trends
-        </h3>
+        <button
+          onClick={() => setTrendsExpanded(!trendsExpanded)}
+          style={{
+            width: '100%',
+            padding: '20px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '18px' }}>📈</span>
+            <span style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, ...headerStyle }}>
+              Key Trends
+            </span>
+          </div>
+          <div style={{ color: colors.textTertiary }}>
+            {trendsExpanded ? <ChevronUp /> : <ChevronDown />}
+          </div>
+        </button>
 
-        {/* HOT RIGHT NOW - Last 30 Days */}
-        {(trends.recent.winning.length > 0 || trends.recent.losing.length > 0) && (
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{
-              fontSize: '13px',
-              fontWeight: '700',
-              color: colors.accentPrimary,
-              marginBottom: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              🔥 HOT RIGHT NOW
-              <span style={{ fontSize: '11px', fontWeight: '500', color: colors.textTertiary }}>(Last 30 Days)</span>
-            </div>
-            
-            {/* Recent Winning */}
-            {trends.recent.winning.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: trends.recent.losing.length > 0 ? '12px' : '0' }}>
-                {trends.recent.winning.map((trend, index) => (
-                  <div key={trend.key} style={{
-                    background: 'rgba(124, 152, 133, 0.1)',
-                    border: `1px solid rgba(124, 152, 133, 0.3)`,
-                    borderRadius: '12px',
-                    padding: '12px 14px'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
-                          {trend.label}
-                        </div>
-                        <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
-                          {trend.record} ({(trend.winRate * 100).toFixed(0)}%) • {getTrendMessage(index, true, false)}
+        {trendsExpanded && (
+          <div style={{ padding: '0 20px 20px 20px', borderTop: `1px solid ${colors.border}` }}>
+            {/* HOT RIGHT NOW - Last 30 Days */}
+            {(trends.recent.winning.length > 0 || trends.recent.losing.length > 0) && (
+              <div style={{ marginBottom: '24px', marginTop: '20px' }}>
+                <div style={{
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  color: colors.accentPrimary,
+                  marginBottom: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  🔥 HOT RIGHT NOW
+                  <span style={{ fontSize: '11px', fontWeight: '500', color: colors.textTertiary }}>(Last 30 Days)</span>
+                </div>
+                
+                {/* Recent Winning */}
+                {trends.recent.winning.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: trends.recent.losing.length > 0 ? '12px' : '0' }}>
+                    {trends.recent.winning.map((trend, index) => (
+                      <div key={trend.key} style={{
+                        background: 'rgba(124, 152, 133, 0.1)',
+                        border: `1px solid rgba(124, 152, 133, 0.3)`,
+                        borderRadius: '12px',
+                        padding: '12px 14px'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                              {trend.label}
+                            </div>
+                            <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
+                              {trend.record} ({(trend.winRate * 100).toFixed(0)}%) • {getTrendMessage(index, true, false)}
+                            </div>
+                          </div>
+                          <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
+                            {formatMoney(trend.payout)}
+                          </div>
                         </div>
                       </div>
-                      <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
-                        {formatMoney(trend.payout)}
+                    ))}
+                  </div>
+                )}
+
+                {/* Recent Losing */}
+                {trends.recent.losing.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {trends.recent.losing.map((trend, index) => (
+                      <div key={trend.key} style={{
+                        background: 'rgba(184, 92, 80, 0.1)',
+                        border: `1px solid rgba(184, 92, 80, 0.3)`,
+                        borderRadius: '12px',
+                        padding: '12px 14px'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                              {trend.label}
+                            </div>
+                            <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
+                              {trend.record} ({(trend.winRate * 100).toFixed(0)}%) • {getTrendMessage(index, false, false)}
+                            </div>
+                          </div>
+                          <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
+                            {formatMoney(trend.payout)}
+                          </div>
+                        </div>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ALL-TIME TRENDS */}
+            {(trends.allTime.winning.length > 0 || trends.allTime.losing.length > 0) ? (
+              <div style={{ marginTop: (trends.recent.winning.length > 0 || trends.recent.losing.length > 0) ? '0' : '20px' }}>
+                <div style={{
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  color: colors.textSecondary,
+                  marginBottom: '12px'
+                }}>
+                  📊 ALL-TIME TRENDS
+                </div>
+                
+                {/* All-Time Winning */}
+                {trends.allTime.winning.length > 0 && (
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '600', color: colors.accentWin, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Where You're Winning
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {trends.allTime.winning.map((trend, index) => (
+                        <div key={trend.key} style={{
+                          background: 'rgba(124, 152, 133, 0.1)',
+                          border: `1px solid rgba(124, 152, 133, 0.3)`,
+                          borderRadius: '12px',
+                          padding: '14px'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
+                                {trend.label}
+                              </span>
+                              {trend.isHotRecently && (
+                                <span style={{
+                                  fontSize: '10px',
+                                  background: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)',
+                                  color: '#FFFFFF',
+                                  padding: '2px 6px',
+                                  borderRadius: '6px',
+                                  fontWeight: '700'
+                                }}>
+                                  🔥 HOT
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '17px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
+                              {formatMoney(trend.payout)}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ fontSize: '12px', color: colors.textSecondary }}>
+                              {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
+                            </div>
+                            <div style={{ fontSize: '11px', color: colors.accentWin, fontStyle: 'italic' }}>
+                              {getTrendMessage(index, true, true)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                )}
 
-            {/* Recent Losing */}
-            {trends.recent.losing.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {trends.recent.losing.map((trend, index) => (
-                  <div key={trend.key} style={{
-                    background: 'rgba(184, 92, 80, 0.1)',
-                    border: `1px solid rgba(184, 92, 80, 0.3)`,
-                    borderRadius: '12px',
-                    padding: '12px 14px'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
-                          {trend.label}
+                {/* All-Time Losing */}
+                {trends.allTime.losing.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: '600', color: colors.accentLoss, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Where You're Losing
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {trends.allTime.losing.map((trend, index) => (
+                        <div key={trend.key} style={{
+                          background: 'rgba(184, 92, 80, 0.1)',
+                          border: `1px solid rgba(184, 92, 80, 0.3)`,
+                          borderRadius: '12px',
+                          padding: '14px'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                            <div style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
+                              {trend.label}
+                            </div>
+                            <div style={{ fontSize: '17px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
+                              {formatMoney(trend.payout)}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ fontSize: '12px', color: colors.textSecondary }}>
+                              {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
+                            </div>
+                            <div style={{ fontSize: '11px', color: colors.accentLoss, fontStyle: 'italic' }}>
+                              {getTrendMessage(index, false, true)}
+                            </div>
+                          </div>
                         </div>
-                        <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
-                          {trend.record} ({(trend.winRate * 100).toFixed(0)}%) • {getTrendMessage(index, false, false)}
-                        </div>
-                      </div>
-                      <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
-                        {formatMoney(trend.payout)}
-                      </div>
+                      ))}
                     </div>
                   </div>
-                ))}
+                )}
+              </div>
+            ) : (
+              /* Not enough data message */
+              <div style={{ textAlign: 'center', padding: '20px' }}>
+                <p style={{ fontSize: '13px', color: colors.textTertiary }}>
+                  Need more settled bets to identify trends (10+ per category)
+                </p>
               </div>
             )}
-          </div>
-        )}
-
-        {/* ALL-TIME TRENDS */}
-        {(trends.allTime.winning.length > 0 || trends.allTime.losing.length > 0) ? (
-          <div>
-            <div style={{
-              fontSize: '13px',
-              fontWeight: '700',
-              color: colors.textSecondary,
-              marginBottom: '12px'
-            }}>
-              📊 ALL-TIME TRENDS
-            </div>
-            
-            {/* All-Time Winning */}
-            {trends.allTime.winning.length > 0 && (
-              <div style={{ marginBottom: '12px' }}>
-                <div style={{ fontSize: '11px', fontWeight: '600', color: colors.accentWin, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Where You're Winning
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {trends.allTime.winning.map((trend, index) => (
-                    <div key={trend.key} style={{
-                      background: 'rgba(124, 152, 133, 0.1)',
-                      border: `1px solid rgba(124, 152, 133, 0.3)`,
-                      borderRadius: '12px',
-                      padding: '14px'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
-                            {trend.label}
-                          </span>
-                          {trend.isHotRecently && (
-                            <span style={{
-                              fontSize: '10px',
-                              background: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)',
-                              color: '#FFFFFF',
-                              padding: '2px 6px',
-                              borderRadius: '6px',
-                              fontWeight: '700'
-                            }}>
-                              🔥 HOT
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ fontSize: '17px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
-                          {formatMoney(trend.payout)}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                          {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
-                        </div>
-                        <div style={{ fontSize: '11px', color: colors.accentWin, fontStyle: 'italic' }}>
-                          {getTrendMessage(index, true, true)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* All-Time Losing */}
-            {trends.allTime.losing.length > 0 && (
-              <div>
-                <div style={{ fontSize: '11px', fontWeight: '600', color: colors.accentLoss, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Where You're Losing
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {trends.allTime.losing.map((trend, index) => (
-                    <div key={trend.key} style={{
-                      background: 'rgba(184, 92, 80, 0.1)',
-                      border: `1px solid rgba(184, 92, 80, 0.3)`,
-                      borderRadius: '12px',
-                      padding: '14px'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                        <div style={{ fontSize: '15px', fontWeight: '600', color: colors.textPrimary }}>
-                          {trend.label}
-                        </div>
-                        <div style={{ fontSize: '17px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
-                          {formatMoney(trend.payout)}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ fontSize: '12px', color: colors.textSecondary }}>
-                          {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
-                        </div>
-                        <div style={{ fontSize: '11px', color: colors.accentLoss, fontStyle: 'italic' }}>
-                          {getTrendMessage(index, false, true)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          /* Not enough data message */
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            <p style={{ fontSize: '13px', color: colors.textTertiary }}>
-              Need more settled bets to identify all-time trends (10+ per category)
-            </p>
           </div>
         )}
       </div>
@@ -1855,8 +1880,7 @@ const [systemExpanded, setSystemExpanded] = useState(false);
               padding: '14px 0',
               borderBottom: `1px solid ${colors.border}`
             }}>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>{sport.toUpperCase()}</span>
-              <span style={{
+<span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>{getSportLabel(sport)}</span>              <span style={{
                 fontSize: '15px',
                 fontWeight: '800',
                 color: dollars >= 0 ? colors.accentWin : colors.accentLoss,
