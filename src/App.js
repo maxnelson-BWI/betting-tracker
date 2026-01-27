@@ -1473,11 +1473,30 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
         </div>
         {/* Sparkline */}
         {stats.sparklineData && stats.sparklineData.length >= 2 && (
-          <div style={{ marginBottom: '16px' }}>
-            <Sparkline data={stats.sparklineData} width={120} height={32} />
-            <div style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '4px' }}>
-              Last {stats.sparklineData.length} bets
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            gap: '16px',
+            marginBottom: '16px',
+            padding: '12px 16px',
+            background: colors.bgSecondary,
+            borderRadius: '12px'
+          }}>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '11px', color: colors.textTertiary, fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Last {stats.sparklineData.length} Bets
+              </div>
+              <div style={{ 
+                fontSize: '16px', 
+                fontWeight: '700', 
+                color: stats.sparklineData[stats.sparklineData.length - 1] >= 0 ? colors.accentWin : colors.accentLoss,
+                ...numberStyle
+              }}>
+                {stats.sparklineData[stats.sparklineData.length - 1] >= 0 ? '+' : ''}${stats.sparklineData[stats.sparklineData.length - 1].toFixed(0)}
+              </div>
             </div>
+            <Sparkline data={stats.sparklineData} width={100} height={28} />
           </div>
         )}
         
