@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, memo, useCallback } from 'react';
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
 import './animations.css';
@@ -152,7 +152,7 @@ const Search = () => (
 /// ============================================
 // ANIMATED NUMBER COMPONENT
 // ============================================
-const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
+const AnimatedNumber = memo(({ value, formatFn, duration = 1500, style = {} }) => {
   const [displayValue, setDisplayValue] = useState(value);
   const [isAnimating, setIsAnimating] = useState(false);
   const animationRef = useRef(null);
@@ -212,12 +212,12 @@ const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
       {formatFn(displayValue)}
     </span>
   );
-};
+});
 
 // ============================================
 // SPARKLINE COMPONENT
 // ============================================
-const Sparkline = ({ data, width = 100, height = 30, color }) => {
+const Sparkline = memo(({ data, width = 100, height = 30, color }) => {
   if (!data || data.length < 2) return null;
   
   const min = Math.min(...data);
@@ -251,12 +251,12 @@ const Sparkline = ({ data, width = 100, height = 30, color }) => {
       />
     </svg>
   );
-};
+});
 
 // ============================================
 // LOGO COMPONENT
 // ============================================
-const CindyLogo = () => (
+const CindyLogo = memo(() => (
   <div style={{ lineHeight: 1 }}>
     <div style={{
       fontFamily: 'Georgia, "Times New Roman", serif',
@@ -276,7 +276,7 @@ const CindyLogo = () => (
       borderRadius: '2px'
     }} />
   </div>
-);
+));
 
 // SVG Horse Animations
 const GallopingHorse = () => (
@@ -426,7 +426,7 @@ const getDefaultSport = () => {
 
 
 // SearchBar Component - search as you type with debounce
-const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
+const SearchBar = memo(({ searchQuery, setSearchQuery, colors }) => {
   const [localValue, setLocalValue] = React.useState(searchQuery);
   const debounceRef = React.useRef(null);
   const inputRef = React.useRef(null);
@@ -519,12 +519,12 @@ const SearchBar = ({ searchQuery, setSearchQuery, colors }) => {
       )}
     </div>
   );
-};
+});
 
 function App() {
       const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
-const [theme, setTheme] = useState('warm'); // NEW: Theme toggle
+// Theme state removed - was unused
 const [showAddBetModal, setShowAddBetModal] = useState(false);
 const [addBetStep, setAddBetStep] = useState(1); // NEW: Multi-step modal
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
