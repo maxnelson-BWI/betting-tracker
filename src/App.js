@@ -567,6 +567,7 @@ const searchInputRef = useRef(null);
 
 // Collapsible sections state
 const [systemExpanded, setSystemExpanded] = useState(false);
+const [recentPerfExpanded, setRecentPerfExpanded] = useState(false);
 const [trendsExpanded, setTrendsExpanded] = useState(false);
 
   // Animation state
@@ -1471,34 +1472,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
   formatFn={formatMoney}
 />
         </div>
-        {/* Sparkline */}
-        {stats.sparklineData && stats.sparklineData.length >= 2 && (
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            gap: '16px',
-            marginBottom: '16px',
-            padding: '12px 16px',
-            background: colors.bgSecondary,
-            borderRadius: '12px'
-          }}>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '11px', color: colors.textTertiary, fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Last {stats.sparklineData.length} Bets
-              </div>
-              <div style={{ 
-                fontSize: '16px', 
-                fontWeight: '700', 
-                color: stats.sparklineData[stats.sparklineData.length - 1] >= 0 ? colors.accentWin : colors.accentLoss,
-                ...numberStyle
-              }}>
-                {stats.sparklineData[stats.sparklineData.length - 1] >= 0 ? '+' : ''}${stats.sparklineData[stats.sparklineData.length - 1].toFixed(0)}
-              </div>
-            </div>
-            <Sparkline data={stats.sparklineData} width={100} height={28} />
-          </div>
-        )}
         
         <div style={{
           fontSize: '13px',
@@ -1788,6 +1761,76 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
   // ============================================
   const StatsPage = () => (
     <div style={{ paddingBottom: '100px' }}>
+      {/* Recent Performance - Collapsible */}
+      {stats.sparklineData && stats.sparklineData.length >= 2 && (
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          marginBottom: '16px',
+          border: `1px solid ${colors.border}`,
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          overflow: 'hidden'
+        }}>
+          <button
+            onClick={() => setRecentPerfExpanded(!recentPerfExpanded)}
+            style={{
+              width: '100%',
+              padding: '20px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '20px' }}>📈</span>
+              <span style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, ...headerStyle }}>
+                Recent Performance
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ 
+                fontSize: '18px', 
+                fontWeight: '700', 
+                color: stats.sparklineData[stats.sparklineData.length - 1] >= 0 ? colors.accentWin : colors.accentLoss,
+                ...numberStyle
+              }}>
+                {stats.sparklineData[stats.sparklineData.length - 1] >= 0 ? '+' : ''}${stats.sparklineData[stats.sparklineData.length - 1].toFixed(0)}
+              </div>
+              <div style={{ color: colors.textTertiary }}>
+                {recentPerfExpanded ? <ChevronUp /> : <ChevronDown />}
+              </div>
+            </div>
+          </button>
+
+          {recentPerfExpanded && (
+            <div style={{
+              padding: '0 20px 20px 20px',
+              borderTop: `1px solid ${colors.border}`
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                gap: '20px',
+                paddingTop: '20px'
+              }}>
+                <Sparkline data={stats.sparklineData} width={200} height={50} />
+              </div>
+              <div style={{ 
+                fontSize: '12px', 
+                color: colors.textTertiary, 
+                textAlign: 'center',
+                marginTop: '12px'
+              }}>
+                Cumulative P/L over last {stats.sparklineData.length} settled bets
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       {/* KEY TRENDS SECTION - Collapsible */}
       <div style={{
         background: colors.bgElevated,
