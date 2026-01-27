@@ -157,8 +157,13 @@ const AnimatedNumber = ({ value, formatFn, duration = 1500, style = {} }) => {
   const prevValueRef = useRef(value);
 
   useEffect(() => {
-    if (prevValueRef.current === value) return;
+    console.log('AnimatedNumber update:', { prev: prevValueRef.current, new: value });
+    if (prevValueRef.current === value) {
+      console.log('Values are the same, skipping animation');
+      return;
+    }
 
+    console.log('Starting animation from', prevValueRef.current, 'to', value);
     setIsAnimating(true);
     const startValue = prevValueRef.current;
     const endValue = value;
