@@ -1956,6 +1956,372 @@ const StatsPage = memo(({
   </div>
   ));
 
+// MORE PAGE COMPONENT
+const MorePage = memo(({
+  colors,
+  resources,
+  exportToCSV,
+  setShowRetirementModal,
+  unitValue,
+  setUnitValue,
+  monthlyLimit,
+  setMonthlyLimit,
+  notificationSettings,
+  setNotificationSettings
+}) => {
+    return (
+      <div style={{ paddingBottom: '100px' }}>
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          marginBottom: '24px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <h2 style={{
+            fontSize: '18px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            marginBottom: '20px',
+            ...headerStyle
+          }}>
+            Resources
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {resources.map((resource, idx) => (
+              <a
+                key={idx}
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '16px',
+                  background: colors.bgSecondary,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <span style={{ fontSize: '30px' }}>{resource.icon}</span>
+                <span style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '500', 
+                  color: colors.textPrimary,
+                  flex: 1
+                }}>
+                  {resource.name}
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <h2 style={{
+            fontSize: '18px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            marginBottom: '20px',
+            ...headerStyle
+          }}>
+            Actions
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <button
+              onClick={exportToCSV}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '16px',
+                background: colors.accentPrimary,
+                color: '#FFFFFF',
+               border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: `0 4px 12px ${colors.shadow}`
+              }}
+            >
+              <Download />
+              Export Bet History
+            </button>
+            
+            <button
+              onClick={() => setShowRetirementModal(true)}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '16px',
+                background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)',
+                color: '#FFFFFF',
+                border: '2px solid rgba(231, 76, 60, 0.5)',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: `0 4px 12px ${colors.shadow}`
+              }}
+            >
+              <PowerOff />
+              RETIRE
+            </button>
+          </div>
+        </div>
+
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <h2 style={{
+            fontSize: '18px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            marginBottom: '20px',
+            ...headerStyle
+          }}>
+            Settings
+          </h2>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Unit Value */}
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+                Unit Value ($)
+              </label>
+              <input
+                type="number"
+                step="1"
+                value={unitValue}
+                onChange={(e) => setUnitValue(parseFloat(e.target.value) || 50)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: colors.bgSecondary,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  color: colors.textPrimary
+                }}
+              />
+              <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '4px' }}>
+                Applies to future bets only
+              </p>
+              </div>
+
+            {/* Monthly Limit */}
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
+                Monthly Loss Limit ($)
+              </label>
+              <input
+                type="number"
+                step="100"
+                value={monthlyLimit}
+                onChange={(e) => setMonthlyLimit(parseFloat(e.target.value) || 1500)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: colors.bgSecondary,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  color: colors.textPrimary
+                }}
+              />
+            </div>
+
+            {/* Notifications */}
+            <div>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', margin: '0 0 12px 0' }}>
+                Notifications
+              </h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Big Bet */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <div
+  onClick={() => setNotificationSettings({
+    ...notificationSettings,
+    bigBet: { ...notificationSettings.bigBet, enabled: !notificationSettings.bigBet.enabled }
+  })}
+  style={{
+    width: '42px',
+    height: '24px',
+    background: notificationSettings.bigBet.enabled ? colors.accentWin : colors.textTertiary,
+    borderRadius: '12px',
+    position: 'relative',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  }}
+>
+  <div style={{
+    position: 'absolute',
+    right: notificationSettings.bigBet.enabled ? '2px' : 'auto',
+    left: notificationSettings.bigBet.enabled ? 'auto' : '2px',
+    top: '2px',
+    width: '20px',
+    height: '20px',
+    background: '#FFFFFF',
+    borderRadius: '50%',
+    transition: 'all 0.2s ease'
+  }} />
+</div>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                      Big Bet Warning
+                    </span>
+                  </label>
+                  {notificationSettings.bigBet.enabled && (
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={notificationSettings.bigBet.threshold}
+                      onChange={(e) => setNotificationSettings({
+                        ...notificationSettings,
+                        bigBet: { ...notificationSettings.bigBet, threshold: parseFloat(e.target.value) || 4 }
+                      })}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        background: colors.bgSecondary,
+                        border: `1px solid ${colors.border}`,
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        color: colors.textPrimary
+                      }}
+                      placeholder="Threshold (units)"
+                    />
+                  )}
+                </div>
+
+                {/* Favorite Team */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <div
+                      onClick={() => setNotificationSettings({
+                        ...notificationSettings,
+                        favoriteTeam: { ...notificationSettings.favoriteTeam, enabled: !notificationSettings.favoriteTeam.enabled }
+                      })}
+                      style={{
+                        width: '42px',
+                        height: '24px',
+                        background: notificationSettings.favoriteTeam.enabled ? colors.accentWin : colors.textTertiary,
+                        borderRadius: '12px',
+                        position: 'relative',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        right: notificationSettings.favoriteTeam.enabled ? '2px' : 'auto',
+                        left: notificationSettings.favoriteTeam.enabled ? 'auto' : '2px',
+                        top: '2px',
+                        width: '20px',
+                        height: '20px',
+                        background: '#FFFFFF',
+                        borderRadius: '50%',
+                        transition: 'all 0.2s ease'
+                      }} />
+                    </div>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                      Favorite Team Warning
+                    </span>
+                  </label>
+                  {notificationSettings.favoriteTeam.enabled && (
+                    <div>
+                      <input
+                        type="number"
+                        step="0.05"
+                        min="0"
+                        max="1"
+                        value={notificationSettings.favoriteTeam.threshold}
+                        onChange={(e) => setNotificationSettings({
+                          ...notificationSettings,
+                          favoriteTeam: { ...notificationSettings.favoriteTeam, threshold: parseFloat(e.target.value) || 0.75 }
+                        })}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          background: colors.bgSecondary,
+                          border: `1px solid ${colors.border}`,
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          color: colors.textPrimary
+                        }}
+                        placeholder="Threshold (percentile)"
+                      />
+                      <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '4px' }}>
+                        0.75 = top 75% of bets
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Monthly Limit */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div
+                      onClick={() => setNotificationSettings({
+                        ...notificationSettings,
+                        monthlyLimit: { ...notificationSettings.monthlyLimit, enabled: !notificationSettings.monthlyLimit.enabled }
+                      })}
+                      style={{
+                        width: '42px',
+                        height: '24px',
+                        background: notificationSettings.monthlyLimit.enabled ? colors.accentWin : colors.textTertiary,
+                        borderRadius: '12px',
+                        position: 'relative',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        right: notificationSettings.monthlyLimit.enabled ? '2px' : 'auto',
+                        left: notificationSettings.monthlyLimit.enabled ? 'auto' : '2px',
+                        top: '2px',
+                        width: '20px',
+                        height: '20px',
+                        background: '#FFFFFF',
+                        borderRadius: '50%',
+                        transition: 'all 0.2s ease'
+                      }} />
+                    </div>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                      Monthly Limit Warning
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  );
+});
+
 function App() {
       const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
@@ -2911,367 +3277,22 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           setShowFilterModal={setShowFilterModal}
         />;
       case 'more':
-        return <MorePage />;
+        return <MorePage 
+          colors={colors}
+          resources={resources}
+          exportToCSV={exportToCSV}
+          setShowRetirementModal={setShowRetirementModal}
+          unitValue={unitValue}
+          setUnitValue={setUnitValue}
+          monthlyLimit={monthlyLimit}
+          setMonthlyLimit={setMonthlyLimit}
+          notificationSettings={notificationSettings}
+          setNotificationSettings={setNotificationSettings}
+        />;
       default:
         return <HomePage />;
     }
   };
-
- /// MORE PAGE COMPONENT
-  const MorePage = () => {
-    return (
-      <div style={{ paddingBottom: '100px' }}>
-        <div style={{
-          background: colors.bgElevated,
-          borderRadius: '20px',
-          padding: '20px',
-          marginBottom: '24px',
-          boxShadow: `0 2px 8px ${colors.shadow}`,
-          border: `1px solid ${colors.border}`
-        }}>
-          <h2 style={{
-            fontSize: '18px',
-            fontWeight: '700',
-            color: colors.textPrimary,
-            marginBottom: '20px',
-            ...headerStyle
-          }}>
-            Resources
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {resources.map((resource, idx) => (
-              <a
-                key={idx}
-                href={resource.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '16px',
-                  background: colors.bgSecondary,
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: '12px',
-                  textDecoration: 'none',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <span style={{ fontSize: '30px' }}>{resource.icon}</span>
-                <span style={{ 
-                  fontSize: '16px', 
-                  fontWeight: '500', 
-                  color: colors.textPrimary,
-                  flex: 1
-                }}>
-                  {resource.name}
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        <div style={{
-          background: colors.bgElevated,
-          borderRadius: '20px',
-          padding: '20px',
-          boxShadow: `0 2px 8px ${colors.shadow}`,
-          border: `1px solid ${colors.border}`
-        }}>
-          <h2 style={{
-            fontSize: '18px',
-            fontWeight: '700',
-            color: colors.textPrimary,
-            marginBottom: '20px',
-            ...headerStyle
-          }}>
-            Actions
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <button
-              onClick={exportToCSV}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '16px',
-                background: colors.accentPrimary,
-                color: '#FFFFFF',
-               border: 'none',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                boxShadow: `0 4px 12px ${colors.shadow}`
-              }}
-            >
-              <Download />
-              Export Bet History
-            </button>
-            
-            <button
-              onClick={() => setShowRetirementModal(true)}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '16px',
-                background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)',
-                color: '#FFFFFF',
-                border: '2px solid rgba(231, 76, 60, 0.5)',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                boxShadow: `0 4px 12px ${colors.shadow}`
-              }}
-            >
-              <PowerOff />
-              RETIRE
-            </button>
-          </div>
-        </div>
-
-        <div style={{
-          background: colors.bgElevated,
-          borderRadius: '20px',
-          padding: '20px',
-          boxShadow: `0 2px 8px ${colors.shadow}`,
-          border: `1px solid ${colors.border}`
-        }}>
-          <h2 style={{
-            fontSize: '18px',
-            fontWeight: '700',
-            color: colors.textPrimary,
-            marginBottom: '20px',
-            ...headerStyle
-          }}>
-            Settings
-          </h2>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {/* Unit Value */}
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
-                Unit Value ($)
-              </label>
-              <input
-                type="number"
-                step="1"
-                value={unitValue}
-                onChange={(e) => setUnitValue(parseFloat(e.target.value) || 50)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: colors.bgSecondary,
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  color: colors.textPrimary
-                }}
-              />
-              <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '4px' }}>
-                Applies to future bets only
-              </p>
-              </div>
-
-            {/* Monthly Limit */}
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
-                Monthly Loss Limit ($)
-              </label>
-              <input
-                type="number"
-                step="100"
-                value={monthlyLimit}
-                onChange={(e) => setMonthlyLimit(parseFloat(e.target.value) || 1500)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: colors.bgSecondary,
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: '12px',
-                  fontSize: '14px',
-                  color: colors.textPrimary
-                }}
-              />
-            </div>
-
-            {/* Notifications */}
-            <div>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', margin: '0 0 12px 0' }}>
-                Notifications
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {/* Big Bet */}
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <div
-  onClick={() => setNotificationSettings({
-    ...notificationSettings,
-    bigBet: { ...notificationSettings.bigBet, enabled: !notificationSettings.bigBet.enabled }
-  })}
-  style={{
-    width: '42px',
-    height: '24px',
-    background: notificationSettings.bigBet.enabled ? colors.accentWin : colors.textTertiary,
-    borderRadius: '12px',
-    position: 'relative',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  }}
->
-  <div style={{
-    position: 'absolute',
-    right: notificationSettings.bigBet.enabled ? '2px' : 'auto',
-    left: notificationSettings.bigBet.enabled ? 'auto' : '2px',
-    top: '2px',
-    width: '20px',
-    height: '20px',
-    background: '#FFFFFF',
-    borderRadius: '50%',
-    transition: 'all 0.2s ease'
-  }} />
-</div>
-                    <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
-                      Big Bet Warning
-                    </span>
-                  </label>
-                  {notificationSettings.bigBet.enabled && (
-                    <input
-                      type="number"
-                      step="0.5"
-                      value={notificationSettings.bigBet.threshold}
-                      onChange={(e) => setNotificationSettings({
-                        ...notificationSettings,
-                        bigBet: { ...notificationSettings.bigBet, threshold: parseFloat(e.target.value) || 4 }
-                      })}
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        background: colors.bgSecondary,
-                        border: `1px solid ${colors.border}`,
-                        borderRadius: '8px',
-                        fontSize: '13px',
-                        color: colors.textPrimary
-                      }}
-                      placeholder="Threshold (units)"
-                    />
-                  )}
-                </div>
-
-                {/* Favorite Team */}
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <div
-                      onClick={() => setNotificationSettings({
-                        ...notificationSettings,
-                        favoriteTeam: { ...notificationSettings.favoriteTeam, enabled: !notificationSettings.favoriteTeam.enabled }
-                      })}
-                      style={{
-                        width: '42px',
-                        height: '24px',
-                        background: notificationSettings.favoriteTeam.enabled ? colors.accentWin : colors.textTertiary,
-                        borderRadius: '12px',
-                        position: 'relative',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <div style={{
-                        position: 'absolute',
-                        right: notificationSettings.favoriteTeam.enabled ? '2px' : 'auto',
-                        left: notificationSettings.favoriteTeam.enabled ? 'auto' : '2px',
-                        top: '2px',
-                        width: '20px',
-                        height: '20px',
-                        background: '#FFFFFF',
-                        borderRadius: '50%',
-                        transition: 'all 0.2s ease'
-                      }} />
-                    </div>
-                    <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
-                      Favorite Team Warning
-                    </span>
-                  </label>
-                  {notificationSettings.favoriteTeam.enabled && (
-                    <div>
-                      <input
-                        type="number"
-                        step="0.05"
-                        min="0"
-                        max="1"
-                        value={notificationSettings.favoriteTeam.threshold}
-                        onChange={(e) => setNotificationSettings({
-                          ...notificationSettings,
-                          favoriteTeam: { ...notificationSettings.favoriteTeam, threshold: parseFloat(e.target.value) || 0.75 }
-                        })}
-                        style={{
-                          width: '100%',
-                          padding: '10px',
-                          background: colors.bgSecondary,
-                          border: `1px solid ${colors.border}`,
-                          borderRadius: '8px',
-                          fontSize: '13px',
-                          color: colors.textPrimary
-                        }}
-                        placeholder="Threshold (percentile)"
-                      />
-                      <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '4px' }}>
-                        0.75 = top 75% of bets
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Monthly Limit */}
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div
-                      onClick={() => setNotificationSettings({
-                        ...notificationSettings,
-                        monthlyLimit: { ...notificationSettings.monthlyLimit, enabled: !notificationSettings.monthlyLimit.enabled }
-                      })}
-                      style={{
-                        width: '42px',
-                        height: '24px',
-                        background: notificationSettings.monthlyLimit.enabled ? colors.accentWin : colors.textTertiary,
-                        borderRadius: '12px',
-                        position: 'relative',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <div style={{
-                        position: 'absolute',
-                        right: notificationSettings.monthlyLimit.enabled ? '2px' : 'auto',
-                        left: notificationSettings.monthlyLimit.enabled ? 'auto' : '2px',
-                        top: '2px',
-                        width: '20px',
-                        height: '20px',
-                        background: '#FFFFFF',
-                        borderRadius: '50%',
-                        transition: 'all 0.2s ease'
-                      }} />
-                    </div>
-                    <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
-                      Monthly Limit Warning
-                    </span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
 
   // ============================================
   // ADD BET MODAL - NEW MULTI-STEP VERSION
