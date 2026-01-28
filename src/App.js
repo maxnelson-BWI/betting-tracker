@@ -403,6 +403,12 @@ const getTrendMessage = (index, isWinning, isAllTime) => {
   }
 };
 
+const quickAddButtons = [
+    { label: '0.5u', value: 0.5 },
+    { label: '1u', value: 1 },
+    { label: '2u', value: 2 },
+  ];
+
 // ============================================
 // SMART DEFAULT SPORT FUNCTION
 // ============================================
@@ -4198,12 +4204,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     { name: 'John Ewing', url: 'https://twitter.com/johnewing', icon: '🎯' },
     { name: 'Patrick Everson', url: 'https://twitter.com/PatrickE_Vegas', icon: '📈' },
     { name: 'DraftKings', url: 'https://sportsbook.draftkings.com/', icon: '🏈' }
-  ];
-
-  const quickAddButtons = [
-    { label: '0.5u', value: 0.5 },
-    { label: '1u', value: 1 },
-    { label: '2u', value: 2 },
   ];
 
   const getSystemLabel = (systemPlay) => {
