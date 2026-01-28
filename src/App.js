@@ -404,10 +404,25 @@ const getTrendMessage = (index, isWinning, isAllTime) => {
 };
 
 const quickAddButtons = [
-    { label: '0.5u', value: 0.5 },
-    { label: '1u', value: 1 },
-    { label: '2u', value: 2 },
-  ];
+  { label: '0.5u', value: 0.5 },
+  { label: '1u', value: 1 },
+  { label: '2u', value: 2 },
+];
+
+const calculateRiskAndWin = (units, odds, unitValue) => {
+  const unitNum = parseFloat(units);
+  const oddsNum = parseFloat(odds);
+  
+  if (oddsNum < 0) {
+    const riskAmount = unitNum * unitValue * (Math.abs(oddsNum) / 100);
+    const winAmount = unitNum * unitValue;
+    return { risk: riskAmount, win: winAmount };
+  } else {
+    const riskAmount = unitNum * unitValue;
+    const winAmount = unitNum * unitValue * (oddsNum / 100);
+    return { risk: riskAmount, win: winAmount };
+  }
+};
 
 // ============================================
 // SMART DEFAULT SPORT FUNCTION
@@ -2596,7 +2611,7 @@ const AddBetModal = memo(({
 
     const calculateRiskWin = () => {
       if (!localFormData.units || !localFormData.odds) return { risk: 0, win: 0 };
-      return calculateRiskAndWin(localFormData.units, localFormData.odds);
+      return calculateRiskAndWin(localFormData.units, localFormData.odds, unitValue);
     };
 
     return (
@@ -3568,21 +3583,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     setDisplayMode(prev => prev === 'dollars' ? 'units' : 'dollars');
   };
 
-  const calculateRiskAndWin = (units, odds) => {
-    const unitNum = parseFloat(units);
-    const oddsNum = parseFloat(odds);
-    
-    if (oddsNum < 0) {
-      const riskAmount = unitNum * unitValue * (Math.abs(oddsNum) / 100);
-      const winAmount = unitNum * unitValue;
-      return { risk: riskAmount, win: winAmount };
-    } else {
-      const riskAmount = unitNum * unitValue;
-      const winAmount = unitNum * unitValue * (oddsNum / 100);
-      return { risk: riskAmount, win: winAmount };
-    }
-  };
-
   // Parse bet details to determine favorite/underdog and over/under
   const parseBetDetails = (bet) => {
     const desc = bet.description || '';
@@ -3705,7 +3705,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
   };
 
   const addBet = async (dataToSubmit = formData) => {
-    const { risk, win } = calculateRiskAndWin(dataToSubmit.units, dataToSubmit.odds);
+    const { risk, win } = calculateRiskAndWin(dataToSubmit.units, dataToSubmit.odds, unitValue);
     
     const newBet = {
       ...dataToSubmit,
@@ -3770,7 +3770,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       return 'Long shot parlays must be +500 or greater. Please change bet type to "Parlay" or adjust odds.';
     }
 
-    const { risk, win } = calculateRiskAndWin(dataToSubmit.units, dataToSubmit.odds);
+    const { risk, win } = calculateRiskAndWin(dataToSubmit.units, dataToSubmit.odds, unitValue);
     
     const updatedBet = {
       ...dataToSubmit,
