@@ -2602,8 +2602,6 @@ const parseQuickAddInput = (text, unitValue = 50) => {
 
   // ADD BET MODAL COMPONENT
 // ============================================
-// ADD BET MODAL - NEW MULTI-STEP VERSION
-// ============================================
 // ADD BET MODAL COMPONENT - Updated with Text Parser Quick Add
 // ============================================
 const AddBetModal = memo(({
@@ -3039,47 +3037,6 @@ const AddBetModal = memo(({
                   </button>
                 </div>
 
-                {/* Example Inputs */}
-                <div style={{ marginTop: '24px' }}>
-                  <div style={{ 
-                    fontSize: '10px', 
-                    fontWeight: '700', 
-                    color: colors.textTertiary, 
-                    marginBottom: '8px', 
-                    textTransform: 'uppercase' 
-                  }}>
-                    Examples (tap to try)
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {[
-                      'Chiefs -3 1u',
-                      'Bills ML +150 2u',
-                      'Lakers o224 NBA',
-                      'Georgia -7 NCAAF'
-                    ].map((example, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => {
-                          setQuickAddInput(example);
-                          setParsedBet(parseQuickAddInput(example, unitValue));
-                        }}
-                        style={{
-                          padding: '8px 12px',
-                          background: colors.bgSecondary,
-                          border: `1px solid ${colors.border}`,
-                          borderRadius: '8px',
-                          fontSize: '12px',
-                          color: colors.textSecondary,
-                          cursor: 'pointer',
-                          fontFamily: 'monospace'
-                        }}
-                      >
-                        {example}
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
             )}
 
