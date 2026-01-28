@@ -3529,19 +3529,19 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     ? Math.ceil((retirementEndDate - new Date()) / (1000 * 60 * 60 * 24))
     : 0;
 
-  const showToast = (message, type = 'error') => {
+  const showToast = useCallback((message, type = 'error') => {
     setToast({ show: true, message, type });
     setTimeout(() => {
       setToast({ show: false, message: '', type: '' });
     }, 4000);
-  };
+  }, []);
 
-  const handleRetirement = () => {
+  const handleRetirement = useCallback(() => {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + retirementDays);
     setRetirementEndDate(endDate);
     setShowRetirementModal(false);
-  };
+  }, [retirementDays]);
 
   useEffect(() => {
     const q = query(collection(db, 'bets'), orderBy('timestamp', 'desc'));
@@ -3810,7 +3810,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     }
   };
 
-  const cancelEdit = () => {
+  const cancelEdit = useCallback(() => {
     setEditingBet(null);
     setFormData({
       date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0],
@@ -3826,7 +3826,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       notes: ''
     });
     setShowAddBetModal(false);
-  };
+  }, []);
 
   const getRandomWinAnimation = () => {
     const emojiAnimations = [
@@ -3924,14 +3924,14 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     setDeleteModal({ show: true, betId: id });
   }, []);
 
-  const confirmDelete = async () => {
+  const confirmDelete = useCallback(async () => {
     try {
       await deleteDoc(doc(db, 'bets', deleteModal.betId));
       setDeleteModal({ show: false, betId: null });
     } catch (error) {
       console.error("Error deleting bet:", error);
     }
-  };
+  }, [deleteModal.betId]);
 
 // Key Trends Analysis - Short-Term & All-Time
   const trends = useMemo(() => {
