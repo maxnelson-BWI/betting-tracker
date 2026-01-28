@@ -4598,16 +4598,42 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 shadow-2xl" style={{ background: colors.bgElevated, borderTop: `1px solid ${colors.border}` }}>
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-around py-3">
+      <div style={{ 
+        position: 'fixed', 
+        bottom: 0, 
+        left: 0, 
+        right: 0, 
+        background: colors.bgElevated, 
+        borderTop: `1px solid ${colors.border}`,
+        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{ 
+          maxWidth: '500px', 
+          margin: '0 auto', 
+          padding: '0 16px' 
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            padding: '12px 0' 
+          }}>
             <button
               onClick={() => setCurrentPage('home')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all`}
-              style={{ color: currentPage === 'home' ? colors.accentPrimary : colors.textTertiary }}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '8px 16px',
+                color: currentPage === 'home' ? colors.accentPrimary : colors.textTertiary
+              }}
             >
               <Home />
-              <span className="text-xs font-medium">Home</span>
+              <span style={{ fontSize: '11px', fontWeight: '500' }}>Home</span>
             </button>
 
             <button
@@ -4620,9 +4646,8 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '4px',
-                padding: '8px 12px',
-                color: currentPage === 'stats' ? colors.accentPrimary : colors.textSecondary,
-                flex: '1'
+                padding: '8px 16px',
+                color: currentPage === 'stats' ? colors.accentPrimary : colors.textTertiary
               }}
             >
               <BarChart />
@@ -4631,36 +4656,64 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
 
             <button
               onClick={() => { if (!isRetired) { setAddBetStep(1); setShowAddBetModal(true); } }}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
-                isRetired 
-                  ? 'cursor-not-allowed' 
-                  : ''
-              }`}
-              style={{ color: isRetired ? '#BDC3C7' : colors.textTertiary }}
               disabled={isRetired}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: isRetired ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '8px 16px',
+                color: isRetired ? '#BDC3C7' : colors.textTertiary
+              }}
             >
-              <div className="p-2 rounded-full shadow-xl" style={{ background: isRetired ? '#BDC3C7' : `linear-gradient(135deg, ${colors.accentPrimary} 0%, #E8B887 100%)` }}>
+              <div style={{ 
+                padding: '8px', 
+                borderRadius: '50%', 
+                background: isRetired ? '#BDC3C7' : `linear-gradient(135deg, ${colors.accentPrimary} 0%, #E8B887 100%)`,
+                boxShadow: '0 4px 12px rgba(212, 165, 116, 0.4)'
+              }}>
                 <PlusCircle />
               </div>
-              <span className="text-xs font-medium">Add Bet</span>
+              <span style={{ fontSize: '11px', fontWeight: '500' }}>Add Bet</span>
             </button>
 
             <button
               onClick={() => setCurrentPage('history')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all`}
-              style={{ color: currentPage === 'history' ? colors.accentPrimary : colors.textTertiary }}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '8px 16px',
+                color: currentPage === 'history' ? colors.accentPrimary : colors.textTertiary
+              }}
             >
               <Clock />
-              <span className="text-xs font-medium">History</span>
+              <span style={{ fontSize: '11px', fontWeight: '500' }}>History</span>
             </button>
 
             <button
               onClick={() => setCurrentPage('more')}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all`}
-              style={{ color: currentPage === 'more' ? colors.accentPrimary : colors.textTertiary }}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '8px 16px',
+                color: currentPage === 'more' ? colors.accentPrimary : colors.textTertiary
+              }}
             >
               <MoreHorizontal />
-              <span className="text-xs font-medium">More</span>
+              <span style={{ fontSize: '11px', fontWeight: '500' }}>More</span>
             </button>
           </div>
         </div>
