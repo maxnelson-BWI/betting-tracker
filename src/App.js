@@ -3579,9 +3579,9 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     }
   };
 
-  const toggleDisplayMode = () => {
+  const toggleDisplayMode = useCallback(() => {
     setDisplayMode(prev => prev === 'dollars' ? 'units' : 'dollars');
-  };
+  }, []);
 
   // Parse bet details to determine favorite/underdog and over/under
   const parseBetDetails = (bet) => {
@@ -4170,7 +4170,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     };
   }, [bets, monthlyLimit]);
 
-  const exportToCSV = () => {
+  const exportToCSV = useCallback(() => {
     const headers = ['Date', 'Sport', 'Bet Type', 'Description', 'Units', 'Odds', 'Risk', 'To Win', 'Result', 'Payout', 'Favorite Team', 'Prime Time', 'System Play', 'Notes'];
     const rows = bets.map(bet => [
       bet.date,
@@ -4196,7 +4196,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     a.href = url;
     a.download = `betting_tracker_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
-  };
+  }, [bets]);
 
   const resources = [
     { name: 'Scores & Odds', url: 'https://www.scoresandodds.com/', icon: '🎲' },
