@@ -2322,6 +2322,180 @@ const MorePage = memo(({
   );
 });
 
+// Filter Modal Component
+const FilterModal = memo(({
+  showFilterModal,
+  setShowFilterModal,
+  historyFilter,
+  setHistoryFilter,
+  colors
+}) => {
+  if (!showFilterModal) return null;
+    
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'flex-end',
+          zIndex: 100,
+          backdropFilter: 'blur(4px)'
+        }}
+        onClick={() => setShowFilterModal(false)}
+      >
+        <div
+          style={{
+            background: colors.bgElevated,
+            borderRadius: '20px 20px 0 0',
+            padding: '20px',
+            width: '100%',
+            maxHeight: '70vh',
+            overflowY: 'auto'
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '20px'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, margin: 0, ...headerStyle }}>
+              More Filters
+            </h3>
+            <button
+              onClick={() => setShowFilterModal(false)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textTertiary }}
+            >
+              <X />
+            </button>
+          </div>
+
+          {/* Result */}
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '10px', textTransform: 'uppercase' }}>
+              Result
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {['all', 'win', 'loss', 'push', 'pending'].map(result => (
+                <button
+                  key={result}
+                  onClick={() => setHistoryFilter({...historyFilter, result})}
+                  style={{
+                    padding: '10px 16px',
+                    background: historyFilter.result === result ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.result === result ? '#FFFFFF' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {result === 'all' ? 'All' : result.charAt(0).toUpperCase() + result.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Favorite/Underdog */}
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '10px', textTransform: 'uppercase' }}>
+              Side
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {['all', 'favorite', 'underdog'].map(side => (
+                <button
+                  key={side}
+                  onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: side})}
+                  style={{
+                    padding: '10px 16px',
+                    background: historyFilter.favoriteUnderdog === side ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.favoriteUnderdog === side ? '#FFFFFF' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {side === 'all' ? 'All' : side.charAt(0).toUpperCase() + side.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Over/Under */}
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '10px', textTransform: 'uppercase' }}>
+              Total
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {['all', 'over', 'under'].map(ou => (
+                <button
+                  key={ou}
+                  onClick={() => setHistoryFilter({...historyFilter, overUnder: ou})}
+                  style={{
+                    padding: '10px 16px',
+                    background: historyFilter.overUnder === ou ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.overUnder === ou ? '#FFFFFF' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {ou === 'all' ? 'All' : ou.charAt(0).toUpperCase() + ou.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={() => {
+                setHistoryFilter({ ...historyFilter, result: 'all', favoriteUnderdog: 'all', overUnder: 'all' });
+              }}
+              style={{
+                flex: 1,
+                padding: '14px',
+                background: colors.bgSecondary,
+                color: colors.textSecondary,
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Clear All
+            </button>
+            <button
+              onClick={() => setShowFilterModal(false)}
+              style={{
+                flex: 2,
+                padding: '14px',
+                background: colors.accentPrimary,
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+    </div>
+  );
+});
+
 function App() {
       const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
@@ -4171,173 +4345,6 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     );
   };
 
-  // Filter Modal Component
-  const FilterModal = () => {
-    if (!showFilterModal) return null;
-    
-    return (
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'flex-end',
-          zIndex: 100,
-          backdropFilter: 'blur(4px)'
-        }}
-        onClick={() => setShowFilterModal(false)}
-      >
-        <div
-          style={{
-            background: colors.bgElevated,
-            borderRadius: '20px 20px 0 0',
-            padding: '20px',
-            width: '100%',
-            maxHeight: '70vh',
-            overflowY: 'auto'
-          }}
-          onClick={e => e.stopPropagation()}
-        >
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: '20px'
-          }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, margin: 0, ...headerStyle }}>
-              More Filters
-            </h3>
-            <button
-              onClick={() => setShowFilterModal(false)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.textTertiary }}
-            >
-              <X />
-            </button>
-          </div>
-
-          {/* Result */}
-          <div style={{ marginBottom: '20px' }}>
-            <div style={{ fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '10px', textTransform: 'uppercase' }}>
-              Result
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {['all', 'win', 'loss', 'push', 'pending'].map(result => (
-                <button
-                  key={result}
-                  onClick={() => setHistoryFilter({...historyFilter, result})}
-                  style={{
-                    padding: '10px 16px',
-                    background: historyFilter.result === result ? colors.accentPrimary : colors.bgSecondary,
-                    color: historyFilter.result === result ? '#FFFFFF' : colors.textPrimary,
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {result === 'all' ? 'All' : result.charAt(0).toUpperCase() + result.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Favorite/Underdog */}
-          <div style={{ marginBottom: '20px' }}>
-            <div style={{ fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '10px', textTransform: 'uppercase' }}>
-              Side
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {['all', 'favorite', 'underdog'].map(side => (
-                <button
-                  key={side}
-                  onClick={() => setHistoryFilter({...historyFilter, favoriteUnderdog: side})}
-                  style={{
-                    padding: '10px 16px',
-                    background: historyFilter.favoriteUnderdog === side ? colors.accentPrimary : colors.bgSecondary,
-                    color: historyFilter.favoriteUnderdog === side ? '#FFFFFF' : colors.textPrimary,
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {side === 'all' ? 'All' : side.charAt(0).toUpperCase() + side.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Over/Under */}
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '10px', textTransform: 'uppercase' }}>
-              Total
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {['all', 'over', 'under'].map(ou => (
-                <button
-                  key={ou}
-                  onClick={() => setHistoryFilter({...historyFilter, overUnder: ou})}
-                  style={{
-                    padding: '10px 16px',
-                    background: historyFilter.overUnder === ou ? colors.accentPrimary : colors.bgSecondary,
-                    color: historyFilter.overUnder === ou ? '#FFFFFF' : colors.textPrimary,
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {ou === 'all' ? 'All' : ou.charAt(0).toUpperCase() + ou.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={() => {
-                setHistoryFilter({ ...historyFilter, result: 'all', favoriteUnderdog: 'all', overUnder: 'all' });
-              }}
-              style={{
-                flex: 1,
-                padding: '14px',
-                background: colors.bgSecondary,
-                color: colors.textSecondary,
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '15px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              Clear All
-            </button>
-            <button
-              onClick={() => setShowFilterModal(false)}
-              style={{
-                flex: 2,
-                padding: '14px',
-                background: colors.accentPrimary,
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '15px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              Apply Filters
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
   return (
     <div className="min-h-screen" style={{ background: colors.bgPrimary }}>
       {/* Animation Overlay */}
@@ -4495,7 +4502,13 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       )}
 
       {/* Filter Modal */}
-      <FilterModal />
+      <FilterModal 
+        showFilterModal={showFilterModal}
+        setShowFilterModal={setShowFilterModal}
+        historyFilter={historyFilter}
+        setHistoryFilter={setHistoryFilter}
+        colors={colors}
+      />
 
       {/* Retired Overlay */}
       {isRetired && (
