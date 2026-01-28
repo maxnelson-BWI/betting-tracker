@@ -386,6 +386,23 @@ const formatBetType = (type) => {
   return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
+// Helper function to get trend message
+const getTrendMessage = (index, isWinning, isAllTime) => {
+  if (isWinning) {
+    if (isAllTime) {
+      return index === 0 ? "These have been your top plays" : "This is working";
+    } else {
+      return "On fire lately";
+    }
+  } else {
+    if (isAllTime) {
+      return index === 0 ? "Your worst plays" : "This hasn't been working";
+    } else {
+      return "Cold streak";
+    }
+  }
+};
+
 // ============================================
 // SMART DEFAULT SPORT FUNCTION
 // ============================================
@@ -758,7 +775,7 @@ const BetCard = memo(({
 ));
 
 // HISTORY PAGE COMPONENT - Redesigned with 2-row filters + More button
-const HistoryPage = memo(({
+const HistoryPage = memo(({ 
     colors, 
     filteredBets, 
     historyFilter, 
@@ -773,7 +790,8 @@ const HistoryPage = memo(({
     updateBetResult,
     startEdit,
     deleteBet,
-    isRetired
+    isRetired,
+    setShowFilterModal
   }) => {
     // Count active filters in the "More" modal
     const moreFilterCount = [
@@ -2890,28 +2908,12 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           startEdit={startEdit}
           deleteBet={deleteBet}
           isRetired={isRetired}
+          setShowFilterModal={setShowFilterModal}
         />;
       case 'more':
         return <MorePage />;
       default:
         return <HomePage />;
-    }
-  };
-  
-// Helper function to get trend message
-  const getTrendMessage = (index, isWinning, isAllTime) => {
-    if (isWinning) {
-      if (isAllTime) {
-        return index === 0 ? "These have been your top plays" : "This is working";
-      } else {
-        return "On fire lately";
-      }
-    } else {
-      if (isAllTime) {
-        return index === 0 ? "Your worst plays" : "This hasn't been working";
-      } else {
-        return "Cold streak";
-      }
     }
   };
 
