@@ -386,23 +386,6 @@ const formatBetType = (type) => {
   return type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
-// Helper function to get trend message
-const getTrendMessage = (index, isWinning, isAllTime) => {
-  if (isWinning) {
-    if (isAllTime) {
-      return index === 0 ? "These have been your top plays" : "This is working";
-    } else {
-      return "On fire lately";
-    }
-  } else {
-    if (isAllTime) {
-      return index === 0 ? "Your worst plays" : "This hasn't been working";
-    } else {
-      return "Cold streak";
-    }
-  }
-};
-
 const quickAddButtons = [
   { label: '0.5u', value: 0.5 },
   { label: '1u', value: 1 },
@@ -1659,57 +1642,67 @@ const StatsPage = memo(({
                 
                 {/* Recent Winning */}
                 {trends.recent.winning.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: trends.recent.losing.length > 0 ? '12px' : '0' }}>
-                    {trends.recent.winning.map((trend, index) => (
-                      <div key={trend.key} style={{
-                        background: 'rgba(124, 152, 133, 0.1)',
-                        border: `1px solid rgba(124, 152, 133, 0.3)`,
-                        borderRadius: '12px',
-                        padding: '12px 14px'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div>
-                            <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
-                              {trend.label}
+                  <div style={{ marginBottom: trends.recent.losing.length > 0 ? '12px' : '0' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '600', color: colors.accentWin, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Where You're Winning
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {trends.recent.winning.map((trend, index) => (
+                        <div key={trend.key} style={{
+                          background: 'rgba(124, 152, 133, 0.1)',
+                          border: `1px solid rgba(124, 152, 133, 0.3)`,
+                          borderRadius: '12px',
+                          padding: '12px 14px'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                                {trend.label}
+                              </div>
+                              <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
+                                {trend.record} ({(trend.winRate * 100).toFixed(0)}%)
+                              </div>
                             </div>
-                            <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
-                              {trend.record} ({(trend.winRate * 100).toFixed(0)}%) • {getTrendMessage(index, true, false)}
+                            <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
+                              {formatMoney(trend.payout)}
                             </div>
-                          </div>
-                          <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentWin, ...numberStyle }}>
-                            {formatMoney(trend.payout)}
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 )}
 
                 {/* Recent Losing */}
                 {trends.recent.losing.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {trends.recent.losing.map((trend, index) => (
-                      <div key={trend.key} style={{
-                        background: 'rgba(184, 92, 80, 0.1)',
-                        border: `1px solid rgba(184, 92, 80, 0.3)`,
-                        borderRadius: '12px',
-                        padding: '12px 14px'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div>
-                            <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
-                              {trend.label}
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: '600', color: colors.accentLoss, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Where You're Losing
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {trends.recent.losing.map((trend, index) => (
+                        <div key={trend.key} style={{
+                          background: 'rgba(184, 92, 80, 0.1)',
+                          border: `1px solid rgba(184, 92, 80, 0.3)`,
+                          borderRadius: '12px',
+                          padding: '12px 14px'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                                {trend.label}
+                              </div>
+                              <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
+                                {trend.record} ({(trend.winRate * 100).toFixed(0)}%)
+                              </div>
                             </div>
-                            <div style={{ fontSize: '11px', color: colors.textSecondary, marginTop: '2px' }}>
-                              {trend.record} ({(trend.winRate * 100).toFixed(0)}%) • {getTrendMessage(index, false, false)}
+                            <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
+                              {formatMoney(trend.payout)}
                             </div>
-                          </div>
-                          <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentLoss, ...numberStyle }}>
-                            {formatMoney(trend.payout)}
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -1767,9 +1760,6 @@ const StatsPage = memo(({
                             <div style={{ fontSize: '12px', color: colors.textSecondary }}>
                               {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
                             </div>
-                            <div style={{ fontSize: '11px', color: colors.accentWin, fontStyle: 'italic' }}>
-                              {getTrendMessage(index, true, true)}
-                            </div>
                           </div>
                         </div>
                       ))}
@@ -1802,9 +1792,6 @@ const StatsPage = memo(({
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div style={{ fontSize: '12px', color: colors.textSecondary }}>
                               {trend.record} ({(trend.winRate * 100).toFixed(1)}%)
-                            </div>
-                            <div style={{ fontSize: '11px', color: colors.accentLoss, fontStyle: 'italic' }}>
-                              {getTrendMessage(index, false, true)}
                             </div>
                           </div>
                         </div>
