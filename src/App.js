@@ -3896,6 +3896,57 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     }
   }, [retirementEndDate]);
 
+  // Inject native mobile app CSS styles
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.id = 'native-app-styles';
+    style.textContent = `
+      /* Native app feel - disable rubber band scrolling when installed as PWA */
+      @media (display-mode: standalone) {
+        html, body {
+          overscroll-behavior: none;
+        }
+      }
+      
+      /* Remove tap highlight that shows on touch */
+      body {
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      /* Disable accidental text selection on UI elements */
+      button, 
+      [role="button"],
+      nav,
+      img,
+      svg {
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      
+      /* Better focus states - only show for keyboard navigation */
+      button:focus {
+        outline: none;
+      }
+      button:focus-visible {
+        outline: 2px solid #D4A574;
+        outline-offset: 2px;
+      }
+      
+      /* Prevent iOS text size adjust */
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      const existingStyle = document.getElementById('native-app-styles');
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+    };
+  }, []);
+
   const isRetired = retirementEndDate && new Date() < retirementEndDate;
 
   const daysUntilRetirementEnds = isRetired 
@@ -5014,7 +5065,8 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
         right: 0, 
         background: colors.bgElevated, 
         borderTop: `1px solid ${colors.border}`,
-        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.1)'
+        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.1)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}>
         <div style={{ 
           maxWidth: '500px', 
