@@ -2558,13 +2558,56 @@ const parseQuickAddInput = (text, unitValue = 50) => {
   // Default to smart default if nothing detected
   if (!sport) sport = getDefaultSport();
   
-  // UNITS - look for Xu or X units pattern
-  const unitMatch = text.match(/(\d+\.?\d*)\s*u(?:nits?)?/i);
-  const units = unitMatch ? parseFloat(unitMatch[1]) : 1;
-  
   // ODDS - look for +/-XXX pattern (3 or more digits after the sign)
+  // Parse odds FIRST since we need it for risk/win calculations
   const oddsMatch = text.match(/([+-]\d{3,})/);
   const odds = oddsMatch ? parseInt(oddsMatch[1]) : -110;
+  
+  // UNITS - Multiple ways to specify:
+  // 1. Direct units: "1u", "2u", ".5u", "0.5u", "1.5 units"
+  // 2. Risk amount: "risk $50", "risk 50", "risking $100"
+  // 3. To win amount: "to win $50", "win $100", "to win 50"
+  
+  let units = null;
+  
+  // Check for "risk" amount first
+  const riskMatch = text.match(/risk(?:ing)?\s*\$?(\d+\.?\d*)/i);
+  if (riskMatch) {
+    const riskAmount = parseFloat(riskMatch[1]);
+    // Calculate units from risk amount
+    if (odds < 0) {
+      // Negative odds: risk = units * unitValue * (|odds|/100)
+      units = riskAmount / (unitValue * (Math.abs(odds) / 100));
+    } else {
+      // Positive odds: risk = units * unitValue
+      units = riskAmount / unitValue;
+    }
+  }
+  
+  // Check for "to win" amount
+  if (units === null) {
+    const winMatch = text.match(/(?:to\s*)?win\s*\$?(\d+\.?\d*)/i);
+    if (winMatch && !text.match(/win\s*rate/i)) { // Exclude "win rate"
+      const winAmount = parseFloat(winMatch[1]);
+      // Calculate units from win amount
+      if (odds < 0) {
+        // Negative odds: win = units * unitValue
+        units = winAmount / unitValue;
+      } else {
+        // Positive odds: win = units * unitValue * (odds/100)
+        units = winAmount / (unitValue * (odds / 100));
+      }
+    }
+  }
+  
+  // Check for direct units (supports .5u, 0.5u, 1u, 2 units, etc.)
+  if (units === null) {
+    const unitMatch = text.match(/(\d*\.?\d+)\s*u(?:nits?)?/i);
+    units = unitMatch ? parseFloat(unitMatch[1]) : 1;
+  }
+  
+  // Round units to 2 decimal places
+  units = Math.round(units * 100) / 100;
   
   // BET TYPE detection
   let betType = 'straight';
@@ -2577,8 +2620,10 @@ const parseQuickAddInput = (text, unitValue = 50) => {
   
   // DESCRIPTION - remove the parsed components to leave just the bet description
   let description = text
-    .replace(/(\d+\.?\d*)\s*u(?:nits?)?/gi, '')  // Remove units
+    .replace(/(\d*\.?\d+)\s*u(?:nits?)?/gi, '')  // Remove units
     .replace(/([+-]\d{3,})/g, '')                 // Remove odds
+    .replace(/risk(?:ing)?\s*\$?\d+\.?\d*/gi, '') // Remove risk amount
+    .replace(/(?:to\s*)?win\s*\$?\d+\.?\d*/gi, '') // Remove win amount
     .replace(/\b(nfl|nba|ncaaf|ncaab|mlb|nhl|boxing|ufc)\b/gi, '')  // Remove sport tags
     .replace(/\s+/g, ' ')                         // Normalize whitespace
     .trim();
@@ -2602,7 +2647,7 @@ const parseQuickAddInput = (text, unitValue = 50) => {
 
   // ADD BET MODAL COMPONENT
 // ============================================
-// ADD BET MODAL COMPONENT - Updated with Text Parser Quick Add
+//// ADD BET MODAL COMPONENT - Updated with Text Parser Quick Add
 // ============================================
 const AddBetModal = memo(({
   showAddBetModal,
@@ -2888,6 +2933,12 @@ const AddBetModal = memo(({
                     type="text"
                     value={quickAddInput}
                     onChange={handleQuickAddInputChange}
+                    onFocus={(e) => {
+                      // Scroll input into view when keyboard opens on iOS
+                      setTimeout(() => {
+                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 300);
+                    }}
                     placeholder="Chiefs -3 1u -110"
                     autoFocus
                     style={{
@@ -2906,7 +2957,7 @@ const AddBetModal = memo(({
                   />
                   
                   <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '8px', marginBottom: 0 }}>
-                    Include: description, units (1u), odds (-110), sport (optional)
+                    Try: "1u", ".5u", "risk $50", or "to win $100"
                   </p>
                 </div>
 
