@@ -2570,17 +2570,21 @@ const parseQuickAddInput = (text, unitValue = 50) => {
   
   let units = null;
   
+  // Track if user specified exact risk or win amount
+  let exactRisk = null;
+  let exactWin = null;
+  
   // Check for "risk" amount first
   const riskMatch = text.match(/risk(?:ing)?\s*\$?(\d+\.?\d*)/i);
   if (riskMatch) {
-    const riskAmount = parseFloat(riskMatch[1]);
+    exactRisk = parseFloat(riskMatch[1]);
     // Calculate units from risk amount
     if (odds < 0) {
       // Negative odds: risk = units * unitValue * (|odds|/100)
-      units = riskAmount / (unitValue * (Math.abs(odds) / 100));
+      units = exactRisk / (unitValue * (Math.abs(odds) / 100));
     } else {
       // Positive odds: risk = units * unitValue
-      units = riskAmount / unitValue;
+      units = exactRisk / unitValue;
     }
   }
   
@@ -2588,14 +2592,14 @@ const parseQuickAddInput = (text, unitValue = 50) => {
   if (units === null) {
     const winMatch = text.match(/(?:to\s*)?win\s*\$?(\d+\.?\d*)/i);
     if (winMatch && !text.match(/win\s*rate/i)) { // Exclude "win rate"
-      const winAmount = parseFloat(winMatch[1]);
+      exactWin = parseFloat(winMatch[1]);
       // Calculate units from win amount
       if (odds < 0) {
         // Negative odds: win = units * unitValue
-        units = winAmount / unitValue;
+        units = exactWin / unitValue;
       } else {
         // Positive odds: win = units * unitValue * (odds/100)
-        units = winAmount / (unitValue * (odds / 100));
+        units = exactWin / (unitValue * (odds / 100));
       }
     }
   }
@@ -2631,8 +2635,32 @@ const parseQuickAddInput = (text, unitValue = 50) => {
   // If description is empty, use original text
   if (!description) description = text.trim();
   
-  // Calculate risk and win
-  const { risk, win } = calculateRiskAndWin(units.toString(), odds.toString(), unitValue);
+  // Calculate risk and win - use exact amounts if specified, otherwise calculate from units
+  let risk, win;
+  if (exactRisk !== null) {
+    // User specified exact risk amount - use it directly
+    risk = exactRisk;
+    // Calculate win from the exact risk
+    if (odds < 0) {
+      win = exactRisk / (Math.abs(odds) / 100);
+    } else {
+      win = exactRisk * (odds / 100);
+    }
+  } else if (exactWin !== null) {
+    // User specified exact win amount - use it directly
+    win = exactWin;
+    // Calculate risk from the exact win
+    if (odds < 0) {
+      risk = exactWin * (Math.abs(odds) / 100);
+    } else {
+      risk = exactWin / (odds / 100);
+    }
+  } else {
+    // Calculate both from units
+    const result = calculateRiskAndWin(units.toString(), odds.toString(), unitValue);
+    risk = result.risk;
+    win = result.win;
+  }
   
   return { 
     sport, 
@@ -2820,8 +2848,8 @@ const AddBetModal = memo(({
             border: `3px solid ${colors.accentPrimary}`,
             borderBottom: 'none',
             boxShadow: '0 -8px 40px rgba(0, 0, 0, 0.3), 0 -2px 20px rgba(212, 165, 116, 0.3)',
-            minHeight: quickAddMode && !editingBet ? 'auto' : '92vh',
-            maxHeight: '94vh',
+            minHeight: quickAddMode && !editingBet ? 'auto' : '88vh',
+            maxHeight: '90vh',
             position: 'relative',
             zIndex: 1
           }}
@@ -2834,7 +2862,7 @@ const AddBetModal = memo(({
             zIndex: 10,
             background: colors.bgPrimary,
             borderBottom: `2px solid ${colors.border}`,
-            padding: '16px 16px 12px 16px',
+            padding: 'max(16px, env(safe-area-inset-top, 16px)) 16px 12px 16px',
             borderRadius: '24px 24px 0 0'
           }}>
             {/* Gold accent bar at top */}
@@ -3322,17 +3350,10 @@ const AddBetModal = memo(({
             {/* STEP 2: OPTIONAL DETAILS */}
             {!quickAddMode && addBetStep === 2 && !editingBet && (
               <div>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '8px' }}>
-                  Additional Details
-                </h3>
-                <p style={{ fontSize: '13px', color: colors.textSecondary, marginBottom: '20px' }}>
-                  Optional - Skip if you want to add the bet quickly
-                </p>
-
                 {/* System Classification */}
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: colors.textSecondary, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    System Play Classification
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: colors.textSecondary, marginBottom: '8px' }}>
+                    System Play Classification (optional)
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                     {[
