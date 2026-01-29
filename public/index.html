@@ -19,75 +19,19 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
-    <!-- Preconnect to Google Fonts -->
+    <!-- Google Fonts - Inter and Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <title>The Cindy</title>
-    
-    <style>
-      /* Prevent pull-to-refresh on mobile */
-      body {
-        overscroll-behavior-y: contain;
-        margin: 0;
-        padding: 0;
-      }
-      
-      /* Splash screen styles */
-      #splash-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #FFF8F0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        transition: opacity 0.3s ease-out;
-      }
-      
-      #splash-screen.fade-out {
-        opacity: 0;
-        pointer-events: none;
-      }
-      
-      #splash-screen img {
-        width: 120px;
-        height: 120px;
-        border-radius: 24px;
-        animation: pulse 1.5s ease-in-out infinite;
-      }
-      
-      #splash-screen .loading-text {
-        margin-top: 20px;
-        font-family: 'Outfit', sans-serif;
-        font-size: 14px;
-        color: #6B7280;
-        letter-spacing: 1px;
-      }
-      
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.05); opacity: 0.8; }
-      }
-    </style>
   </head>
   <body>
-    <!-- Splash Screen -->
-    <div id="splash-screen">
-      <img src="%PUBLIC_URL%/icon-192x192.png" alt="The Cindy" />
-      <div class="loading-text">LOADING...</div>
-    </div>
-    
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     
     <script>
-      // Register service worker for caching
+      // Register service worker for faster loading
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/service-worker.js')
@@ -99,19 +43,6 @@
             });
         });
       }
-      
-      // Hide splash screen when app loads
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          const splash = document.getElementById('splash-screen');
-          if (splash) {
-            splash.classList.add('fade-out');
-            setTimeout(() => {
-              splash.style.display = 'none';
-            }, 300);
-          }
-        }, 500); // Brief delay for smooth transition
-      });
     </script>
   </body>
 </html>
