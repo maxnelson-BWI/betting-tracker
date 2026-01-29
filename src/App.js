@@ -2647,7 +2647,7 @@ const parseQuickAddInput = (text, unitValue = 50) => {
 
   // ADD BET MODAL COMPONENT
 // ============================================
-//// ADD BET MODAL COMPONENT - Updated with Text Parser Quick Add
+// ADD BET MODAL COMPONENT - Updated with Text Parser Quick Add
 // ============================================
 const AddBetModal = memo(({
   showAddBetModal,
@@ -2907,139 +2907,101 @@ const AddBetModal = memo(({
             {/* QUICK ADD MODE - Text Parser */}
             {/* ============================================ */}
             {quickAddMode && !editingBet && (
-              <div>
-                {/* Main Input */}
-                <div style={{
-                  background: colors.bgElevated,
-                  borderRadius: '16px',
-                  padding: '20px',
-                  marginBottom: '12px',
-                  border: `2px solid ${colors.border}`,
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)'
-                }}>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: '11px', 
-                    fontWeight: '700', 
-                    color: colors.textSecondary, 
-                    marginBottom: '10px', 
-                    textTransform: 'uppercase', 
-                    letterSpacing: '0.5px' 
-                  }}>
-                    Type your bet
-                  </label>
-                  
-                  <input
-                    type="text"
-                    value={quickAddInput}
-                    onChange={handleQuickAddInputChange}
-                    onFocus={(e) => {
-                      // Scroll input into view when keyboard opens on iOS
-                      setTimeout(() => {
-                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }, 300);
-                    }}
-                    placeholder="Chiefs -3 1u -110"
-                    autoFocus
-                    style={{
-                      width: '100%',
+              <div style={{ display: 'flex', flexDirection: 'column', minHeight: '50vh' }}>
+                
+                {/* Preview Section - Takes up top space */}
+                <div style={{ flex: 1, marginBottom: '12px' }}>
+                  {parsedBet ? (
+                    <div style={{
+                      background: colors.bgElevated,
+                      borderRadius: '16px',
                       padding: '16px',
-                      fontSize: '18px',
-                      fontWeight: '500',
+                      border: `2px solid ${colors.accentPrimary}`,
+                      boxShadow: '0 2px 12px rgba(212, 165, 116, 0.2)'
+                    }}>
+                      <div style={{ 
+                        fontSize: '10px', 
+                        fontWeight: '700', 
+                        color: colors.accentPrimary, 
+                        marginBottom: '10px', 
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.5px' 
+                      }}>
+                        ✓ Preview
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                        <span style={{
+                          background: colors.accentPrimary,
+                          color: '#FFFFFF',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          padding: '5px 10px',
+                          borderRadius: '6px'
+                        }}>
+                          {getSportLabel(parsedBet.sport)}
+                        </span>
+                        <span style={{
+                          background: colors.bgSecondary,
+                          color: colors.textPrimary,
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          padding: '5px 10px',
+                          borderRadius: '6px'
+                        }}>
+                          {formatBetType(parsedBet.betType)}
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '10px' }}>
+                        {parsedBet.description}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '16px', paddingTop: '10px', borderTop: `1px solid ${colors.border}`, flexWrap: 'wrap' }}>
+                        <div>
+                          <div style={{ fontSize: '10px', color: colors.textTertiary }}>Units</div>
+                          <div style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary }}>{parsedBet.units}u</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '10px', color: colors.textTertiary }}>Odds</div>
+                          <div style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary }}>
+                            {parsedBet.odds > 0 ? '+' : ''}{parsedBet.odds}
+                          </div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '10px', color: colors.textTertiary }}>Risk</div>
+                          <div style={{ fontSize: '14px', fontWeight: '700', color: colors.accentLoss }}>
+                            ${parsedBet.riskAmount.toFixed(2)}
+                          </div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '10px', color: colors.textTertiary }}>Win</div>
+                          <div style={{ fontSize: '14px', fontWeight: '700', color: colors.accentWin }}>
+                            ${parsedBet.winAmount.toFixed(2)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{
                       background: colors.bgSecondary,
-                      border: `2px solid ${parsedBet ? colors.accentPrimary : colors.border}`,
-                      borderRadius: '12px',
-                      color: colors.textPrimary,
-                      outline: 'none',
-                      boxSizing: 'border-box',
-                      transition: 'border-color 0.2s'
-                    }}
-                  />
-                  
-                  <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '8px', marginBottom: 0 }}>
-                    Try: "1u", ".5u", "risk $50", or "to win $100"
-                  </p>
+                      borderRadius: '16px',
+                      padding: '32px 20px',
+                      textAlign: 'center',
+                      border: `2px dashed ${colors.border}`
+                    }}>
+                      <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏈</div>
+                      <div style={{ fontSize: '14px', color: colors.textTertiary }}>
+                        Type a bet below to see preview
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Parsed Preview */}
-                {parsedBet && (
-                  <div style={{
-                    background: colors.bgElevated,
-                    borderRadius: '16px',
-                    padding: '16px',
-                    border: `2px solid ${colors.accentPrimary}`,
-                    marginBottom: '12px',
-                    boxShadow: '0 2px 12px rgba(212, 165, 116, 0.2)'
-                  }}>
-                    <div style={{ 
-                      fontSize: '10px', 
-                      fontWeight: '700', 
-                      color: colors.accentPrimary, 
-                      marginBottom: '10px', 
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.5px' 
-                    }}>
-                      ✓ Preview
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                      <span style={{
-                        background: colors.accentPrimary,
-                        color: '#FFFFFF',
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        padding: '5px 10px',
-                        borderRadius: '6px'
-                      }}>
-                        {getSportLabel(parsedBet.sport)}
-                      </span>
-                      <span style={{
-                        background: colors.bgSecondary,
-                        color: colors.textPrimary,
-                        fontSize: '11px',
-                        fontWeight: '600',
-                        padding: '5px 10px',
-                        borderRadius: '6px'
-                      }}>
-                        {formatBetType(parsedBet.betType)}
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '10px' }}>
-                      {parsedBet.description}
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '16px', paddingTop: '10px', borderTop: `1px solid ${colors.border}`, flexWrap: 'wrap' }}>
-                      <div>
-                        <div style={{ fontSize: '10px', color: colors.textTertiary }}>Units</div>
-                        <div style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary }}>{parsedBet.units}u</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '10px', color: colors.textTertiary }}>Odds</div>
-                        <div style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary }}>
-                          {parsedBet.odds > 0 ? '+' : ''}{parsedBet.odds}
-                        </div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '10px', color: colors.textTertiary }}>Risk</div>
-                        <div style={{ fontSize: '14px', fontWeight: '700', color: colors.accentLoss }}>
-                          ${parsedBet.riskAmount.toFixed(0)}
-                        </div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '10px', color: colors.textTertiary }}>Win</div>
-                        <div style={{ fontSize: '14px', fontWeight: '700', color: colors.accentWin }}>
-                          ${parsedBet.winAmount.toFixed(0)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* System Play Selection - compact toggles */}
+                {/* System Play - only show when bet is parsed */}
                 {parsedBet && (
                   <div style={{ 
-                    marginBottom: '16px',
+                    marginBottom: '12px',
                     background: colors.bgElevated,
                     borderRadius: '12px',
                     padding: '14px',
@@ -3085,6 +3047,40 @@ const AddBetModal = memo(({
                   </div>
                 )}
 
+                {/* Input Section - At BOTTOM for iOS keyboard visibility */}
+                <div style={{
+                  background: colors.bgElevated,
+                  borderRadius: '16px',
+                  padding: '16px',
+                  marginBottom: '12px',
+                  border: `2px solid ${colors.border}`,
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                }}>
+                  <input
+                    id="quick-add-input"
+                    type="text"
+                    value={quickAddInput}
+                    onChange={handleQuickAddInputChange}
+                    placeholder="Chiefs -3 1u -110"
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      fontSize: '18px',
+                      fontWeight: '500',
+                      background: colors.bgSecondary,
+                      border: `2px solid ${parsedBet ? colors.accentPrimary : colors.border}`,
+                      borderRadius: '12px',
+                      color: colors.textPrimary,
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      transition: 'border-color 0.2s'
+                    }}
+                  />
+                  <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '8px', marginBottom: 0, textAlign: 'center' }}>
+                    "1u", ".5u", "risk $50", or "to win $100"
+                  </p>
+                </div>
+
                 {/* Action Buttons */}
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button
@@ -3095,43 +3091,40 @@ const AddBetModal = memo(({
                       padding: '16px',
                       background: parsedBet 
                         ? `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`
-                        : colors.textTertiary,
-                      color: '#FFFFFF',
+                        : colors.bgSecondary,
+                      color: parsedBet ? '#FFFFFF' : colors.textTertiary,
                       border: 'none',
                       borderRadius: '12px',
                       fontSize: '16px',
                       fontWeight: '700',
                       cursor: parsedBet ? 'pointer' : 'not-allowed',
-                      opacity: parsedBet ? 1 : 0.5
+                      boxShadow: parsedBet ? `0 4px 12px ${colors.shadow}` : 'none'
                     }}
                   >
                     Add Bet
                   </button>
                   <button
                     onClick={() => {
-                      setQuickAddMode(false);
-                      setAddBetStep(1);
-                      // Pre-fill form if we have parsed data
                       if (parsedBet) {
-                        setLocalFormData({
-                          ...localFormData,
-                          sport: parsedBet.sport,
-                          betType: parsedBet.betType,
-                          description: parsedBet.description,
+                        setFormData({
+                          ...formData,
+                          ...parsedBet,
                           units: parsedBet.units.toString(),
                           odds: parsedBet.odds.toString(),
                           systemPlay: quickSystemPlay
                         });
                       }
+                      setQuickAddMode(false);
+                      setAddBetStep(1);
                     }}
                     style={{
                       flex: 1,
                       padding: '16px',
                       background: colors.bgSecondary,
-                      color: colors.textSecondary,
+                      color: colors.textPrimary,
                       border: `1px solid ${colors.border}`,
                       borderRadius: '12px',
-                      fontSize: '13px',
+                      fontSize: '14px',
                       fontWeight: '600',
                       cursor: 'pointer'
                     }}
@@ -3139,9 +3132,9 @@ const AddBetModal = memo(({
                     Full Form →
                   </button>
                 </div>
-
               </div>
             )}
+
 
             {/* ============================================ */}
             {/* FULL FORM MODE - Step 1: THE BASICS */}
