@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cindy-cache-v3';
+const CACHE_NAME = 'cindy-cache-v4';
 
 // Install - activate immediately
 self.addEventListener('install', () => {
