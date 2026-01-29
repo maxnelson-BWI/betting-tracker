@@ -2738,18 +2738,22 @@ const AddBetModal = memo(({
     return (
       <div 
         className="fixed inset-0 z-50 flex items-end justify-center"
-        style={{ background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(8px)' }}
+        style={{ 
+          background: 'rgba(0, 0, 0, 0.7)', 
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)'
+        }}
         onClick={cancelEdit}
       >
         <div 
           className="rounded-t-3xl w-full max-w-2xl overflow-y-auto"
           style={{ 
-            background: colors.bgElevated,
+            background: colors.bgPrimary,
             border: `3px solid ${colors.accentPrimary}`,
             borderBottom: 'none',
-            boxShadow: '0 -8px 40px rgba(0, 0, 0, 0.3), 0 -2px 20px rgba(212, 165, 116, 0.3)',
-            minHeight: quickAddMode && !editingBet ? 'auto' : '85vh',
-            maxHeight: '85vh'
+            boxShadow: '0 -8px 40px rgba(0, 0, 0, 0.4), 0 -2px 20px rgba(212, 165, 116, 0.4)',
+            minHeight: quickAddMode && !editingBet ? 'auto' : '90vh',
+            maxHeight: '92vh'
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -2758,8 +2762,8 @@ const AddBetModal = memo(({
             position: 'sticky', 
             top: 0, 
             zIndex: 10,
-            background: colors.bgElevated,
-            borderBottom: `1px solid ${colors.border}`,
+            background: colors.bgPrimary,
+            borderBottom: `2px solid ${colors.border}`,
             padding: '16px 16px 12px 16px',
             borderRadius: '24px 24px 0 0'
           }}>
@@ -2836,10 +2840,12 @@ const AddBetModal = memo(({
               <div>
                 {/* Main Input */}
                 <div style={{
-                  background: colors.bgSecondary,
+                  background: colors.bgElevated,
                   borderRadius: '16px',
-                  padding: '16px',
-                  marginBottom: '12px'
+                  padding: '20px',
+                  marginBottom: '12px',
+                  border: `2px solid ${colors.border}`,
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)'
                 }}>
                   <label style={{ 
                     display: 'block', 
@@ -2861,10 +2867,10 @@ const AddBetModal = memo(({
                     autoFocus
                     style={{
                       width: '100%',
-                      padding: '14px',
-                      fontSize: '16px',
+                      padding: '16px',
+                      fontSize: '18px',
                       fontWeight: '500',
-                      background: colors.bgElevated,
+                      background: colors.bgSecondary,
                       border: `2px solid ${parsedBet ? colors.accentPrimary : colors.border}`,
                       borderRadius: '12px',
                       color: colors.textPrimary,
@@ -2886,7 +2892,8 @@ const AddBetModal = memo(({
                     borderRadius: '16px',
                     padding: '16px',
                     border: `2px solid ${colors.accentPrimary}`,
-                    marginBottom: '12px'
+                    marginBottom: '12px',
+                    boxShadow: '0 2px 12px rgba(212, 165, 116, 0.2)'
                   }}>
                     <div style={{ 
                       fontSize: '10px', 
@@ -2955,7 +2962,13 @@ const AddBetModal = memo(({
 
                 {/* System Play Selection - compact toggles */}
                 {parsedBet && (
-                  <div style={{ marginBottom: '16px' }}>
+                  <div style={{ 
+                    marginBottom: '16px',
+                    background: colors.bgElevated,
+                    borderRadius: '12px',
+                    padding: '14px',
+                    border: `1px solid ${colors.border}`
+                  }}>
                     <div style={{ 
                       fontSize: '10px', 
                       fontWeight: '700', 
