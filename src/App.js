@@ -578,7 +578,7 @@ const BetCard = memo(({
   isRetired
 }) => (
   <div style={{ 
-    background: colors.bgSecondary, 
+    background: colors.bgElevated, 
     borderRadius: '20px', 
     padding: '16px', 
     border: `1px solid ${colors.border}`,
@@ -812,163 +812,173 @@ const HistoryPage = memo(({
           fontWeight: '700', 
           color: colors.textPrimary, 
           marginBottom: '16px',
+          paddingLeft: '4px',
           ...headerStyle 
         }}>
           Bet History
         </h2>
 
-        {/* Search Bar */}
-        <div style={{ marginBottom: '16px' }}>
-          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} colors={colors} />
-        </div>
-
-        {/* Sport Filter Pills */}
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ 
-            display: 'flex', 
-            gap: '8px', 
-            overflowX: 'auto', 
-            paddingBottom: '4px',
-            WebkitOverflowScrolling: 'touch'
-          }}>
-            {['all', 'nfl', 'ncaaf', 'nba', 'ncaab', 'mlb', 'boxing'].map(sport => (
-              <button
-                key={sport}
-                onClick={() => setHistoryFilter({...historyFilter, sport})}
-                style={{
-                  padding: '10px 16px',
-                  background: historyFilter.sport === sport ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.sport === sport ? '#FFFFFF' : colors.textPrimary,
-                  border: 'none',
-                  borderRadius: '20px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
-                }}
-              >
-                {sport === 'all' ? 'All Sports' : getSportLabel(sport)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Bet Type Filter Pills */}
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ 
-            display: 'flex', 
-            gap: '8px', 
-            overflowX: 'auto', 
-            paddingBottom: '4px',
-            WebkitOverflowScrolling: 'touch'
-          }}>
-            {['all', 'straight', 'money-line', 'over-under', 'parlay', 'teaser', 'prop'].map(type => (
-              <button
-                key={type}
-                onClick={() => setHistoryFilter({...historyFilter, betType: type})}
-                style={{
-                  padding: '10px 16px',
-                  background: historyFilter.betType === type ? colors.accentPrimary : colors.bgSecondary,
-                  color: historyFilter.betType === type ? '#FFFFFF' : colors.textPrimary,
-                  border: 'none',
-                  borderRadius: '20px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
-                }}
-              >
-                {type === 'all' ? 'All Types' : 
-                 type === 'straight' ? 'Spread' : 
-                 type === 'money-line' ? 'ML' : 
-                 type === 'over-under' ? 'O/U' :
-                 formatBetType(type)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* More Filters Button + Time Range - Same Row */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '12px', 
+        {/* Filters Card - WHITE container */}
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '16px',
           marginBottom: '16px',
-          alignItems: 'center'
+          border: `1px solid ${colors.border}`,
+          boxShadow: `0 2px 8px ${colors.shadow}`
         }}>
-          {/* More Filters Button */}
-          <button
-            onClick={() => setShowFilterModal(true)}
-            style={{
-              padding: '12px 16px',
-              background: moreFilterCount > 0 ? colors.accentPrimary : colors.bgElevated,
-              color: moreFilterCount > 0 ? '#FFFFFF' : colors.textPrimary,
-              border: `1px solid ${moreFilterCount > 0 ? colors.accentPrimary : colors.border}`,
-              borderRadius: '12px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            <Filter />
-            More Filters
-            {moreFilterCount > 0 && (
-              <span style={{
-                background: '#FFFFFF',
-                color: colors.accentPrimary,
-                borderRadius: '50%',
-                width: '20px',
-                height: '20px',
+          {/* Search Bar */}
+          <div style={{ marginBottom: '12px' }}>
+            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} colors={colors} />
+          </div>
+
+          {/* Sport Filter Pills */}
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '8px', 
+              overflowX: 'auto', 
+              paddingBottom: '4px',
+              WebkitOverflowScrolling: 'touch'
+            }}>
+              {['all', 'nfl', 'ncaaf', 'nba', 'ncaab', 'mlb', 'boxing'].map(sport => (
+                <button
+                  key={sport}
+                  onClick={() => setHistoryFilter({...historyFilter, sport})}
+                  style={{
+                    padding: '10px 16px',
+                    background: historyFilter.sport === sport ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.sport === sport ? '#FFFFFF' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '20px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}
+                >
+                  {sport === 'all' ? 'All Sports' : getSportLabel(sport)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Bet Type Filter Pills */}
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '8px', 
+              overflowX: 'auto', 
+              paddingBottom: '4px',
+              WebkitOverflowScrolling: 'touch'
+            }}>
+              {['all', 'straight', 'money-line', 'over-under', 'parlay', 'teaser', 'prop'].map(type => (
+                <button
+                  key={type}
+                  onClick={() => setHistoryFilter({...historyFilter, betType: type})}
+                  style={{
+                    padding: '10px 16px',
+                    background: historyFilter.betType === type ? colors.accentPrimary : colors.bgSecondary,
+                    color: historyFilter.betType === type ? '#FFFFFF' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '20px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}
+                >
+                  {type === 'all' ? 'All Types' : 
+                   type === 'straight' ? 'Spread' : 
+                   type === 'money-line' ? 'ML' : 
+                   type === 'over-under' ? 'O/U' :
+                   formatBetType(type)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* More Filters Button + Time Range - Same Row */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px',
+            alignItems: 'center'
+          }}>
+            {/* More Filters Button */}
+            <button
+              onClick={() => setShowFilterModal(true)}
+              style={{
+                padding: '12px 16px',
+                background: moreFilterCount > 0 ? colors.accentPrimary : colors.bgSecondary,
+                color: moreFilterCount > 0 ? '#FFFFFF' : colors.textPrimary,
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '11px',
-                fontWeight: '700'
-              }}>
-                {moreFilterCount}
-              </span>
-            )}
-          </button>
+                gap: '8px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <Filter />
+              More
+              {moreFilterCount > 0 && (
+                <span style={{
+                  background: '#FFFFFF',
+                  color: colors.accentPrimary,
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '11px',
+                  fontWeight: '700'
+                }}>
+                  {moreFilterCount}
+                </span>
+              )}
+            </button>
 
-          {/* Time Range Toggle */}
-          <div style={{ display: 'flex', flex: 1, gap: '8px' }}>
-            <button
-              onClick={() => setShowAllBets(false)}
-              style={{
-                flex: 1,
-                padding: '12px',
-                background: !showAllBets ? colors.accentPrimary : colors.bgSecondary,
-                color: !showAllBets ? '#FFFFFF' : colors.textSecondary,
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              30 Days
-            </button>
-            <button
-              onClick={() => setShowAllBets(true)}
-              style={{
-                flex: 1,
-                padding: '12px',
-                background: showAllBets ? colors.accentPrimary : colors.bgSecondary,
-                color: showAllBets ? '#FFFFFF' : colors.textSecondary,
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              All Time
-            </button>
+            {/* Time Range Toggle */}
+            <div style={{ display: 'flex', flex: 1, gap: '8px' }}>
+              <button
+                onClick={() => setShowAllBets(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: !showAllBets ? colors.accentPrimary : colors.bgSecondary,
+                  color: !showAllBets ? '#FFFFFF' : colors.textSecondary,
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                30 Days
+              </button>
+              <button
+                onClick={() => setShowAllBets(true)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: showAllBets ? colors.accentPrimary : colors.bgSecondary,
+                  color: showAllBets ? '#FFFFFF' : colors.textSecondary,
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                All Time
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1078,6 +1088,7 @@ const HistoryPage = memo(({
             padding: '16px',
             marginBottom: '16px',
             border: `1px solid ${colors.border}`,
+            boxShadow: `0 2px 8px ${colors.shadow}`,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
@@ -1107,9 +1118,18 @@ const HistoryPage = memo(({
         {/* Bet List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {filteredBets.length === 0 ? (
-            <p style={{ textAlign: 'center', padding: '32px', color: colors.textTertiary }}>
-              {searchQuery ? `No bets found matching "${searchQuery}"` : 'No bets match your filters'}
-            </p>
+            <div style={{
+              background: colors.bgElevated,
+              borderRadius: '20px',
+              padding: '32px',
+              border: `1px solid ${colors.border}`,
+              boxShadow: `0 2px 8px ${colors.shadow}`,
+              textAlign: 'center'
+            }}>
+              <p style={{ color: colors.textTertiary, margin: 0 }}>
+                {searchQuery ? `No bets found matching "${searchQuery}"` : 'No bets match your filters'}
+              </p>
+            </div>
           ) : (
             filteredBets.map(bet => (
               <BetCard 
@@ -1411,22 +1431,15 @@ const HomePage = memo(({
         )}
       </div>
 
-      {/* PENDING BETS - Right after System */}
+      {/* PENDING BETS - White cards directly on cream */}
       {pendingBets.length > 0 && (
-        <div style={{
-          background: colors.bgElevated,
-          borderRadius: '20px',
-          padding: '20px',
-          marginBottom: '24px',
-          boxShadow: `0 2px 8px ${colors.shadow}`,
-          border: `1px solid ${colors.border}`
-        }}>
+        <div style={{ marginBottom: '24px' }}>
           <h3 style={{
             fontSize: '16px',
             fontWeight: '700',
             color: colors.textPrimary,
-            marginBottom: '16px',
-            margin: '0 0 16px 0',
+            marginBottom: '12px',
+            margin: '0 0 12px 4px',
             ...headerStyle
           }}>
             Pending Bets ({pendingBets.length})
@@ -1449,15 +1462,9 @@ const HomePage = memo(({
         </div>
       )}
 
-      {/* RECENT BETS */}
-      <div style={{
-        background: colors.bgElevated,
-        borderRadius: '20px',
-        padding: '20px',
-        boxShadow: `0 2px 8px ${colors.shadow}`,
-        border: `1px solid ${colors.border}`
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      {/* RECENT BETS - White cards directly on cream */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', padding: '0 4px' }}>
           <h3 style={{
             fontSize: '16px',
             fontWeight: '700',
@@ -1474,7 +1481,7 @@ const HomePage = memo(({
     border: 'none',
     color: colors.accentPrimary,
     fontSize: '13px',
-    fontWeight: '700',  // Changed from 600 to 700
+    fontWeight: '700',
     cursor: 'pointer'
   }}
 >
@@ -1483,9 +1490,18 @@ const HomePage = memo(({
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {recentBets.length === 0 ? (
-            <p style={{ textAlign: 'center', padding: '32px', color: colors.textTertiary }}>
-              No bets yet. Add your first bet!
-            </p>
+            <div style={{
+              background: colors.bgElevated,
+              borderRadius: '20px',
+              padding: '32px',
+              border: `1px solid ${colors.border}`,
+              boxShadow: `0 2px 8px ${colors.shadow}`,
+              textAlign: 'center'
+            }}>
+              <p style={{ color: colors.textTertiary, margin: 0 }}>
+                No bets yet. Add your first bet!
+              </p>
+            </div>
           ) : (
             recentBets.map(bet => (
               <BetCard 
@@ -5024,7 +5040,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       )}
 
       {/* Main Content */}
-<div className={`max-w-7xl mx-auto p-4 md:p-6 ${isRetired ? 'opacity-30' : ''}`} style={{ display: showAddBetModal ? 'none' : 'block' }}>
+<div className={`max-w-7xl mx-auto ${isRetired ? 'opacity-30' : ''}`} style={{ padding: '16px 20px', display: showAddBetModal ? 'none' : 'block' }}>
         {/* Header */}
         <div style={{
           display: 'flex',
