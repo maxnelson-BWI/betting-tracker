@@ -2647,7 +2647,7 @@ const parseQuickAddInput = (text, unitValue = 50) => {
 
   // ADD BET MODAL COMPONENT
 // ============================================
-// ADD BET MODAL COMPONENT - Updated with Text Parser Quick Add
+/// ADD BET MODAL COMPONENT - Updated with Text Parser Quick Add
 // ============================================
 const AddBetModal = memo(({
   showAddBetModal,
@@ -2904,182 +2904,119 @@ const AddBetModal = memo(({
 
           <div style={{ padding: '16px' }}>
             {/* ============================================ */}
-            {/* QUICK ADD MODE - Text Parser */}
+            {/* QUICK ADD MODE - Compact layout for iOS keyboard */}
             {/* ============================================ */}
             {quickAddMode && !editingBet && (
-              <div style={{ display: 'flex', flexDirection: 'column', minHeight: '50vh' }}>
+              <div>
                 
-                {/* Preview Section - Takes up top space */}
-                <div style={{ flex: 1, marginBottom: '12px' }}>
-                  {parsedBet ? (
-                    <div style={{
-                      background: colors.bgElevated,
-                      borderRadius: '16px',
-                      padding: '16px',
-                      border: `2px solid ${colors.accentPrimary}`,
-                      boxShadow: '0 2px 12px rgba(212, 165, 116, 0.2)'
-                    }}>
-                      <div style={{ 
-                        fontSize: '10px', 
-                        fontWeight: '700', 
-                        color: colors.accentPrimary, 
-                        marginBottom: '10px', 
-                        textTransform: 'uppercase', 
-                        letterSpacing: '0.5px' 
-                      }}>
-                        ✓ Preview
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                        <span style={{
-                          background: colors.accentPrimary,
-                          color: '#FFFFFF',
-                          fontSize: '11px',
-                          fontWeight: '700',
-                          padding: '5px 10px',
-                          borderRadius: '6px'
-                        }}>
-                          {getSportLabel(parsedBet.sport)}
-                        </span>
-                        <span style={{
-                          background: colors.bgSecondary,
-                          color: colors.textPrimary,
-                          fontSize: '11px',
-                          fontWeight: '600',
-                          padding: '5px 10px',
-                          borderRadius: '6px'
-                        }}>
-                          {formatBetType(parsedBet.betType)}
-                        </span>
-                      </div>
-
-                      <div style={{ fontSize: '16px', fontWeight: '600', color: colors.textPrimary, marginBottom: '10px' }}>
-                        {parsedBet.description}
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '16px', paddingTop: '10px', borderTop: `1px solid ${colors.border}`, flexWrap: 'wrap' }}>
-                        <div>
-                          <div style={{ fontSize: '10px', color: colors.textTertiary }}>Units</div>
-                          <div style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary }}>{parsedBet.units}u</div>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '10px', color: colors.textTertiary }}>Odds</div>
-                          <div style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary }}>
-                            {parsedBet.odds > 0 ? '+' : ''}{parsedBet.odds}
-                          </div>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '10px', color: colors.textTertiary }}>Risk</div>
-                          <div style={{ fontSize: '14px', fontWeight: '700', color: colors.accentLoss }}>
-                            ${parsedBet.riskAmount.toFixed(2)}
-                          </div>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '10px', color: colors.textTertiary }}>Win</div>
-                          <div style={{ fontSize: '14px', fontWeight: '700', color: colors.accentWin }}>
-                            ${parsedBet.winAmount.toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{
-                      background: colors.bgSecondary,
-                      borderRadius: '16px',
-                      padding: '32px 20px',
-                      textAlign: 'center',
-                      border: `2px dashed ${colors.border}`
-                    }}>
-                      <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏈</div>
-                      <div style={{ fontSize: '14px', color: colors.textTertiary }}>
-                        Type a bet below to see preview
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* System Play - only show when bet is parsed */}
-                {parsedBet && (
-                  <div style={{ 
-                    marginBottom: '12px',
-                    background: colors.bgElevated,
-                    borderRadius: '12px',
-                    padding: '14px',
-                    border: `1px solid ${colors.border}`
-                  }}>
-                    <div style={{ 
-                      fontSize: '10px', 
-                      fontWeight: '700', 
-                      color: colors.textSecondary, 
-                      marginBottom: '8px', 
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.5px' 
-                    }}>
-                      System Play (optional)
-                    </div>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                      {[
-                        { value: 'clear', label: 'Clear', color: '#6B8CAE' },
-                        { value: 'kind-of', label: 'Kind Of', color: '#8B9DC3' },
-                        { value: 'no-system', label: 'None', color: colors.textTertiary },
-                        { value: 'not-system', label: 'Anti', color: colors.accentLoss }
-                      ].map(sys => (
-                        <button
-                          key={sys.value}
-                          type="button"
-                          onClick={() => setQuickSystemPlay(quickSystemPlay === sys.value ? 'none' : sys.value)}
-                          style={{
-                            padding: '6px 12px',
-                            fontSize: '11px',
-                            fontWeight: '600',
-                            borderRadius: '16px',
-                            cursor: 'pointer',
-                            transition: 'all 0.15s ease',
-                            background: quickSystemPlay === sys.value ? sys.color : 'transparent',
-                            color: quickSystemPlay === sys.value ? '#FFFFFF' : colors.textTertiary,
-                            border: `1.5px solid ${quickSystemPlay === sys.value ? sys.color : colors.border}`
-                          }}
-                        >
-                          {sys.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Input Section - At BOTTOM for iOS keyboard visibility */}
+                {/* Input Section with inline preview */}
                 <div style={{
                   background: colors.bgElevated,
-                  borderRadius: '16px',
+                  borderRadius: '12px',
                   padding: '16px',
-                  marginBottom: '12px',
-                  border: `2px solid ${colors.border}`,
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                  marginBottom: '10px',
+                  border: `2px solid ${parsedBet ? colors.accentPrimary : colors.border}`
                 }}>
                   <input
-                    id="quick-add-input"
                     type="text"
                     value={quickAddInput}
                     onChange={handleQuickAddInputChange}
                     placeholder="Chiefs -3 1u -110"
                     style={{
                       width: '100%',
-                      padding: '16px',
-                      fontSize: '18px',
+                      padding: '14px',
+                      fontSize: '17px',
                       fontWeight: '500',
                       background: colors.bgSecondary,
-                      border: `2px solid ${parsedBet ? colors.accentPrimary : colors.border}`,
-                      borderRadius: '12px',
+                      border: 'none',
+                      borderRadius: '10px',
                       color: colors.textPrimary,
                       outline: 'none',
-                      boxSizing: 'border-box',
-                      transition: 'border-color 0.2s'
+                      boxSizing: 'border-box'
                     }}
                   />
-                  <p style={{ fontSize: '11px', color: colors.textTertiary, marginTop: '8px', marginBottom: 0, textAlign: 'center' }}>
-                    "1u", ".5u", "risk $50", or "to win $100"
-                  </p>
+                  
+                  {/* Inline compact preview - right below input */}
+                  {parsedBet ? (
+                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px solid ${colors.border}` }}>
+                      {/* Row 1: Sport, Type, Description */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                        <span style={{
+                          background: colors.accentPrimary,
+                          color: '#FFFFFF',
+                          fontSize: '10px',
+                          fontWeight: '700',
+                          padding: '4px 8px',
+                          borderRadius: '4px'
+                        }}>
+                          {getSportLabel(parsedBet.sport)}
+                        </span>
+                        <span style={{
+                          background: colors.bgSecondary,
+                          color: colors.textPrimary,
+                          fontSize: '10px',
+                          fontWeight: '600',
+                          padding: '4px 8px',
+                          borderRadius: '4px'
+                        }}>
+                          {formatBetType(parsedBet.betType)}
+                        </span>
+                        <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                          {parsedBet.description}
+                        </span>
+                      </div>
+                      
+                      {/* Row 2: Units, Odds, Risk, Win - all in one line */}
+                      <div style={{ display: 'flex', gap: '16px', fontSize: '12px' }}>
+                        <span><span style={{ color: colors.textTertiary }}>Units:</span> <strong>{parsedBet.units}u</strong></span>
+                        <span><span style={{ color: colors.textTertiary }}>Odds:</span> <strong>{parsedBet.odds > 0 ? '+' : ''}{parsedBet.odds}</strong></span>
+                        <span><span style={{ color: colors.textTertiary }}>Risk:</span> <strong style={{ color: colors.accentLoss }}>${parsedBet.riskAmount.toFixed(0)}</strong></span>
+                        <span><span style={{ color: colors.textTertiary }}>Win:</span> <strong style={{ color: colors.accentWin }}>${parsedBet.winAmount.toFixed(0)}</strong></span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '8px', marginBottom: 0, textAlign: 'center' }}>
+                      "1u" · ".5u" · "risk $50" · "to win $100"
+                    </p>
+                  )}
                 </div>
+
+                {/* System Play - compact single row */}
+                {parsedBet && (
+                  <div style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '12px',
+                    flexWrap: 'wrap'
+                  }}>
+                    <span style={{ fontSize: '10px', color: colors.textTertiary, fontWeight: '600' }}>SYSTEM:</span>
+                    {[
+                      { value: 'clear', label: 'Clear', color: '#6B8CAE' },
+                      { value: 'kind-of', label: 'Kind Of', color: '#8B9DC3' },
+                      { value: 'no-system', label: 'None', color: colors.textTertiary },
+                      { value: 'not-system', label: 'Anti', color: colors.accentLoss }
+                    ].map(sys => (
+                      <button
+                        key={sys.value}
+                        type="button"
+                        onClick={() => setQuickSystemPlay(quickSystemPlay === sys.value ? 'none' : sys.value)}
+                        style={{
+                          padding: '5px 10px',
+                          fontSize: '10px',
+                          fontWeight: '600',
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          background: quickSystemPlay === sys.value ? sys.color : 'transparent',
+                          color: quickSystemPlay === sys.value ? '#FFFFFF' : colors.textTertiary,
+                          border: `1px solid ${quickSystemPlay === sys.value ? sys.color : colors.border}`
+                        }}
+                      >
+                        {sys.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div style={{ display: 'flex', gap: '10px' }}>
