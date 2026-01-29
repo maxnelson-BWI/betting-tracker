@@ -4864,29 +4864,64 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
 
       {/* Delete Confirmation Modal */}
       {deleteModal.show && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="rounded-2xl p-6 max-w-md w-full shadow-2xl" style={{ background: colors.bgElevated, border: '2px solid rgba(231, 76, 60, 0.5)' }}>
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0" style={{ color: '#E74C3C' }}>
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '16px'
+        }}>
+          <div style={{ 
+            background: colors.bgElevated, 
+            border: '2px solid rgba(231, 76, 60, 0.5)',
+            borderRadius: '16px',
+            padding: '24px',
+            maxWidth: '28rem',
+            width: '100%',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ flexShrink: 0, color: '#E74C3C' }}>
                 <AlertCircle />
               </div>
               <div>
-                <h3 className="text-xl font-bold mb-2" style={{ color: colors.textPrimary }}>Delete Bet</h3>
+                <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '8px', color: colors.textPrimary }}>Delete Bet</h3>
                 <p style={{ color: colors.textSecondary }}>Are you sure you want to delete this bet? This action cannot be undone.</p>
               </div>
             </div>
-            <div className="flex gap-3">
+            <div style={{ display: 'flex', gap: '12px' }}>
               <button
                 onClick={confirmDelete}
-                className="flex-1 py-3 rounded-lg transition-all font-medium shadow-xl"
-                style={{ background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)', color: '#FFFFFF' }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  fontWeight: '500',
+                  background: 'linear-gradient(135deg, #E74C3C 0%, #C0392B 100%)',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                }}
               >
                 Delete
               </button>
               <button
                 onClick={() => setDeleteModal({ show: false, betId: null })}
-                className="flex-1 py-3 rounded-lg transition-all font-medium"
-                style={{ background: colors.bgSecondary, color: colors.textSecondary }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  fontWeight: '500',
+                  background: colors.bgSecondary,
+                  color: colors.textSecondary,
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
               >
                 Cancel
               </button>
