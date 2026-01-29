@@ -4949,7 +4949,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       )}
 
       {/* Main Content */}
-      <div className={`max-w-7xl mx-auto p-4 md:p-6 ${isRetired ? 'opacity-30' : ''}`}>
+<div className={`max-w-7xl mx-auto p-4 md:p-6 ${isRetired ? 'opacity-30' : ''}`} style={{ display: showAddBetModal ? 'none' : 'block' }}>
         {/* Header */}
         <div style={{
           display: 'flex',
@@ -4982,9 +4982,10 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       </div>
 
       {/* Bottom Navigation */}
-      <div style={{ 
-        position: 'fixed', 
-        bottom: 0, 
+<div style={{ 
+  position: 'fixed', 
+  bottom: 0,
+  display: showAddBetModal ? 'none' : 'block', 
         left: 0, 
         right: 0, 
         background: colors.bgElevated, 
