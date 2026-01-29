@@ -2738,14 +2738,16 @@ const AddBetModal = memo(({
     return (
       <div 
         className="fixed inset-0 z-50 flex items-end justify-center"
-        style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
+        style={{ background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(8px)' }}
         onClick={cancelEdit}
       >
         <div 
-          className="rounded-t-3xl w-full max-w-2xl overflow-y-auto shadow-2xl"
+          className="rounded-t-3xl w-full max-w-2xl overflow-y-auto"
           style={{ 
             background: colors.bgElevated,
-            borderTop: `1px solid ${colors.border}`,
+            border: `3px solid ${colors.accentPrimary}`,
+            borderBottom: 'none',
+            boxShadow: '0 -8px 40px rgba(0, 0, 0, 0.3), 0 -2px 20px rgba(212, 165, 116, 0.3)',
             minHeight: quickAddMode && !editingBet ? 'auto' : '85vh',
             maxHeight: '85vh'
           }}
@@ -2758,9 +2760,21 @@ const AddBetModal = memo(({
             zIndex: 10,
             background: colors.bgElevated,
             borderBottom: `1px solid ${colors.border}`,
-            padding: '12px 16px'
+            padding: '16px 16px 12px 16px',
+            borderRadius: '24px 24px 0 0'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {/* Gold accent bar at top */}
+            <div style={{
+              position: 'absolute',
+              top: '8px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '40px',
+              height: '4px',
+              background: colors.accentPrimary,
+              borderRadius: '2px'
+            }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
               <h2 style={{ fontSize: '18px', fontWeight: '700', color: colors.textPrimary, margin: 0 }}>
                 {editingBet ? 'Edit Bet' : (quickAddMode ? 'Quick Add' : `Step ${addBetStep} of 3`)}
               </h2>
