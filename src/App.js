@@ -2737,23 +2737,48 @@ const AddBetModal = memo(({
 
     return (
       <div 
-        className="fixed inset-0 z-50 flex items-end justify-center"
         style={{ 
-          background: 'rgba(0, 0, 0, 0.7)', 
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)'
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'center',
+          background: colors.bgPrimary,
+          overflow: 'hidden'
         }}
         onClick={cancelEdit}
       >
+        {/* Dark overlay at top when in full form mode */}
+        {!quickAddMode && !editingBet && (
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '8vh',
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), transparent)',
+            pointerEvents: 'none'
+          }} />
+        )}
         <div 
-          className="rounded-t-3xl w-full max-w-2xl overflow-y-auto"
           style={{ 
-            background: colors.bgPrimary,
+            background: colors.bgElevated,
+            borderTopLeftRadius: '24px',
+            borderTopRightRadius: '24px',
+            width: '100%',
+            maxWidth: '672px',
+            overflowY: 'auto',
             border: `3px solid ${colors.accentPrimary}`,
             borderBottom: 'none',
-            boxShadow: '0 -8px 40px rgba(0, 0, 0, 0.4), 0 -2px 20px rgba(212, 165, 116, 0.4)',
-            minHeight: quickAddMode && !editingBet ? 'auto' : '90vh',
-            maxHeight: '92vh'
+            boxShadow: '0 -8px 40px rgba(0, 0, 0, 0.3), 0 -2px 20px rgba(212, 165, 116, 0.3)',
+            minHeight: quickAddMode && !editingBet ? 'auto' : '92vh',
+            maxHeight: '94vh',
+            position: 'relative',
+            zIndex: 1
           }}
           onClick={(e) => e.stopPropagation()}
         >
