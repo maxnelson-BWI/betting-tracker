@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, memo, useCallback } from 'react';
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { db } from './firebase';
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, where } from 'firebase/firestore';
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
+import { db, auth, googleProvider } from './firebase';
 import './animations.css';
 
 // Icon Components
@@ -147,6 +148,309 @@ const Search = () => (
     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
   </svg>
 );
+
+// LogOut Icon
+const LogOut = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+    <polyline points="16 17 21 12 16 7"></polyline>
+    <line x1="21" y1="12" x2="9" y2="12"></line>
+  </svg>
+);
+
+// ============================================
+// LOGIN PAGE COMPONENT
+// ============================================
+const LoginPage = memo(({ colors, onLogin }) => {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleEmailAuth = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    if (isSignUp && password !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (isSignUp) {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+    } catch (err) {
+      if (err.code === 'auth/user-not-found') {
+        setError('No account found with this email');
+      } else if (err.code === 'auth/wrong-password') {
+        setError('Incorrect password');
+      } else if (err.code === 'auth/email-already-in-use') {
+        setError('Email already in use');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Invalid email address');
+      } else {
+        setError(err.message);
+      }
+    }
+    setLoading(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (err) {
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError('Google sign-in failed. Please try again.');
+      }
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: colors.bgPrimary,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px'
+    }}>
+      {/* Logo */}
+      <div style={{ marginBottom: '40px', textAlign: 'center' }}>
+        <div style={{
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          fontSize: '36px',
+          fontWeight: '700',
+          fontStyle: 'italic',
+          color: '#2C3E50',
+          letterSpacing: '0.5px'
+        }}>
+          The Cindy
+        </div>
+        <div style={{
+          height: '4px',
+          background: 'linear-gradient(90deg, #D4A574 0%, #E8B887 70%, transparent 100%)',
+          marginTop: '4px',
+          width: '100%',
+          borderRadius: '2px'
+        }} />
+      </div>
+
+      {/* Login Card */}
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '24px',
+        padding: '32px',
+        width: '100%',
+        maxWidth: '400px',
+        boxShadow: `0 8px 32px ${colors.shadow}`,
+        border: `1px solid ${colors.border}`
+      }}>
+        <h2 style={{
+          fontSize: '24px',
+          fontWeight: '700',
+          color: colors.textPrimary,
+          marginBottom: '8px',
+          textAlign: 'center'
+        }}>
+          {isSignUp ? 'Create Account' : 'Welcome Back'}
+        </h2>
+        <p style={{
+          fontSize: '14px',
+          color: colors.textSecondary,
+          marginBottom: '24px',
+          textAlign: 'center'
+        }}>
+          {isSignUp ? 'Start tracking your bets' : 'Sign in to continue'}
+        </p>
+
+        {/* Google Sign In Button */}
+        <button
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          style={{
+            width: '100%',
+            padding: '14px',
+            background: colors.bgElevated,
+            border: `2px solid ${colors.border}`,
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: '600',
+            color: colors.textPrimary,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            marginBottom: '20px',
+            opacity: loading ? 0.7 : 1
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        {/* Divider */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '20px'
+        }}>
+          <div style={{ flex: 1, height: '1px', background: colors.border }} />
+          <span style={{ fontSize: '12px', color: colors.textTertiary }}>or</span>
+          <div style={{ flex: 1, height: '1px', background: colors.border }} />
+        </div>
+
+        {/* Email/Password Form */}
+        <form onSubmit={handleEmailAuth}>
+          <div style={{ marginBottom: '16px' }}>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: colors.bgSecondary,
+                border: `1px solid ${colors.border}`,
+                borderRadius: '12px',
+                fontSize: '16px',
+                color: colors.textPrimary,
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+          <div style={{ marginBottom: '16px' }}>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: colors.bgSecondary,
+                border: `1px solid ${colors.border}`,
+                borderRadius: '12px',
+                fontSize: '16px',
+                color: colors.textPrimary,
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+          {isSignUp && (
+            <div style={{ marginBottom: '16px' }}>
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  background: colors.bgSecondary,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  color: colors.textPrimary,
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+          )}
+
+          {error && (
+            <div style={{
+              padding: '12px',
+              background: 'rgba(184, 92, 80, 0.1)',
+              border: '1px solid rgba(184, 92, 80, 0.3)',
+              borderRadius: '8px',
+              marginBottom: '16px',
+              fontSize: '14px',
+              color: '#B85C50'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '16px',
+              background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '16px',
+              fontWeight: '700',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1
+            }}
+          >
+            {loading ? 'Please wait...' : (isSignUp ? 'Create Account' : 'Sign In')}
+          </button>
+        </form>
+
+        {/* Toggle Sign Up / Sign In */}
+        <p style={{
+          marginTop: '24px',
+          textAlign: 'center',
+          fontSize: '14px',
+          color: colors.textSecondary
+        }}>
+          {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+          <button
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setError('');
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: colors.accentPrimary,
+              fontWeight: '600',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            {isSignUp ? 'Sign In' : 'Sign Up'}
+          </button>
+        </p>
+      </div>
+    </div>
+  );
+});
 
 // ============================================
 /// ============================================
@@ -2153,10 +2457,66 @@ const MorePage = memo(({
   monthlyLimit,
   setMonthlyLimit,
   notificationSettings,
-  setNotificationSettings
+  setNotificationSettings,
+  user,
+  onLogout
 }) => {
     return (
       <div style={{ paddingBottom: '100px' }}>
+        {/* User Account Section */}
+        <div style={{
+          background: colors.bgElevated,
+          borderRadius: '20px',
+          padding: '20px',
+          marginBottom: '24px',
+          boxShadow: `0 2px 8px ${colors.shadow}`,
+          border: `1px solid ${colors.border}`
+        }}>
+          <h2 style={{
+            fontSize: '18px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            marginBottom: '16px',
+            ...headerStyle
+          }}>
+            Account
+          </h2>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            padding: '12px 0'
+          }}>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                {user?.displayName || 'Bettor'}
+              </div>
+              <div style={{ fontSize: '12px', color: colors.textSecondary }}>
+                {user?.email}
+              </div>
+            </div>
+            <button
+              onClick={onLogout}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 16px',
+                background: colors.bgSecondary,
+                color: colors.textSecondary,
+                border: `1px solid ${colors.border}`,
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              <LogOut />
+              Sign Out
+            </button>
+          </div>
+        </div>
+
         <div style={{
           background: colors.bgElevated,
           borderRadius: '20px',
@@ -3964,6 +4324,8 @@ const AddBetModal = memo(({
 });
 
 function App() {
+      const [user, setUser] = useState(null);
+      const [authLoading, setAuthLoading] = useState(true);
       const [bets, setBets] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
 // Theme state removed - was unused
@@ -4046,6 +4408,24 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
   useEffect(() => {
     localStorage.setItem('displayMode', displayMode);
   }, [displayMode]);
+
+  // Auth state listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('unitValue', unitValue.toString());
@@ -4146,7 +4526,17 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
   }, [retirementDays]);
 
   useEffect(() => {
-    const q = query(collection(db, 'bets'), orderBy('timestamp', 'desc'));
+    if (!user) {
+      setBets([]);
+      setLoading(false);
+      return;
+    }
+
+    const q = query(
+      collection(db, 'bets'), 
+      where('userId', '==', user.uid),
+      orderBy('timestamp', 'desc')
+    );
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const betsData = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -4161,7 +4551,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const formatMoney = useCallback((dollarAmount) => {
     if (displayMode === 'units') {
@@ -4311,6 +4701,7 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     
     const newBet = {
       ...dataToSubmit,
+      userId: user.uid,
       units: parseFloat(dataToSubmit.units),
       odds: parseFloat(dataToSubmit.odds),
       riskAmount: risk,
@@ -4884,6 +5275,69 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
   const recentBets = bets.slice(0, 5);
   const pendingBets = bets.filter(b => b.result === 'pending');
 
+  // Auth loading state
+  if (authLoading) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        flexDirection: 'column',
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: colors.bgPrimary,
+        gap: '32px'
+      }}>
+        <div style={{ 
+          display: 'inline-flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '24px 36px',
+          background: 'linear-gradient(145deg, #FFF8F0 0%, #F5E6D3 100%)',
+          borderRadius: '20px',
+          boxShadow: '0 4px 20px rgba(212, 165, 116, 0.25)'
+        }}>
+          <div style={{
+            fontFamily: 'Georgia, "Times New Roman", serif',
+            fontSize: '48px',
+            fontWeight: '700',
+            fontStyle: 'italic',
+            color: '#2C3E50',
+            letterSpacing: '0.5px',
+            lineHeight: 1.2
+          }}>
+            The Cindy
+          </div>
+          <div style={{
+            height: '5px',
+            width: '180px',
+            background: 'linear-gradient(90deg, #D4A574 0%, #E8B887 100%)',
+            marginTop: '6px',
+            borderRadius: '3px'
+          }} />
+        </div>
+        <div style={{
+          width: '32px',
+          height: '32px',
+          border: `3px solid ${colors.bgSecondary}`,
+          borderTop: `3px solid ${colors.accentPrimary}`,
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // Show login if not authenticated
+  if (!user) {
+    return <LoginPage colors={colors} />;
+  }
+
   if (loading) {
     return (
       <div style={{ 
@@ -5017,6 +5471,8 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
           setMonthlyLimit={setMonthlyLimit}
           notificationSettings={notificationSettings}
           setNotificationSettings={setNotificationSettings}
+          user={user}
+          onLogout={handleLogout}
         />;
       default:
         return <HomePage />;
