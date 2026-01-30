@@ -4729,8 +4729,71 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: colors.bgPrimary }}>
-        <div className="text-xl" style={{ color: colors.textSecondary }}>Loading your bets...</div>
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        flexDirection: 'column',
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: colors.bgPrimary,
+        gap: '32px'
+      }}>
+        {/* Logo */}
+        <div style={{ 
+          display: 'inline-flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '24px 36px',
+          background: 'linear-gradient(145deg, #FFF8F0 0%, #F5E6D3 100%)',
+          borderRadius: '20px',
+          boxShadow: '0 4px 20px rgba(212, 165, 116, 0.25)'
+        }}>
+          <div style={{
+            fontFamily: 'Georgia, "Times New Roman", serif',
+            fontSize: '48px',
+            fontWeight: '700',
+            fontStyle: 'italic',
+            color: '#2C3E50',
+            letterSpacing: '0.5px',
+            lineHeight: 1.2
+          }}>
+            The Cindy
+          </div>
+          <div style={{
+            height: '5px',
+            width: '180px',
+            background: 'linear-gradient(90deg, #D4A574 0%, #E8B887 100%)',
+            marginTop: '6px',
+            borderRadius: '3px'
+          }} />
+        </div>
+        
+        {/* Loading indicator */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            border: `3px solid ${colors.bgSecondary}`,
+            borderTop: `3px solid ${colors.accentPrimary}`,
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <div style={{ color: colors.textSecondary, fontSize: '14px' }}>
+            Loading your bets...
+          </div>
+        </div>
+        
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }
