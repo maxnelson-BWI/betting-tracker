@@ -161,6 +161,565 @@ const LogOut = () => (
 // ============================================
 // LOGIN PAGE COMPONENT
 // ============================================
+// ============================================
+// DESKTOP LANDING PAGE COMPONENT
+// ============================================
+const DesktopLandingPage = memo(({ colors, onContinue }) => {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '40px 20px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
+      {/* Logo */}
+      <div style={{ marginBottom: '40px', textAlign: 'center' }}>
+        <div style={{
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          fontSize: '56px',
+          fontWeight: '700',
+          fontStyle: 'italic',
+          color: '#2C3E50',
+          letterSpacing: '0.5px'
+        }}>
+          The Cindy
+        </div>
+        <div style={{
+          height: '5px',
+          background: 'linear-gradient(90deg, #D4A574 0%, #E8B887 70%, transparent 100%)',
+          marginTop: '8px',
+          width: '280px',
+          borderRadius: '3px',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }} />
+      </div>
+
+      {/* Main Card */}
+      <div style={{
+        background: '#FFFFFF',
+        borderRadius: '32px',
+        padding: '48px',
+        maxWidth: '520px',
+        width: '100%',
+        boxShadow: '0 12px 48px rgba(212, 165, 116, 0.15)',
+        border: '1px solid #E5D5C3',
+        textAlign: 'center'
+      }}>
+        {/* Phone Frame with App Preview */}
+        <div style={{
+          width: '200px',
+          height: '400px',
+          background: '#1a1a1a',
+          borderRadius: '36px',
+          padding: '12px',
+          margin: '0 auto 32px',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3), inset 0 0 0 2px #333',
+          position: 'relative'
+        }}>
+          {/* Notch */}
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '60px',
+            height: '20px',
+            background: '#1a1a1a',
+            borderRadius: '0 0 12px 12px',
+            zIndex: 10
+          }} />
+          {/* Screen */}
+          <div style={{
+            width: '100%',
+            height: '100%',
+            background: '#FFF8F0',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            position: 'relative'
+          }}>
+            {/* Mini App UI */}
+            <div style={{
+              padding: '32px 12px 12px',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              {/* Mini Header */}
+              <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+                <div style={{
+                  fontFamily: 'Georgia, serif',
+                  fontSize: '14px',
+                  fontStyle: 'italic',
+                  fontWeight: '700',
+                  color: '#2C3E50'
+                }}>The Cindy</div>
+                <div style={{
+                  height: '2px',
+                  width: '60px',
+                  background: 'linear-gradient(90deg, #D4A574, #E8B887)',
+                  margin: '2px auto 0',
+                  borderRadius: '1px'
+                }} />
+              </div>
+              
+              {/* Mini Hero */}
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '16px 12px',
+                marginBottom: '8px',
+                boxShadow: '0 2px 8px rgba(212,165,116,0.15)'
+              }}>
+                <div style={{ fontSize: '8px', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                  Total Profit/Loss
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: '800', color: '#7C9885' }}>
+                  +$847.50
+                </div>
+                <div style={{
+                  background: 'linear-gradient(135deg, #D4A574, #C89B6A)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px',
+                  fontSize: '10px',
+                  fontWeight: '600',
+                  marginTop: '8px',
+                  width: '100%',
+                  textAlign: 'center'
+                }}>+ Add New Bet</div>
+              </div>
+              
+              {/* Mini Stats */}
+              <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+                <div style={{ flex: 1, background: 'white', borderRadius: '10px', padding: '10px 6px', textAlign: 'center', boxShadow: '0 2px 8px rgba(212,165,116,0.1)' }}>
+                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#7C9885' }}>+$215</div>
+                  <div style={{ fontSize: '7px', color: '#9CA3AF', marginTop: '2px' }}>This Month</div>
+                </div>
+                <div style={{ flex: 1, background: 'white', borderRadius: '10px', padding: '10px 6px', textAlign: 'center', boxShadow: '0 2px 8px rgba(212,165,116,0.1)' }}>
+                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#2C3E50' }}>54.2%</div>
+                  <div style={{ fontSize: '7px', color: '#9CA3AF', marginTop: '2px' }}>Win Rate</div>
+                </div>
+                <div style={{ flex: 1, background: 'white', borderRadius: '10px', padding: '10px 6px', textAlign: 'center', boxShadow: '0 2px 8px rgba(212,165,116,0.1)' }}>
+                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#D4A574' }}>3 🔥</div>
+                  <div style={{ fontSize: '7px', color: '#9CA3AF', marginTop: '2px' }}>Streak</div>
+                </div>
+              </div>
+              
+              {/* Mini Nav */}
+              <div style={{
+                marginTop: 'auto',
+                display: 'flex',
+                justifyContent: 'space-around',
+                padding: '8px 0',
+                background: 'white',
+                borderRadius: '12px'
+              }}>
+                {[true, false, false, false, false].map((active, i) => (
+                  <div key={i} style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: active ? '#D4A574' : '#E5D5C3'
+                  }} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h1 style={{
+          fontSize: '28px',
+          fontWeight: '700',
+          color: '#2C3E50',
+          marginBottom: '12px',
+          fontFamily: 'Georgia, "Times New Roman", serif'
+        }}>
+          Get the App
+        </h1>
+        <p style={{
+          fontSize: '16px',
+          color: '#6B7280',
+          marginBottom: '24px',
+          lineHeight: '1.6'
+        }}>
+          The Cindy is designed for mobile. Scan the QR code or visit on your phone to install.
+        </p>
+
+        {/* Install Instructions */}
+        <div style={{
+          background: '#F5E6D3',
+          borderRadius: '16px',
+          padding: '20px',
+          marginBottom: '24px',
+          textAlign: 'left'
+        }}>
+          <p style={{ fontSize: '14px', fontWeight: '700', color: '#2C3E50', marginBottom: '12px' }}>
+            How to Install:
+          </p>
+          <div style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.8' }}>
+            <div><strong>iPhone:</strong> Open in Safari → Tap <span style={{ display: 'inline-block', background: '#FFFFFF', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>⬆️ Share</span> → "Add to Home Screen"</div>
+            <div style={{ marginTop: '8px' }}><strong>Android:</strong> Open in Chrome → Tap <span style={{ display: 'inline-block', background: '#FFFFFF', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>⋮ Menu</span> → "Add to Home Screen"</div>
+          </div>
+        </div>
+
+        {/* QR Code Placeholder */}
+        <div style={{
+          width: '140px',
+          height: '140px',
+          background: '#F5E6D3',
+          borderRadius: '16px',
+          margin: '0 auto 32px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '2px solid #E5D5C3'
+        }}>
+          <span style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center', padding: '16px' }}>
+            [QR Code to<br/>thecindy.app]
+          </span>
+        </div>
+
+        {/* Dark Footer CTA */}
+        <div style={{
+          background: 'linear-gradient(135deg, #2C3E50 0%, #1a252f 100%)',
+          borderRadius: '16px',
+          padding: '24px',
+          textAlign: 'center'
+        }}>
+          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', marginBottom: '16px' }}>
+            Or continue on desktop
+          </p>
+          <button
+            onClick={onContinue}
+            style={{
+              display: 'inline-block',
+              background: 'linear-gradient(135deg, #D4A574 0%, #C89B6A 100%)',
+              color: '#FFFFFF',
+              padding: '14px 32px',
+              borderRadius: '12px',
+              fontSize: '16px',
+              fontWeight: '700',
+              textDecoration: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 8px 24px rgba(212, 165, 116, 0.3)'
+            }}
+          >
+            Start tracking bets →
+          </button>
+        </div>
+      </div>
+
+      <p style={{ marginTop: '40px', fontSize: '13px', color: '#9CA3AF' }}>
+        A betting tracker for people who fade the public
+      </p>
+    </div>
+  );
+});
+
+// ============================================
+// MOBILE ONBOARDING COMPONENT
+// ============================================
+const MobileOnboarding = memo(({ colors, onContinue, onDismiss }) => {
+  const [isIOS] = useState(() => /iPad|iPhone|iPod/.test(navigator.userAgent));
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #FFF8F0 0%, #F5E6D3 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '60px 24px 40px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
+      {/* Top Section - Logo */}
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          fontSize: '42px',
+          fontWeight: '700',
+          fontStyle: 'italic',
+          color: '#2C3E50',
+          letterSpacing: '0.5px'
+        }}>
+          The Cindy
+        </div>
+        <div style={{
+          height: '4px',
+          background: 'linear-gradient(90deg, #D4A574 0%, #E8B887 70%, transparent 100%)',
+          marginTop: '6px',
+          width: '200px',
+          borderRadius: '2px',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }} />
+      </div>
+
+      {/* Middle Section - Install Card */}
+      <div style={{ width: '100%', maxWidth: '400px' }}>
+        <div style={{
+          background: '#FFFFFF',
+          borderRadius: '24px',
+          padding: '28px 24px',
+          boxShadow: '0 8px 32px rgba(212, 165, 116, 0.15)',
+          border: '1px solid #E5D5C3'
+        }}>
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: '700',
+            color: '#2C3E50',
+            marginBottom: '20px',
+            textAlign: 'center',
+            fontFamily: 'Georgia, serif'
+          }}>
+            Add to Home Screen
+          </h2>
+
+          {/* iOS Instructions */}
+          {isIOS ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px 0', borderBottom: '1px solid #F5E6D3' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #D4A574 0%, #C89B6A 100%)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  color: '#FFFFFF',
+                  flexShrink: 0
+                }}>1</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '15px', color: '#2C3E50', lineHeight: '1.5', margin: 0 }}>
+                    Tap the <strong>Share</strong> button in Safari
+                  </p>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    background: '#F5E6D3',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    marginTop: '8px'
+                  }}>⬆️ Share</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px 0', borderBottom: '1px solid #F5E6D3' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #D4A574 0%, #C89B6A 100%)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  color: '#FFFFFF',
+                  flexShrink: 0
+                }}>2</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '15px', color: '#2C3E50', lineHeight: '1.5', margin: 0 }}>
+                    Scroll down and tap
+                  </p>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    background: '#F5E6D3',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    marginTop: '8px'
+                  }}>➕ Add to Home Screen</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px 0' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #D4A574 0%, #C89B6A 100%)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  color: '#FFFFFF',
+                  flexShrink: 0
+                }}>3</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '15px', color: '#2C3E50', lineHeight: '1.5', margin: 0 }}>
+                    Tap <strong>Add</strong>
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Android Instructions */
+            <>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px 0', borderBottom: '1px solid #F5E6D3' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #D4A574 0%, #C89B6A 100%)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  color: '#FFFFFF',
+                  flexShrink: 0
+                }}>1</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '15px', color: '#2C3E50', lineHeight: '1.5', margin: 0 }}>
+                    Tap the <strong>Menu</strong> button in Chrome
+                  </p>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    background: '#F5E6D3',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    marginTop: '8px'
+                  }}>⋮ Menu</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px 0', borderBottom: '1px solid #F5E6D3' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #D4A574 0%, #C89B6A 100%)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  color: '#FFFFFF',
+                  flexShrink: 0
+                }}>2</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '15px', color: '#2C3E50', lineHeight: '1.5', margin: 0 }}>
+                    Tap
+                  </p>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    background: '#F5E6D3',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    marginTop: '8px'
+                  }}>➕ Add to Home Screen</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px 0' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #D4A574 0%, #C89B6A 100%)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  color: '#FFFFFF',
+                  flexShrink: 0
+                }}>3</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '15px', color: '#2C3E50', lineHeight: '1.5', margin: 0 }}>
+                    Tap <strong>Add</strong>
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Tip Box */}
+          <div style={{
+            background: '#F5E6D3',
+            borderRadius: '12px',
+            padding: '16px',
+            marginTop: '20px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '12px'
+          }}>
+            <span style={{ fontSize: '20px' }}>💡</span>
+            <span style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.5' }}>
+              This lets the app work offline and gives you a full-screen experience.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Section - Buttons */}
+      <div style={{ width: '100%', maxWidth: '400px', marginTop: '32px' }}>
+        <button
+          onClick={onContinue}
+          style={{
+            width: '100%',
+            background: 'linear-gradient(135deg, #2C3E50 0%, #1a252f 100%)',
+            color: '#FFFFFF',
+            border: 'none',
+            borderRadius: '16px',
+            padding: '18px 24px',
+            fontSize: '17px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            boxShadow: '0 8px 24px rgba(44, 62, 80, 0.2)'
+          }}
+        >
+          Continue to App →
+        </button>
+        <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '14px', color: '#9CA3AF' }}>
+          I'll do this later • <button 
+            onClick={onDismiss}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: '#9CA3AF', 
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              fontSize: '14px',
+              padding: 0
+            }}
+          >Don't show again</button>
+        </p>
+      </div>
+    </div>
+  );
+});
+
+// ============================================
+// LOGIN PAGE COMPONENT
+// ============================================
 const LoginPage = memo(({ colors, onLogin }) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
@@ -4400,6 +4959,23 @@ const [systemExpanded, setSystemExpanded] = useState(false);
 const [recentPerfExpanded, setRecentPerfExpanded] = useState(false);
 const [trendsExpanded, setTrendsExpanded] = useState(false);
 
+// Device detection and landing/onboarding state
+const [isMobile] = useState(() => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+});
+const [isStandalone] = useState(() => {
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         window.navigator.standalone === true;
+});
+const [showDesktopLanding, setShowDesktopLanding] = useState(() => {
+  const hasSeenLanding = localStorage.getItem('hasSeenDesktopLanding');
+  return !hasSeenLanding;
+});
+const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
+  const hasDismissed = localStorage.getItem('hasDismissedMobileOnboarding');
+  return !hasDismissed;
+});
+
   // Animation state
   const [animation, setAnimation] = useState({ show: false, type: '', emoji: '', effect: '', animationType: '', isStreak: false, streakText: '' });
   const [winStreak, setWinStreak] = useState(0);
@@ -5333,9 +5909,38 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     );
   }
 
+  // Desktop users (not logged in): show landing page first
+  if (!isMobile && !user && showDesktopLanding) {
+    return (
+      <DesktopLandingPage 
+        colors={colors} 
+        onContinue={() => {
+          localStorage.setItem('hasSeenDesktopLanding', 'true');
+          setShowDesktopLanding(false);
+        }} 
+      />
+    );
+  }
+
   // Show login if not authenticated
   if (!user) {
     return <LoginPage colors={colors} />;
+  }
+
+  // Mobile users (logged in, not in PWA mode): show onboarding once
+  if (isMobile && !isStandalone && showMobileOnboarding) {
+    return (
+      <MobileOnboarding 
+        colors={colors}
+        onContinue={() => {
+          setShowMobileOnboarding(false);
+        }}
+        onDismiss={() => {
+          localStorage.setItem('hasDismissedMobileOnboarding', 'true');
+          setShowMobileOnboarding(false);
+        }}
+      />
+    );
   }
 
   if (loading) {
