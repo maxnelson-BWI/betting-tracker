@@ -224,13 +224,13 @@ const DesktopLandingPage = memo(({ colors, onContinue }) => {
           {/* Notch */}
           <div style={{
             position: 'absolute',
-            top: '16px',
+            top: '12px',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '60px',
-            height: '20px',
+            width: '80px',
+            height: '24px',
             background: '#1a1a1a',
-            borderRadius: '0 0 12px 12px',
+            borderRadius: '0 0 16px 16px',
             zIndex: 10
           }} />
           {/* Screen */}
@@ -244,10 +244,11 @@ const DesktopLandingPage = memo(({ colors, onContinue }) => {
           }}>
             {/* Mini App UI */}
             <div style={{
-              padding: '32px 12px 12px',
+              padding: '40px 12px 12px',
               height: '100%',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              boxSizing: 'border-box'
             }}>
               {/* Mini Header */}
               <div style={{ textAlign: 'center', marginBottom: '12px' }}>
@@ -271,43 +272,40 @@ const DesktopLandingPage = memo(({ colors, onContinue }) => {
               <div style={{
                 background: 'white',
                 borderRadius: '12px',
-                padding: '16px 12px',
+                padding: '12px',
                 marginBottom: '8px',
                 boxShadow: '0 2px 8px rgba(212,165,116,0.15)'
               }}>
-                <div style={{ fontSize: '8px', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                <div style={{ fontSize: '7px', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
                   Total Profit/Loss
                 </div>
-                <div style={{ fontSize: '28px', fontWeight: '800', color: '#7C9885' }}>
+                <div style={{ fontSize: '24px', fontWeight: '800', color: '#7C9885', marginBottom: '8px' }}>
                   +$847.50
                 </div>
                 <div style={{
                   background: 'linear-gradient(135deg, #D4A574, #C89B6A)',
                   color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '10px',
-                  fontSize: '10px',
+                  borderRadius: '6px',
+                  padding: '8px',
+                  fontSize: '9px',
                   fontWeight: '600',
-                  marginTop: '8px',
-                  width: '100%',
                   textAlign: 'center'
                 }}>+ Add New Bet</div>
               </div>
               
               {/* Mini Stats */}
-              <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
-                <div style={{ flex: 1, background: 'white', borderRadius: '10px', padding: '10px 6px', textAlign: 'center', boxShadow: '0 2px 8px rgba(212,165,116,0.1)' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#7C9885' }}>+$215</div>
-                  <div style={{ fontSize: '7px', color: '#9CA3AF', marginTop: '2px' }}>This Month</div>
+              <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+                <div style={{ flex: 1, background: 'white', borderRadius: '8px', padding: '8px 4px', textAlign: 'center', boxShadow: '0 2px 8px rgba(212,165,116,0.1)' }}>
+                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#7C9885' }}>+$215</div>
+                  <div style={{ fontSize: '6px', color: '#9CA3AF', marginTop: '2px' }}>This Month</div>
                 </div>
-                <div style={{ flex: 1, background: 'white', borderRadius: '10px', padding: '10px 6px', textAlign: 'center', boxShadow: '0 2px 8px rgba(212,165,116,0.1)' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#2C3E50' }}>54.2%</div>
-                  <div style={{ fontSize: '7px', color: '#9CA3AF', marginTop: '2px' }}>Win Rate</div>
+                <div style={{ flex: 1, background: 'white', borderRadius: '8px', padding: '8px 4px', textAlign: 'center', boxShadow: '0 2px 8px rgba(212,165,116,0.1)' }}>
+                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#2C3E50' }}>54.2%</div>
+                  <div style={{ fontSize: '6px', color: '#9CA3AF', marginTop: '2px' }}>Win Rate</div>
                 </div>
-                <div style={{ flex: 1, background: 'white', borderRadius: '10px', padding: '10px 6px', textAlign: 'center', boxShadow: '0 2px 8px rgba(212,165,116,0.1)' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#D4A574' }}>3 🔥</div>
-                  <div style={{ fontSize: '7px', color: '#9CA3AF', marginTop: '2px' }}>Streak</div>
+                <div style={{ flex: 1, background: 'white', borderRadius: '8px', padding: '8px 4px', textAlign: 'center', boxShadow: '0 2px 8px rgba(212,165,116,0.1)' }}>
+                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#D4A574' }}>3 🔥</div>
+                  <div style={{ fontSize: '6px', color: '#9CA3AF', marginTop: '2px' }}>Streak</div>
                 </div>
               </div>
               
@@ -348,7 +346,7 @@ const DesktopLandingPage = memo(({ colors, onContinue }) => {
           marginBottom: '24px',
           lineHeight: '1.6'
         }}>
-          The Cindy is designed for mobile. Scan the QR code or visit on your phone to install.
+          The Cindy is designed for mobile. Visit on your phone to install.
         </p>
 
         {/* Install Instructions */}
@@ -356,7 +354,7 @@ const DesktopLandingPage = memo(({ colors, onContinue }) => {
           background: '#F5E6D3',
           borderRadius: '16px',
           padding: '20px',
-          marginBottom: '24px',
+          marginBottom: '32px',
           textAlign: 'left'
         }}>
           <p style={{ fontSize: '14px', fontWeight: '700', color: '#2C3E50', marginBottom: '12px' }}>
@@ -366,23 +364,6 @@ const DesktopLandingPage = memo(({ colors, onContinue }) => {
             <div><strong>iPhone:</strong> Open in Safari → Tap <span style={{ display: 'inline-block', background: '#FFFFFF', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>⬆️ Share</span> → "Add to Home Screen"</div>
             <div style={{ marginTop: '8px' }}><strong>Android:</strong> Open in Chrome → Tap <span style={{ display: 'inline-block', background: '#FFFFFF', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>⋮ Menu</span> → "Add to Home Screen"</div>
           </div>
-        </div>
-
-        {/* QR Code Placeholder */}
-        <div style={{
-          width: '140px',
-          height: '140px',
-          background: '#F5E6D3',
-          borderRadius: '16px',
-          margin: '0 auto 32px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '2px solid #E5D5C3'
-        }}>
-          <span style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center', padding: '16px' }}>
-            [QR Code to<br/>thecindy.app]
-          </span>
         </div>
 
         {/* Dark Footer CTA */}
