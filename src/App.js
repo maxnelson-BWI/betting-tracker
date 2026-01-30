@@ -254,6 +254,225 @@ const Sparkline = memo(({ data, width = 100, height = 30, color }) => {
 });
 
 // ============================================
+// ANIMATION EFFECT COMPONENTS
+// ============================================
+
+// Particle explosion effect
+const Particles = memo(({ color, count = 20 }) => {
+  const particles = useMemo(() => {
+    return [...Array(count)].map((_, i) => ({
+      id: i,
+      angle: (360 / count) * i,
+      distance: 100 + Math.random() * 100,
+      size: 8 + Math.random() * 12,
+      duration: 0.6 + Math.random() * 0.4,
+    }));
+  }, [count]);
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            width: p.size,
+            height: p.size,
+            borderRadius: '50%',
+            background: color,
+            boxShadow: `0 0 ${p.size}px ${color}`,
+            animation: `particle-fly-${p.id} ${p.duration}s ease-out forwards`,
+          }}
+        >
+          <style>{`
+            @keyframes particle-fly-${p.id} {
+              0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+              }
+              100% {
+                transform: translate(
+                  calc(-50% + ${Math.cos(p.angle * Math.PI / 180) * p.distance}px),
+                  calc(-50% + ${Math.sin(p.angle * Math.PI / 180) * p.distance}px)
+                ) scale(0);
+                opacity: 0;
+              }
+            }
+          `}</style>
+        </div>
+      ))}
+    </div>
+  );
+});
+
+// Screen flash effect
+const ScreenFlash = memo(({ color }) => (
+  <div
+    style={{
+      position: 'absolute',
+      inset: 0,
+      pointerEvents: 'none',
+      background: color,
+      animation: 'screen-flash 0.5s ease-out forwards',
+    }}
+  >
+    <style>{`
+      @keyframes screen-flash {
+        0% { opacity: 0.6; }
+        100% { opacity: 0; }
+      }
+    `}</style>
+  </div>
+));
+
+// Expanding rings effect
+const ExpandingRings = memo(({ color }) => (
+  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+    {[0, 1, 2].map((i) => (
+      <div
+        key={i}
+        style={{
+          position: 'absolute',
+          borderRadius: '50%',
+          border: `4px solid ${color}`,
+          animation: `ring-expand 1s ease-out ${i * 0.2}s forwards`,
+          opacity: 0,
+        }}
+      >
+        <style>{`
+          @keyframes ring-expand {
+            0% {
+              width: 20px;
+              height: 20px;
+              opacity: 0.8;
+            }
+            100% {
+              width: 300px;
+              height: 300px;
+              opacity: 0;
+            }
+          }
+        `}</style>
+      </div>
+    ))}
+  </div>
+));
+
+// Pulsing glow effect
+const PulsingGlow = memo(({ color }) => (
+  <div
+    style={{
+      position: 'absolute',
+      inset: 0,
+      pointerEvents: 'none',
+      background: `radial-gradient(circle at center, ${color}50 0%, transparent 70%)`,
+      animation: 'pulse-glow 0.8s ease-in-out 3',
+    }}
+  >
+    <style>{`
+      @keyframes pulse-glow {
+        0%, 100% { opacity: 0.3; transform: scale(0.8); }
+        50% { opacity: 0.9; transform: scale(1.2); }
+      }
+    `}</style>
+  </div>
+));
+
+// Fire effect for streaks
+const FireEffect = memo(() => {
+  const flames = useMemo(() => {
+    return [...Array(20)].map((_, i) => ({
+      id: i,
+      left: 20 + Math.random() * 60,
+      size: 20 + Math.random() * 30,
+      duration: 0.8 + Math.random() * 0.4,
+      delay: Math.random() * 0.3,
+      hue: Math.random() > 0.5 ? '30' : '45',
+    }));
+  }, []);
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+      {flames.map((f) => (
+        <div
+          key={f.id}
+          style={{
+            position: 'absolute',
+            left: `${f.left}%`,
+            bottom: '30%',
+            width: f.size,
+            height: f.size * 1.5,
+            borderRadius: '50%',
+            background: `linear-gradient(to top, hsl(${f.hue}, 100%, 50%), hsl(60, 100%, 70%), transparent)`,
+            filter: 'blur(3px)',
+            animation: `fire-rise ${f.duration}s ease-out ${f.delay}s infinite`,
+          }}
+        >
+          <style>{`
+            @keyframes fire-rise {
+              0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.8;
+              }
+              100% {
+                transform: translateY(-150px) scale(0.3);
+                opacity: 0;
+              }
+            }
+          `}</style>
+        </div>
+      ))}
+    </div>
+  );
+});
+
+// Floating money effect
+const FloatingMoney = memo(() => {
+  const moneyItems = useMemo(() => {
+    return [...Array(12)].map((_, i) => ({
+      id: i,
+      left: 10 + Math.random() * 80,
+      delay: Math.random() * 0.5,
+      duration: 1 + Math.random() * 0.5,
+      rotation: Math.random() > 0.5 ? 360 : -360,
+    }));
+  }, []);
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+      {moneyItems.map((m) => (
+        <div
+          key={m.id}
+          style={{
+            position: 'absolute',
+            left: `${m.left}%`,
+            bottom: '-50px',
+            fontSize: '36px',
+            animation: `money-float-${m.id} ${m.duration}s ease-out ${m.delay}s forwards`,
+          }}
+        >
+          💰
+          <style>{`
+            @keyframes money-float-${m.id} {
+              0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+              }
+              100% {
+                transform: translateY(-400px) rotate(${m.rotation}deg);
+                opacity: 0;
+              }
+            }
+          `}</style>
+        </div>
+      ))}
+    </div>
+  );
+});
+
+// ============================================
 // LOGO COMPONENT
 // ============================================
 const CindyLogo = memo(() => (
@@ -277,63 +496,6 @@ const CindyLogo = memo(() => (
     }} />
   </div>
 ));
-
-// SVG Horse Animations
-const GallopingHorse = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-bounce">
-    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🐴</text>
-  </svg>
-);
-
-const RearingHorse = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-spin">
-    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🏇</text>
-  </svg>
-);
-
-const RacingHorse = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-pulse">
-    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🐎</text>
-  </svg>
-);
-
-// SVG Bird Animations
-const SoaringBird = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-bounce">
-    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🦅</text>
-  </svg>
-);
-
-const SwoopingBird = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-bounce">
-    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🦜</text>
-  </svg>
-);
-
-const FlyingBird = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-pulse">
-    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🐦</text>
-  </svg>
-);
-
-// SVG Lock Animations
-const ClickingLock = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-pulse">
-    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔒</text>
-  </svg>
-);
-
-const SparkleLock = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-spin">
-    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔐</text>
-  </svg>
-);
-
-const VaultLock = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="custom-bounce">
-    <text x="100" y="100" fontSize="120" textAnchor="middle" dominantBaseline="middle">🔓</text>
-  </svg>
-);
 
 // ============================================
 // COLOR SYSTEM & TYPOGRAPHY
@@ -3877,7 +4039,7 @@ const [recentPerfExpanded, setRecentPerfExpanded] = useState(false);
 const [trendsExpanded, setTrendsExpanded] = useState(false);
 
   // Animation state
-  const [animation, setAnimation] = useState({ show: false, type: '', content: null, isStreak: false, streakText: '' });
+  const [animation, setAnimation] = useState({ show: false, type: '', emoji: '', effect: '', animationType: '', isStreak: false, streakText: '' });
   const [winStreak, setWinStreak] = useState(0);
 
   // Save settings to localStorage
@@ -4269,33 +4431,26 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
   }, []);
 
   const getRandomWinAnimation = () => {
-    const emojiAnimations = [
-      { type: 'emoji', content: '🐴' },
-      { type: 'emoji', content: '🏇' },
-      { type: 'emoji', content: '🐎' },
-      { type: 'emoji', content: '🦅' },
-      { type: 'emoji', content: '🐦' },
-      { type: 'emoji', content: '🦆' },
-      { type: 'emoji', content: '🦜' },
-      { type: 'emoji', content: '🐧' },
-      { type: 'emoji', content: '💰' },
-      { type: 'emoji', content: '💵' }
+    // Hybrid animations: emoji + effect type
+    const hybridAnimations = [
+      // Horses with particles
+      { emoji: '🐴', effect: 'particles', animationType: 'bounce' },
+      { emoji: '🏇', effect: 'particles', animationType: 'bounce' },
+      { emoji: '🐎', effect: 'particles', animationType: 'pulse' },
+      // Birds with rings
+      { emoji: '🦅', effect: 'rings', animationType: 'bounce' },
+      { emoji: '🦜', effect: 'rings', animationType: 'bounce' },
+      { emoji: '🐦', effect: 'rings', animationType: 'pulse' },
+      // Locks with glow
+      { emoji: '🔒', effect: 'glow', animationType: 'pulse' },
+      { emoji: '🔐', effect: 'glow', animationType: 'pulse' },
+      { emoji: '🔓', effect: 'glow', animationType: 'bounce' },
+      // Money with floating money
+      { emoji: '💰', effect: 'money', animationType: 'bounce' },
+      { emoji: '💵', effect: 'money', animationType: 'pulse' },
     ];
 
-    const svgAnimations = [
-      { type: 'svg', content: <GallopingHorse /> },
-      { type: 'svg', content: <RearingHorse /> },
-      { type: 'svg', content: <RacingHorse /> },
-      { type: 'svg', content: <SoaringBird /> },
-      { type: 'svg', content: <SwoopingBird /> },
-      { type: 'svg', content: <FlyingBird /> },
-      { type: 'svg', content: <ClickingLock /> },
-      { type: 'svg', content: <SparkleLock /> },
-      { type: 'svg', content: <VaultLock /> }
-    ];
-
-    const allAnimations = [...emojiAnimations, ...svgAnimations];
-    return allAnimations[Math.floor(Math.random() * allAnimations.length)];
+    return hybridAnimations[Math.floor(Math.random() * hybridAnimations.length)];
   };
 
   const getStreakText = () => {
@@ -4318,8 +4473,9 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       setAnimation({
         show: true,
         type: 'win',
-        content: winAnim.content,
-        contentType: winAnim.type,
+        emoji: winAnim.emoji,
+        effect: winAnim.effect,
+        animationType: winAnim.animationType,
         isStreak: newStreak >= 3,
         streakText: newStreak >= 3 ? getStreakText() : ''
       });
@@ -4328,8 +4484,9 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       setAnimation({
         show: true,
         type: 'loss',
-        content: '❌',
-        contentType: 'emoji',
+        emoji: '❌',
+        effect: 'shake',
+        animationType: 'drop',
         isStreak: false,
         streakText: ''
       });
@@ -4338,8 +4495,8 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
     }
 
     setTimeout(() => {
-      setAnimation({ show: false, type: '', content: null, contentType: '', isStreak: false, streakText: '' });
-    }, 2000);
+      setAnimation({ show: false, type: '', emoji: '', effect: '', animationType: '', isStreak: false, streakText: '' });
+    }, 2500);
   };
 
   const updateBetResult = useCallback(async (id, result) => {
@@ -4871,16 +5028,54 @@ const [trendsExpanded, setTrendsExpanded] = useState(false);
       {/* Animation Overlay */}
       {animation.show && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 custom-fadeIn">
-          <div className="text-center">
-            {animation.contentType === 'emoji' ? (
-              <div className={`text-9xl mb-4 ${animation.type === 'win' ? 'custom-bounce' : 'custom-ping'}`}>
-                {animation.content}
-              </div>
-            ) : (
-              <div className="mb-4">
-                {animation.content}
-              </div>
-            )}
+          {/* Screen Flash for wins */}
+          {animation.type === 'win' && (
+            <ScreenFlash color={colors.accentWin} />
+          )}
+          
+          {/* Screen Flash for losses (red) */}
+          {animation.type === 'loss' && (
+            <ScreenFlash color={colors.accentLoss} />
+          )}
+          
+          {/* Effect layers based on type */}
+          {animation.effect === 'particles' && (
+            <Particles color={colors.accentPrimary} count={25} />
+          )}
+          
+          {animation.effect === 'rings' && (
+            <ExpandingRings color={colors.accentPrimary} />
+          )}
+          
+          {animation.effect === 'glow' && (
+            <>
+              <PulsingGlow color={colors.accentWin} />
+              <Particles color={colors.accentWin} count={15} />
+            </>
+          )}
+          
+          {animation.effect === 'money' && (
+            <FloatingMoney />
+          )}
+          
+          {/* Fire effect for streaks */}
+          {animation.isStreak && (
+            <FireEffect />
+          )}
+          
+          <div className="text-center relative z-10">
+            {/* Main emoji with animation */}
+            <div 
+              className={`text-9xl mb-4 ${
+                animation.animationType === 'bounce' ? 'custom-bounce' : 
+                animation.animationType === 'pulse' ? 'custom-pulse' : 
+                animation.animationType === 'drop' ? 'custom-ping' : 'custom-bounce'
+              }`}
+            >
+              {animation.emoji}
+            </div>
+            
+            {/* Streak text */}
             {animation.isStreak && (
               <div className="flex items-center justify-center gap-3 custom-pulse">
                 <span className="text-6xl">🔥</span>
