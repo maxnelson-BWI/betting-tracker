@@ -164,7 +164,7 @@ const LogOut = () => (
 // ============================================
 // DESKTOP LANDING PAGE COMPONENT
 // ============================================
-const DesktopLandingPage = memo(({ colors, onContinue }) => {
+const DesktopLandingPage = memo(({ colors, onContinue, onViewTutorial }) => {
   return (
     <div style={{
       minHeight: '100vh',
@@ -394,6 +394,30 @@ const DesktopLandingPage = memo(({ colors, onContinue }) => {
           >
             Start tracking bets →
           </button>
+          
+          {/* VIEW TUTORIAL BUTTON */}
+          <div style={{ marginTop: '16px' }}>
+            <button
+              onClick={onViewTutorial}
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                color: '#FFFFFF',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                padding: '12px 24px',
+                borderRadius: '10px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <span style={{ fontSize: '16px' }}>📖</span>
+              See How It Works
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2999,7 +3023,8 @@ const MorePage = memo(({
   notificationSettings,
   setNotificationSettings,
   user,
-  onLogout
+  onLogout,
+  onViewTutorial
 }) => {
     return (
       <div style={{ paddingBottom: '100px' }}>
@@ -3145,6 +3170,28 @@ const MorePage = memo(({
             >
               <Download />
               Export Bet History
+            </button>
+            
+            <button
+              onClick={onViewTutorial}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '16px',
+                background: colors.bgSecondary,
+                color: colors.textPrimary,
+                border: `1px solid ${colors.border}`,
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              <span style={{ fontSize: '18px' }}>📖</span>
+              View Tutorial
             </button>
             
             <button
@@ -3578,6 +3625,659 @@ const FilterModal = memo(({
             </button>
           </div>
         </div>
+    </div>
+  );
+});
+
+// ============================================
+// DEMO DATA GENERATOR
+// ============================================
+const generateDemoBets = () => {
+  const sports = ['nfl', 'ncaaf', 'nba', 'ncaab', 'mlb'];
+  const betTypes = ['straight', 'money-line', 'over-under', 'parlay', 'teaser', 'prop'];
+  const systemPlays = ['clear', 'kind-of', 'no-system', 'not-system', 'none'];
+  
+  const nflTeams = ['Chiefs', 'Bills', 'Eagles', 'Cowboys', '49ers', 'Ravens', 'Lions', 'Dolphins'];
+  const nbaTeams = ['Celtics', 'Lakers', 'Nuggets', 'Bucks', 'Heat', 'Warriors', 'Suns', 'Knicks'];
+  const ncaafTeams = ['Georgia', 'Michigan', 'Alabama', 'Ohio State', 'Texas', 'Oregon', 'Penn State', 'FSU'];
+  const ncaabTeams = ['Duke', 'UNC', 'Kansas', 'Kentucky', 'UConn', 'Purdue', 'Houston', 'Arizona'];
+  const mlbTeams = ['Yankees', 'Dodgers', 'Braves', 'Astros', 'Phillies', 'Rangers', 'Orioles', 'Twins'];
+  
+  const getTeams = (sport) => {
+    switch(sport) {
+      case 'nfl': return nflTeams;
+      case 'nba': return nbaTeams;
+      case 'ncaaf': return ncaafTeams;
+      case 'ncaab': return ncaabTeams;
+      case 'mlb': return mlbTeams;
+      default: return nflTeams;
+    }
+  };
+  
+  const bets = [];
+  const now = new Date();
+  
+  // Generate ~40 bets over last 3 months
+  for (let i = 0; i < 40; i++) {
+    const daysAgo = Math.floor(Math.random() * 90);
+    const betDate = new Date(now);
+    betDate.setDate(betDate.getDate() - daysAgo);
+    
+    const sport = sports[Math.floor(Math.random() * sports.length)];
+    const teams = getTeams(sport);
+    const team1 = teams[Math.floor(Math.random() * teams.length)];
+    let team2 = teams[Math.floor(Math.random() * teams.length)];
+    while (team2 === team1) team2 = teams[Math.floor(Math.random() * teams.length)];
+    
+    const betType = betTypes[Math.floor(Math.random() * betTypes.length)];
+    const spread = Math.floor(Math.random() * 14) - 7;
+    const total = 40 + Math.floor(Math.random() * 30);
+    
+    let description = '';
+    let odds = -110;
+    
+    if (betType === 'straight') {
+      description = `${team1} ${spread >= 0 ? '+' : ''}${spread}`;
+    } else if (betType === 'money-line') {
+      description = `${team1} ML`;
+      odds = Math.random() > 0.5 ? -(100 + Math.floor(Math.random() * 150)) : (100 + Math.floor(Math.random() * 200));
+    } else if (betType === 'over-under') {
+      description = Math.random() > 0.5 ? `Over ${total}` : `Under ${total}`;
+    } else if (betType === 'parlay') {
+      description = `${team1} + ${team2} Parlay`;
+      odds = 200 + Math.floor(Math.random() * 300);
+    } else if (betType === 'teaser') {
+      description = `${team1} + ${team2} Teaser`;
+      odds = -120;
+    } else {
+      description = `${team1} Team Total O${Math.floor(total/2)}`;
+    }
+    
+    const units = [0.5, 1, 1, 1, 1, 1.5, 2, 2][Math.floor(Math.random() * 8)];
+    const systemPlay = systemPlays[Math.floor(Math.random() * systemPlays.length)];
+    
+    // Slight winning bias (~53%)
+    const rand = Math.random();
+    let result;
+    if (daysAgo < 3) {
+      result = 'pending';
+    } else if (rand < 0.53) {
+      result = 'win';
+    } else if (rand < 0.97) {
+      result = 'loss';
+    } else {
+      result = 'push';
+    }
+    
+    const unitValue = 50;
+    let riskAmount, winAmount;
+    if (odds < 0) {
+      riskAmount = units * unitValue * (Math.abs(odds) / 100);
+      winAmount = units * unitValue;
+    } else {
+      riskAmount = units * unitValue;
+      winAmount = units * unitValue * (odds / 100);
+    }
+    
+    const payout = result === 'win' ? winAmount : result === 'loss' ? -riskAmount : 0;
+    
+    bets.push({
+      id: `demo-${i}`,
+      date: betDate.toISOString().split('T')[0],
+      sport,
+      betType,
+      description,
+      units,
+      odds,
+      riskAmount,
+      winAmount,
+      result,
+      payout,
+      favoriteTeam: Math.random() < 0.15,
+      primeTime: Math.random() < 0.2,
+      systemPlay,
+      notes: '',
+      timestamp: betDate,
+      isDemo: true
+    });
+  }
+  
+  return bets.sort((a, b) => new Date(b.date) - new Date(a.date));
+};
+
+// ============================================
+// TUTORIAL MODAL COMPONENT
+// ============================================
+const TutorialModal = memo(({ 
+  show, 
+  onClose, 
+  onLoadDemo, 
+  colors 
+}) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [typedText, setTypedText] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+  
+  const totalSlides = 7;
+  
+  // Typing animation for slide 3
+  useEffect(() => {
+    if (currentSlide === 2 && show) {
+      const fullText = 'Chiefs -3 2u -105';
+      let index = 0;
+      setTypedText('');
+      setShowPreview(false);
+      
+      const typeInterval = setInterval(() => {
+        if (index < fullText.length) {
+          setTypedText(fullText.substring(0, index + 1));
+          index++;
+          if (index >= 10) setShowPreview(true); // Show preview after "Chiefs -3 "
+        } else {
+          clearInterval(typeInterval);
+        }
+      }, 120);
+      
+      return () => clearInterval(typeInterval);
+    }
+  }, [currentSlide, show]);
+  
+  // Reset on close
+  useEffect(() => {
+    if (!show) {
+      setCurrentSlide(0);
+      setTypedText('');
+      setShowPreview(false);
+    }
+  }, [show]);
+  
+  if (!show) return null;
+  
+  const slides = [
+    // Slide 1: Welcome
+    {
+      content: (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <div style={{ fontSize: '80px', marginBottom: '24px' }}>🎰</div>
+          <h2 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
+            Welcome to The Cindy
+          </h2>
+          <p style={{ fontSize: '16px', color: colors.textSecondary, lineHeight: 1.6 }}>
+            Let me show you how to track your bets and find your winning edges.
+          </p>
+        </div>
+      )
+    },
+    // Slide 2: Set Your Unit
+    {
+      content: (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <div style={{ fontSize: '80px', marginBottom: '24px' }}>💰</div>
+          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
+            Set Your Unit Size
+          </h2>
+          <p style={{ fontSize: '16px', color: colors.textSecondary, lineHeight: 1.6, marginBottom: '24px' }}>
+            Before anything else, set your unit size. $50? $100? Set this in <strong>Settings</strong> and it will carry over to all of your future bets.
+          </p>
+          <div style={{
+            background: colors.bgSecondary,
+            borderRadius: '12px',
+            padding: '16px',
+            display: 'inline-block'
+          }}>
+            <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Unit Value ($)</div>
+            <div style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>$50</div>
+          </div>
+        </div>
+      )
+    },
+    // Slide 3: Adding Bets (with typing animation)
+    {
+      content: (
+        <div style={{ padding: '20px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', textAlign: 'center' }}>
+            Adding Bets
+          </h2>
+          <p style={{ fontSize: '14px', color: colors.textSecondary, lineHeight: 1.5, marginBottom: '20px', textAlign: 'center' }}>
+            With <strong>Quick Add</strong>, type naturally—we'll parse the team, spread, units, and odds automatically.
+          </p>
+          
+          {/* Simulated Quick Add Input */}
+          <div style={{
+            background: colors.bgSecondary,
+            borderRadius: '12px',
+            padding: '16px',
+            border: `2px solid ${typedText.length > 5 ? colors.accentPrimary : colors.border}`,
+            marginBottom: '16px'
+          }}>
+            <div style={{
+              background: colors.bgElevated,
+              borderRadius: '8px',
+              padding: '14px',
+              fontSize: '17px',
+              fontWeight: '500',
+              color: colors.textPrimary,
+              minHeight: '24px'
+            }}>
+              {typedText}<span style={{ opacity: 0.5, animation: 'blink 1s infinite' }}>|</span>
+            </div>
+            
+            {/* Live Preview */}
+            {showPreview && (
+              <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px solid ${colors.border}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                  <span style={{
+                    background: colors.accentPrimary,
+                    color: '#FFFFFF',
+                    fontSize: '10px',
+                    fontWeight: '700',
+                    padding: '4px 8px',
+                    borderRadius: '4px'
+                  }}>NFL</span>
+                  <span style={{
+                    background: colors.bgElevated,
+                    color: colors.textPrimary,
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    padding: '4px 8px',
+                    borderRadius: '4px'
+                  }}>Spread</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
+                    {typedText.length > 10 ? 'Chiefs -3' : typedText.replace(/\s*\d+u.*/, '')}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '16px', fontSize: '12px' }}>
+                  <span><span style={{ color: colors.textTertiary }}>Units:</span> <strong>{typedText.includes('2u') ? '2u' : '1u'}</strong></span>
+                  <span><span style={{ color: colors.textTertiary }}>Odds:</span> <strong>{typedText.includes('-105') ? '-105' : '-110'}</strong></span>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <p style={{ fontSize: '12px', color: colors.textTertiary, textAlign: 'center' }}>
+            Defaults to 1 unit @ -110 if not specified
+          </p>
+        </div>
+      )
+    },
+    // Slide 4: Dollar/Unit Toggle
+    {
+      content: (
+        <div style={{ padding: '20px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', textAlign: 'center' }}>
+            Dollars or Units?
+          </h2>
+          <p style={{ fontSize: '14px', color: colors.textSecondary, lineHeight: 1.5, marginBottom: '20px', textAlign: 'center' }}>
+            Toggle between viewing results in <strong>dollars</strong> or <strong>units</strong> anytime.
+          </p>
+          
+          {/* Simulated Header */}
+          <div style={{
+            background: colors.bgElevated,
+            borderRadius: '16px',
+            padding: '16px',
+            border: `1px solid ${colors.border}`,
+            marginBottom: '12px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ width: '40px' }} />
+              <div style={{ lineHeight: 1 }}>
+                <div style={{
+                  fontFamily: 'Georgia, serif',
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  fontStyle: 'italic',
+                  color: colors.textPrimary
+                }}>The Cindy</div>
+                <div style={{
+                  height: '2px',
+                  background: `linear-gradient(90deg, ${colors.accentPrimary} 0%, transparent 100%)`,
+                  marginTop: '2px'
+                }} />
+              </div>
+              <div style={{
+                padding: '8px 14px',
+                background: colors.accentPrimary,
+                color: '#FFFFFF',
+                borderRadius: '8px',
+                fontSize: '15px',
+                fontWeight: '700',
+                boxShadow: '0 0 0 3px rgba(212, 165, 116, 0.4)'
+              }}>
+                $
+              </div>
+            </div>
+          </div>
+          
+          {/* Arrow pointing up */}
+          <div style={{ textAlign: 'right', paddingRight: '24px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '24px' }}>☝️</span>
+          </div>
+          
+          <div style={{
+            background: 'rgba(212, 165, 116, 0.15)',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            border: `1px dashed ${colors.accentPrimary}`
+          }}>
+            <p style={{ fontSize: '13px', color: colors.textPrimary, margin: 0, textAlign: 'center' }}>
+              Tap to switch between <strong>$</strong> and <strong>U</strong>
+            </p>
+          </div>
+        </div>
+      )
+    },
+    // Slide 5: History
+    {
+      content: (
+        <div style={{ padding: '20px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', textAlign: 'center' }}>
+            Your Bet History
+          </h2>
+          <p style={{ fontSize: '14px', color: colors.textSecondary, lineHeight: 1.5, marginBottom: '16px', textAlign: 'center' }}>
+            Every bet, fully searchable and filterable. Tap any bet to edit or mark the result.
+          </p>
+          
+          {/* Simulated Filters */}
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              {['NFL', 'Spread', 'Wins', 'Favorites'].map((filter, i) => (
+                <span key={i} style={{
+                  padding: '8px 12px',
+                  background: colors.accentPrimary,
+                  color: '#FFFFFF',
+                  borderRadius: '16px',
+                  fontSize: '12px',
+                  fontWeight: '600'
+                }}>{filter}</span>
+              ))}
+              <span style={{
+                padding: '8px 12px',
+                background: colors.bgSecondary,
+                color: colors.textPrimary,
+                borderRadius: '16px',
+                fontSize: '12px',
+                fontWeight: '600',
+                border: `1px solid ${colors.border}`,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                More Filters
+                <span style={{
+                  background: colors.accentPrimary,
+                  color: '#FFFFFF',
+                  borderRadius: '50%',
+                  width: '16px',
+                  height: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px'
+                }}>2</span>
+              </span>
+            </div>
+          </div>
+          
+          {/* Simulated Result Summary */}
+          <div style={{
+            background: colors.bgSecondary,
+            borderRadius: '12px',
+            padding: '12px 16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div>
+              <div style={{ fontSize: '11px', color: colors.textSecondary }}>12 bets</div>
+              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>8W - 4L</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '11px', color: colors.textSecondary }}>P/L</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: colors.accentWin }}>+$245.00</div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    // Slide 6: Stats & Trends
+    {
+      content: (
+        <div style={{ padding: '20px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', textAlign: 'center' }}>
+            Stats & Trends
+          </h2>
+          <p style={{ fontSize: '14px', color: colors.textSecondary, lineHeight: 1.5, marginBottom: '16px', textAlign: 'center' }}>
+            See where you're winning. The Stats page breaks down performance by sport, bet type, and more.
+          </p>
+          
+          {/* Simulated Key Trends */}
+          <div style={{
+            background: colors.bgSecondary,
+            borderRadius: '16px',
+            padding: '16px',
+            border: `1px solid ${colors.border}`
+          }}>
+            <div style={{ fontSize: '13px', fontWeight: '700', color: colors.accentPrimary, marginBottom: '12px' }}>
+              🔥 KEY TRENDS
+            </div>
+            
+            <div style={{
+              background: 'rgba(124, 152, 133, 0.1)',
+              border: '1px solid rgba(124, 152, 133, 0.3)',
+              borderRadius: '10px',
+              padding: '12px',
+              marginBottom: '8px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>NFL Underdogs</div>
+                  <div style={{ fontSize: '11px', color: colors.textSecondary }}>12-5 (71%)</div>
+                </div>
+                <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentWin }}>+$380</div>
+              </div>
+            </div>
+            
+            <div style={{
+              background: 'rgba(184, 92, 80, 0.1)',
+              border: '1px solid rgba(184, 92, 80, 0.3)',
+              borderRadius: '10px',
+              padding: '12px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>NBA Overs</div>
+                  <div style={{ fontSize: '11px', color: colors.textSecondary }}>4-9 (31%)</div>
+                </div>
+                <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentLoss }}>-$215</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    // Slide 7: Demo Mode
+    {
+      content: (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <div style={{ fontSize: '80px', marginBottom: '24px' }}>🎮</div>
+          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
+            See It In Action
+          </h2>
+          <p style={{ fontSize: '16px', color: colors.textSecondary, lineHeight: 1.6, marginBottom: '32px' }}>
+            Want to explore with sample data first? Load 40 demo bets to see how everything works.
+          </p>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <button
+              onClick={() => {
+                onLoadDemo();
+                onClose();
+              }}
+              style={{
+                width: '100%',
+                padding: '16px',
+                background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: `0 4px 12px ${colors.shadow}`
+              }}
+            >
+              🎲 Load Demo Data
+            </button>
+            <button
+              onClick={onClose}
+              style={{
+                width: '100%',
+                padding: '16px',
+                background: colors.bgSecondary,
+                color: colors.textPrimary,
+                border: `1px solid ${colors.border}`,
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Skip & Start Fresh
+            </button>
+          </div>
+        </div>
+      )
+    }
+  ];
+  
+  return (
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      background: 'rgba(0, 0, 0, 0.6)',
+      backdropFilter: 'blur(8px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999,
+      padding: '20px'
+    }}>
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '24px',
+        width: '100%',
+        maxWidth: '400px',
+        maxHeight: '90vh',
+        overflow: 'hidden',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        border: `2px solid ${colors.accentPrimary}`
+      }}>
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '16px 20px',
+          borderBottom: `1px solid ${colors.border}`
+        }}>
+          <div style={{ fontSize: '13px', color: colors.textSecondary, fontWeight: '600' }}>
+            {currentSlide + 1} of {totalSlides}
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: colors.textTertiary,
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              padding: '4px 8px'
+            }}
+          >
+            Skip
+          </button>
+        </div>
+        
+        {/* Content */}
+        <div style={{ minHeight: '380px', display: 'flex', alignItems: 'center' }}>
+          {slides[currentSlide].content}
+        </div>
+        
+        {/* Footer Navigation */}
+        <div style={{
+          padding: '16px 20px',
+          borderTop: `1px solid ${colors.border}`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          {/* Progress Dots */}
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {Array.from({ length: totalSlides }).map((_, i) => (
+              <div
+                key={i}
+                onClick={() => setCurrentSlide(i)}
+                style={{
+                  width: i === currentSlide ? '24px' : '8px',
+                  height: '8px',
+                  borderRadius: '4px',
+                  background: i === currentSlide ? colors.accentPrimary : colors.border,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              />
+            ))}
+          </div>
+          
+          {/* Navigation Buttons */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {currentSlide > 0 && (
+              <button
+                onClick={() => setCurrentSlide(currentSlide - 1)}
+                style={{
+                  padding: '10px 16px',
+                  background: colors.bgSecondary,
+                  color: colors.textPrimary,
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Back
+              </button>
+            )}
+            {currentSlide < totalSlides - 1 && (
+              <button
+                onClick={() => setCurrentSlide(currentSlide + 1)}
+                style={{
+                  padding: '10px 20px',
+                  background: colors.accentPrimary,
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Next
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* CSS for blinking cursor */}
+      <style>{`
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 });
@@ -4957,6 +5657,11 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
   return !hasDismissed;
 });
 
+// Tutorial and Demo Mode state
+const [showTutorial, setShowTutorial] = useState(false);
+const [demoMode, setDemoMode] = useState(false);
+const [demoBets, setDemoBets] = useState([]);
+
   // Animation state
   const [animation, setAnimation] = useState({ show: false, type: '', emoji: '', effect: '', animationType: '', isStreak: false, streakText: '' });
   const [winStreak, setWinStreak] = useState(0);
@@ -5109,6 +5814,59 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
 
     return () => unsubscribe();
   }, [user]);
+
+  // First-time tutorial detection - show tutorial after login if first time
+  useEffect(() => {
+    if (user && !loading) {
+      const hasSeenTutorial = localStorage.getItem(`hasSeenTutorial_${user.uid}`);
+      if (!hasSeenTutorial && bets.length === 0) {
+        // Small delay to let the UI settle
+        const timer = setTimeout(() => {
+          setShowTutorial(true);
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [user, loading, bets.length]);
+
+  // Handle loading demo data
+  const handleLoadDemo = useCallback(() => {
+    const demoBetsData = generateDemoBets();
+    setDemoBets(demoBetsData);
+    setDemoMode(true);
+    // Mark tutorial as seen
+    if (user) {
+      localStorage.setItem(`hasSeenTutorial_${user.uid}`, 'true');
+    }
+  }, [user]);
+
+  // Handle exiting demo mode
+  const handleExitDemo = useCallback(() => {
+    setDemoMode(false);
+    setDemoBets([]);
+  }, []);
+
+  // Handle viewing tutorial manually
+  const handleViewTutorial = useCallback(() => {
+    setShowTutorial(true);
+  }, []);
+
+  // Handle closing tutorial
+  const handleCloseTutorial = useCallback(() => {
+    setShowTutorial(false);
+    // Mark as seen
+    if (user) {
+      localStorage.setItem(`hasSeenTutorial_${user.uid}`, 'true');
+    }
+  }, [user]);
+
+  // Combine real bets with demo bets when in demo mode
+  const displayBets = useMemo(() => {
+    if (demoMode) {
+      return demoBets;
+    }
+    return bets;
+  }, [demoMode, demoBets, bets]);
 
   const formatMoney = useCallback((dollarAmount) => {
     if (displayMode === 'units') {
@@ -5480,7 +6238,7 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
 
 // Key Trends Analysis - Short-Term & All-Time
   const trends = useMemo(() => {
-    const settledBets = bets.filter(b => b.result !== 'pending' && b.result !== 'push');
+    const settledBets = displayBets.filter(b => b.result !== 'pending' && b.result !== 'push');
     
     // Get bets from last 30 days
     const thirtyDaysAgo = new Date();
@@ -5626,9 +6384,9 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
       allTime: { winning: allTimeWinning, losing: allTimeLosing },
       recent: { winning: recentWinning, losing: recentLosing }
     };
-  }, [bets]);
+  }, [displayBets]);
   const stats = useMemo(() => {
-    const settledBets = bets.filter(b => b.result !== 'pending');
+    const settledBets = displayBets.filter(b => b.result !== 'pending');
     const totalDollars = settledBets.reduce((sum, bet) => sum + bet.payout, 0);
     
     const currentMonth = new Date().getMonth();
@@ -5709,11 +6467,11 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
         });
       })(),
       // Pending exposure stats
-      pendingCount: bets.filter(b => b.result === 'pending').length,
-      pendingRisk: bets.filter(b => b.result === 'pending').reduce((sum, b) => sum + (b.riskAmount || 0), 0),
-      pendingToWin: bets.filter(b => b.result === 'pending').reduce((sum, b) => sum + (b.winAmount || 0), 0)
+      pendingCount: displayBets.filter(b => b.result === 'pending').length,
+      pendingRisk: displayBets.filter(b => b.result === 'pending').reduce((sum, b) => sum + (b.riskAmount || 0), 0),
+      pendingToWin: displayBets.filter(b => b.result === 'pending').reduce((sum, b) => sum + (b.winAmount || 0), 0)
     };
-  }, [bets, monthlyLimit]);
+  }, [displayBets, monthlyLimit]);
 
   const exportToCSV = useCallback(() => {
     const headers = ['Date', 'Sport', 'Bet Type', 'Description', 'Units', 'Odds', 'Risk', 'To Win', 'Result', 'Payout', 'Favorite Team', 'Prime Time', 'System Play', 'Notes'];
@@ -5774,7 +6532,7 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
 
   // Filter bets for history page
   const getFilteredBets = () => {
-    let filtered = [...bets];
+    let filtered = [...displayBets];
     // Search filter - NEW
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
@@ -5829,8 +6587,8 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
   const filteredBets = getFilteredBets();
 
   // Get recent bets for home page
-  const recentBets = bets.slice(0, 5);
-  const pendingBets = bets.filter(b => b.result === 'pending');
+  const recentBets = displayBets.slice(0, 5);
+  const pendingBets = displayBets.filter(b => b.result === 'pending');
 
   // Auth loading state
   if (authLoading) {
@@ -5898,7 +6656,8 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
         onContinue={() => {
           localStorage.setItem('hasSeenDesktopLanding', 'true');
           setShowDesktopLanding(false);
-        }} 
+        }}
+        onViewTutorial={() => setShowTutorial(true)}
       />
     );
   }
@@ -6059,6 +6818,7 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
           setNotificationSettings={setNotificationSettings}
           user={user}
           onLogout={handleLogout}
+          onViewTutorial={handleViewTutorial}
         />;
       default:
         return <HomePage />;
@@ -6303,6 +7063,14 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
         colors={colors}
       />
 
+      {/* Tutorial Modal */}
+      <TutorialModal 
+        show={showTutorial}
+        onClose={handleCloseTutorial}
+        onLoadDemo={handleLoadDemo}
+        colors={colors}
+      />
+
       {/* Retired Overlay */}
       {isRetired && (
         <div className="fixed inset-0 flex items-center justify-center z-40 pointer-events-none" style={{ background: 'rgba(255, 248, 240, 0.7)', backdropFilter: 'blur(4px)' }}>
@@ -6367,6 +7135,44 @@ const [showMobileOnboarding, setShowMobileOnboarding] = useState(() => {
             {displayMode === 'dollars' ? '$' : 'U'}
           </button>
         </div>
+
+        {/* Demo Mode Banner */}
+        {demoMode && (
+          <div style={{
+            background: 'linear-gradient(135deg, #2C3E50 0%, #34495E 100%)',
+            color: '#FFFFFF',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '20px' }}>🎮</span>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: '700' }}>Demo Mode</div>
+                <div style={{ fontSize: '11px', opacity: 0.8 }}>Exploring with sample data</div>
+              </div>
+            </div>
+            <button
+              onClick={handleExitDemo}
+              style={{
+                background: 'rgba(255,255,255,0.2)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Exit Demo
+            </button>
+          </div>
+        )}
 
         {/* Render Current Page */}
         {renderPage()}
