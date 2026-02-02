@@ -6456,8 +6456,8 @@ const [demoBets, setDemoBets] = useState([]);
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       const recentBets = bets.filter(bet => {
-        const betDate = new Date(bet.date);
-        return betDate.getMonth() === currentMonth && betDate.getFullYear() === currentYear;
+        const [year, month] = bet.date.split('-').map(Number);
+        return (month - 1) === currentMonth && year === currentYear;
       });
 
       if (recentBets.length > 0) {
@@ -6482,8 +6482,8 @@ const [demoBets, setDemoBets] = useState([]);
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       const monthBets = bets.filter(bet => {
-        const betDate = new Date(bet.date);
-        return betDate.getMonth() === currentMonth && betDate.getFullYear() === currentYear && bet.result !== 'pending';
+        const [year, month] = bet.date.split('-').map(Number);
+        return (month - 1) === currentMonth && year === currentYear && bet.result !== 'pending';
       });
       const monthlyLoss = monthBets.reduce((sum, bet) => sum + bet.payout, 0);
 
@@ -6748,7 +6748,7 @@ const [demoBets, setDemoBets] = useState([]);
     // Get bets from last 30 days
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const recentBets = settledBets.filter(bet => new Date(bet.date) >= thirtyDaysAgo);
+    const recentBets = settledBets.filter(bet => new Date(bet.date + 'T00:00:00') >= thirtyDaysAgo);
 
     // Helper function to analyze a set of bets
     const analyzeBets = (betsToAnalyze, minBets) => {
@@ -6897,8 +6897,8 @@ const [demoBets, setDemoBets] = useState([]);
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     const monthBets = settledBets.filter(bet => {
-      const betDate = new Date(bet.date);
-      return betDate.getMonth() === currentMonth && betDate.getFullYear() === currentYear;
+      const [year, month] = bet.date.split('-').map(Number);
+      return (month - 1) === currentMonth && year === currentYear;
     });
     const monthlyLoss = monthBets.reduce((sum, bet) => sum + bet.payout, 0);
 
@@ -6906,8 +6906,8 @@ const [demoBets, setDemoBets] = useState([]);
     const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
     const lastMonthBets = settledBets.filter(bet => {
-      const betDate = new Date(bet.date);
-      return betDate.getMonth() === lastMonth && betDate.getFullYear() === lastMonthYear;
+      const [year, month] = bet.date.split('-').map(Number);
+      return (month - 1) === lastMonth && year === lastMonthYear;
     });
     const lastMonthPL = lastMonthBets.reduce((sum, bet) => sum + bet.payout, 0);
 
@@ -7052,7 +7052,7 @@ const [demoBets, setDemoBets] = useState([]);
     if (historyFilter.timeRange === '30days' && !showAllBets) {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      filtered = filtered.filter(bet => new Date(bet.date) >= thirtyDaysAgo);
+      filtered = filtered.filter(bet => new Date(bet.date + 'T00:00:00') >= thirtyDaysAgo);
     }
 
     // Sport filter
