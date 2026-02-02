@@ -4797,7 +4797,7 @@ const parseQuickAddInput = (text, unitValue = 50) => {
   
   // SPORT DETECTION - check explicit sport names FIRST (highest priority)
   let sport = null;
-  if (lower.includes('ncaab')) sport = 'ncaab';
+  if (lower.includes('ncaab') || lower.includes('cbb')) sport = 'ncaab';
   else if (lower.includes('ncaaf')) sport = 'ncaaf';
   else if (lower.includes('nba')) sport = 'nba';
   else if (lower.includes('nfl')) sport = 'nfl';
@@ -4815,9 +4815,14 @@ const parseQuickAddInput = (text, unitValue = 50) => {
     else if (/lakers|celtics|warriors|nuggets|heat|bucks|suns|76ers|sixers|nets|knicks|bulls|cavaliers|cavs|mavericks|mavs|clippers|grizzlies|pelicans|timberwolves|wolves|hawks|raptors|hornets|wizards|pistons|pacers|magic|thunder|blazers|kings|spurs|jazz|rockets/i.test(text)) {
       sport = 'nba';
     }
-    // College football teams (common ones)
-    else if (/georgia|alabama|bama|ohio state|buckeyes|michigan|wolverines|clemson|texas|longhorns|oklahoma|sooners|lsu|usc|trojans|oregon|ducks|penn state|florida|gators|tennessee|vols|notre dame|irish|auburn|ole miss|utah|washington|huskies|iowa|hawkeyes/i.test(text)) {
-      sport = 'ncaaf';
+    // College teams - seasonal detection: NCAAB mid-Jan through early April, NCAAF rest of year
+    else if (/georgia|alabama|bama|ohio state|buckeyes|michigan|wolverines|clemson|texas|longhorns|oklahoma|sooners|lsu|usc|trojans|oregon|ducks|penn state|florida|gators|tennessee|vols|notre dame|irish|auburn|ole miss|utah|washington|huskies|iowa|hawkeyes|duke|unc|north carolina|kansas|jayhawks|kentucky|wildcats|uconn|huskies|purdue|boilermakers|houston|cougars|arizona|gonzaga|zags|villanova|creighton|marquette/i.test(text)) {
+      const now = new Date();
+      const month = now.getMonth(); // 0-11 (Jan = 0)
+      const day = now.getDate();
+      // Mid-Jan (Jan 15) through early April (Apr 7) = basketball season
+      const isCollegeBasketballSeason = (month === 0 && day >= 15) || month === 1 || month === 2 || (month === 3 && day <= 7);
+      sport = isCollegeBasketballSeason ? 'ncaab' : 'ncaaf';
     }
     // MLB teams
     else if (/yankees|dodgers|astros|braves|mets|phillies|padres|guardians|mariners|orioles|rays|blue jays|twins|rangers|diamondbacks|dbacks|cubs|cardinals|cards|brewers|red sox|white sox|reds|pirates|royals|angels|athletics|rockies|marlins|nationals|nats/i.test(text)) {
