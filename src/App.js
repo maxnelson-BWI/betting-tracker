@@ -2189,6 +2189,7 @@ const HomePage = memo(({
   pendingBets,
   recentBets,
   formatMoney,
+  formatMoneyNoSign,
   updateBetResult,
   startEdit,
   deleteBet,
@@ -2241,7 +2242,7 @@ const HomePage = memo(({
           marginBottom: '16px',
           fontWeight: '500'
         }}>
-          {parseFloat(stats.monthlyLoss) >= parseFloat(stats.lastMonthPL) ? '↑' : '↓'} ${Math.abs(parseFloat(stats.monthlyLoss) - parseFloat(stats.lastMonthPL)).toFixed(2)} vs. last month
+          {parseFloat(stats.monthlyLoss) >= parseFloat(stats.lastMonthPL) ? '↑' : '↓'} {formatMoneyNoSign(Math.abs(parseFloat(stats.monthlyLoss) - parseFloat(stats.lastMonthPL)))} vs. last month
         </div>
 
         {/* Pending Exposure Widget */}
@@ -7268,6 +7269,7 @@ const [demoBets, setDemoBets] = useState([]);
           pendingBets={pendingBets}
           recentBets={recentBets}
           formatMoney={formatMoney}
+          formatMoneyNoSign={formatMoneyNoSign}
           updateBetResult={updateBetResult}
           startEdit={startEdit}
           deleteBet={deleteBet}
