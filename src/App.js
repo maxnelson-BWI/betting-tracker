@@ -3748,6 +3748,773 @@ const generateDemoBets = () => {
 // ============================================
 // TUTORIAL MODAL COMPONENT
 // ============================================
+// ============================================
+// TUTORIAL HELPER COMPONENTS (from mockup)
+// ============================================
+
+// Highlight circle component for tutorial
+const TutorialHighlightCircle = ({ size = 60, style }) => (
+  <div style={{
+    width: size,
+    height: size,
+    borderRadius: '50%',
+    border: '3px solid #D4A574',
+    boxShadow: '0 0 0 4px rgba(212, 165, 116, 0.3)',
+    position: 'absolute',
+    pointerEvents: 'none',
+    ...style
+  }} />
+);
+
+// Mini mockup of the Settings section
+const TutorialSettingsMockup = ({ colors }) => (
+  <div style={{
+    background: colors.bgElevated,
+    borderRadius: '16px',
+    padding: '16px',
+    width: '280px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    position: 'relative'
+  }}>
+    <div style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
+      Settings
+    </div>
+    
+    {/* Unit Value - Highlighted */}
+    <div style={{ 
+      marginBottom: '12px',
+      position: 'relative',
+      background: 'rgba(212, 165, 116, 0.1)',
+      borderRadius: '12px',
+      padding: '12px',
+      border: `2px solid ${colors.accentPrimary}`
+    }}>
+      <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
+        Unit Value ($)
+      </div>
+      <div style={{
+        background: colors.bgSecondary,
+        borderRadius: '8px',
+        padding: '10px',
+        fontSize: '16px',
+        fontWeight: '600',
+        color: colors.textPrimary
+      }}>
+        50
+      </div>
+      <div style={{ fontSize: '10px', color: colors.textTertiary, marginTop: '4px' }}>
+        Applies to future bets only
+      </div>
+    </div>
+    
+    {/* Other settings (dimmed) */}
+    <div style={{ opacity: 0.4 }}>
+      <div style={{ marginBottom: '12px' }}>
+        <div style={{ fontSize: '12px', color: colors.textSecondary, marginBottom: '4px' }}>
+          Monthly Loss Limit ($)
+        </div>
+        <div style={{
+          background: colors.bgSecondary,
+          borderRadius: '8px',
+          padding: '10px',
+          fontSize: '14px',
+          color: colors.textPrimary
+        }}>
+          1500
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Mini mockup of Quick Add with TYPING ANIMATION
+const TutorialQuickAddMockup = ({ colors }) => {
+  const fullText = "Chiefs -3 2u -105";
+  const [displayText, setDisplayText] = useState("");
+  const [charIndex, setCharIndex] = useState(0);
+  
+  // Typing animation
+  useEffect(() => {
+    if (charIndex < fullText.length) {
+      const timeout = setTimeout(() => {
+        setDisplayText(fullText.slice(0, charIndex + 1));
+        setCharIndex(charIndex + 1);
+      }, 120);
+      return () => clearTimeout(timeout);
+    } else {
+      // Reset after a pause
+      const resetTimeout = setTimeout(() => {
+        setDisplayText("");
+        setCharIndex(0);
+      }, 2500);
+      return () => clearTimeout(resetTimeout);
+    }
+  }, [charIndex]);
+  
+  // Parse the current text to show dynamic preview
+  const getParsedPreview = (text) => {
+    if (!text) return null;
+    
+    let sport = 'NFL';
+    let betType = 'Spread';
+    let units = '1';
+    let odds = '-110';
+    let description = text;
+    
+    const unitMatch = text.match(/(\d*\.?\d+)\s*u/i);
+    if (unitMatch) {
+      units = unitMatch[1];
+      description = text.replace(/(\d*\.?\d+)\s*u/gi, '').trim();
+    }
+    
+    const oddsMatch = text.match(/([+-]\d{3,})/);
+    if (oddsMatch) {
+      odds = oddsMatch[1];
+      description = description.replace(/([+-]\d{3,})/g, '').trim();
+    }
+    
+    description = description.trim() || text;
+    
+    const unitNum = parseFloat(units) || 1;
+    const oddsNum = parseInt(odds) || -110;
+    let risk, win;
+    if (oddsNum < 0) {
+      risk = unitNum * 50 * (Math.abs(oddsNum) / 100);
+      win = unitNum * 50;
+    } else {
+      risk = unitNum * 50;
+      win = unitNum * 50 * (oddsNum / 100);
+    }
+    
+    return { sport, betType, description, units: units + 'u', odds, risk: risk.toFixed(0), win: win.toFixed(0) };
+  };
+  
+  const parsed = getParsedPreview(displayText);
+  const hasCustomUnits = displayText.toLowerCase().includes('u');
+  const hasCustomOdds = /[+-]\d{3,}/.test(displayText);
+  
+  return (
+    <div style={{
+      background: colors.bgElevated,
+      borderRadius: '16px',
+      padding: '16px',
+      width: '280px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      border: `2px solid ${colors.accentPrimary}`
+    }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '12px'
+      }}>
+        <div style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary }}>
+          Quick Add
+        </div>
+        <div style={{ fontSize: '12px', color: colors.textTertiary }}>✕</div>
+      </div>
+      
+      {/* Input with typing animation */}
+      <div style={{
+        background: colors.bgSecondary,
+        borderRadius: '10px',
+        padding: '12px',
+        marginBottom: '12px',
+        border: `2px solid ${colors.accentPrimary}`,
+        minHeight: '20px'
+      }}>
+        <span style={{ color: colors.textPrimary, fontSize: '15px' }}>{displayText}</span>
+        <span style={{ 
+          display: 'inline-block',
+          width: '2px',
+          height: '16px',
+          background: colors.accentPrimary,
+          marginLeft: '2px',
+          verticalAlign: 'middle',
+          animation: 'tutorialBlink 1s infinite'
+        }} />
+      </div>
+      
+      {/* Parsed preview */}
+      {parsed && displayText.length > 3 ? (
+        <div style={{
+          background: 'rgba(212, 165, 116, 0.1)',
+          borderRadius: '8px',
+          padding: '10px',
+          marginBottom: '12px',
+          transition: 'all 0.2s ease'
+        }}>
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{
+              background: colors.accentPrimary,
+              color: '#FFFFFF',
+              fontSize: '9px',
+              fontWeight: '700',
+              padding: '3px 6px',
+              borderRadius: '4px'
+            }}>{parsed.sport}</span>
+            <span style={{
+              background: colors.bgSecondary,
+              color: colors.textPrimary,
+              fontSize: '9px',
+              fontWeight: '600',
+              padding: '3px 6px',
+              borderRadius: '4px'
+            }}>{parsed.betType}</span>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: colors.textPrimary }}>
+              {parsed.description}
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', fontSize: '10px', flexWrap: 'wrap' }}>
+            <span>
+              <span style={{ color: colors.textTertiary }}>Units:</span>{' '}
+              <strong style={{ 
+                color: hasCustomUnits ? colors.accentPrimary : colors.textSecondary,
+                transition: 'color 0.2s ease'
+              }}>
+                {parsed.units}{!hasCustomUnits && ' (default)'}
+              </strong>
+            </span>
+            <span>
+              <span style={{ color: colors.textTertiary }}>Odds:</span>{' '}
+              <strong style={{ 
+                color: hasCustomOdds ? colors.accentPrimary : colors.textSecondary,
+                transition: 'color 0.2s ease'
+              }}>
+                {parsed.odds}{!hasCustomOdds && ' (default)'}
+              </strong>
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', fontSize: '10px', marginTop: '6px' }}>
+            <span><span style={{ color: colors.textTertiary }}>Risk:</span> <strong style={{ color: colors.accentLoss }}>${parsed.risk}</strong></span>
+            <span><span style={{ color: colors.textTertiary }}>Win:</span> <strong style={{ color: colors.accentWin }}>${parsed.win}</strong></span>
+          </div>
+        </div>
+      ) : (
+        <div style={{
+          background: colors.bgSecondary,
+          borderRadius: '8px',
+          padding: '10px',
+          marginBottom: '12px',
+          textAlign: 'center'
+        }}>
+          <span style={{ fontSize: '10px', color: colors.textTertiary }}>
+            Start typing to see the magic...
+          </span>
+        </div>
+      )}
+      
+      {/* Button */}
+      <div style={{
+        background: displayText.length > 5 
+          ? `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`
+          : colors.bgSecondary,
+        color: displayText.length > 5 ? '#FFFFFF' : colors.textTertiary,
+        borderRadius: '10px',
+        padding: '12px',
+        textAlign: 'center',
+        fontWeight: '600',
+        fontSize: '14px',
+        transition: 'all 0.2s ease'
+      }}>
+        Add Bet
+      </div>
+      
+      {/* CSS for blinking cursor */}
+      <style>{`
+        @keyframes tutorialBlink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+// FULL HOMEPAGE MOCKUP with $/U toggle highlighted
+const TutorialHomePageMockup = ({ colors }) => (
+  <div style={{
+    background: colors.bgPrimary,
+    borderRadius: '16px',
+    padding: '12px',
+    width: '280px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    position: 'relative'
+  }}>
+    {/* Header with $/U toggle */}
+    <div style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'space-between',
+      marginBottom: '8px',
+      position: 'relative'
+    }}>
+      <div style={{ width: '30px' }} />
+      
+      {/* Logo */}
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          fontFamily: 'Georgia, serif',
+          fontSize: '16px',
+          fontWeight: '700',
+          fontStyle: 'italic',
+          color: colors.textPrimary
+        }}>
+          The Cindy
+        </div>
+        <div style={{
+          height: '2px',
+          background: `linear-gradient(90deg, ${colors.accentPrimary}, #E8B887, transparent)`,
+          marginTop: '2px',
+          borderRadius: '1px'
+        }} />
+      </div>
+      
+      {/* $/U Toggle - HIGHLIGHTED */}
+      <div style={{ position: 'relative' }}>
+        <div style={{
+          padding: '5px 10px',
+          background: colors.accentPrimary,
+          color: '#FFFFFF',
+          borderRadius: '6px',
+          fontSize: '13px',
+          fontWeight: '700'
+        }}>
+          $
+        </div>
+        <TutorialHighlightCircle size={44} style={{ top: '-8px', right: '-8px' }} />
+      </div>
+    </div>
+    
+    {/* Callout below header */}
+    <div style={{
+      display: 'flex',
+      justifyContent: 'flex-end',
+      marginBottom: '8px',
+      paddingRight: '4px'
+    }}>
+      <div style={{
+        background: colors.accentPrimary,
+        color: '#FFFFFF',
+        padding: '6px 12px',
+        borderRadius: '8px',
+        fontSize: '10px',
+        fontWeight: '600',
+        position: 'relative'
+      }}>
+        <div style={{
+          position: 'absolute',
+          top: '-6px',
+          right: '12px',
+          width: 0,
+          height: 0,
+          borderLeft: '6px solid transparent',
+          borderRight: '6px solid transparent',
+          borderBottom: `6px solid ${colors.accentPrimary}`
+        }} />
+        Tap to toggle $ ↔ Units
+      </div>
+    </div>
+    
+    {/* Hero Card */}
+    <div style={{
+      background: colors.bgElevated,
+      borderRadius: '12px',
+      padding: '12px',
+      marginBottom: '8px',
+      boxShadow: '0 2px 8px rgba(212,165,116,0.15)',
+      textAlign: 'center'
+    }}>
+      <div style={{ fontSize: '8px', color: colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+        Total Profit/Loss
+      </div>
+      <div style={{ fontSize: '28px', fontWeight: '800', color: colors.accentWin, marginBottom: '8px' }}>
+        +$847.50
+      </div>
+      <div style={{
+        background: `linear-gradient(135deg, ${colors.accentPrimary}, #C89B6A)`,
+        color: 'white',
+        borderRadius: '8px',
+        padding: '8px',
+        fontSize: '10px',
+        fontWeight: '600'
+      }}>+ Add New Bet</div>
+    </div>
+    
+    {/* Key Metrics */}
+    <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+      <div style={{ flex: 1, background: colors.bgElevated, borderRadius: '8px', padding: '8px 4px', textAlign: 'center' }}>
+        <div style={{ fontSize: '14px', fontWeight: '700', color: colors.accentWin }}>+$215</div>
+        <div style={{ fontSize: '7px', color: colors.textTertiary }}>This Month</div>
+      </div>
+      <div style={{ flex: 1, background: colors.bgElevated, borderRadius: '8px', padding: '8px 4px', textAlign: 'center' }}>
+        <div style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary }}>54.2%</div>
+        <div style={{ fontSize: '7px', color: colors.textTertiary }}>Win Rate</div>
+      </div>
+      <div style={{ flex: 1, background: colors.bgElevated, borderRadius: '8px', padding: '8px 4px', textAlign: 'center' }}>
+        <div style={{ fontSize: '14px', fontWeight: '700', color: colors.accentPrimary }}>3 🔥</div>
+        <div style={{ fontSize: '7px', color: colors.textTertiary }}>Streak</div>
+      </div>
+    </div>
+    
+    {/* Pending Bets preview */}
+    <div style={{
+      background: colors.bgElevated,
+      borderRadius: '8px',
+      padding: '8px',
+      opacity: 0.6
+    }}>
+      <div style={{ fontSize: '10px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
+        Pending Bets (2)
+      </div>
+      <div style={{ fontSize: '8px', color: colors.textSecondary }}>
+        Bills -3 • Lakers ML
+      </div>
+    </div>
+  </div>
+);
+
+// Mini mockup of History page with filters selected
+const TutorialHistoryMockup = ({ colors }) => (
+  <div style={{
+    background: colors.bgPrimary,
+    borderRadius: '16px',
+    padding: '12px',
+    width: '280px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+  }}>
+    <div style={{ fontSize: '14px', fontWeight: '700', color: colors.textPrimary, marginBottom: '10px' }}>
+      Bet History
+    </div>
+    
+    {/* Search bar */}
+    <div style={{
+      background: colors.bgSecondary,
+      borderRadius: '8px',
+      padding: '8px 10px',
+      marginBottom: '8px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px'
+    }}>
+      <span style={{ color: colors.textTertiary, fontSize: '12px' }}>🔍</span>
+      <span style={{ color: colors.textTertiary, fontSize: '11px' }}>Search bets...</span>
+    </div>
+    
+    {/* Sport filter pills - NFL selected */}
+    <div style={{ 
+      display: 'flex', 
+      gap: '4px', 
+      marginBottom: '6px',
+      flexWrap: 'wrap'
+    }}>
+      {[
+        { label: 'All', selected: false },
+        { label: 'NFL', selected: true },
+        { label: 'NBA', selected: false },
+        { label: 'NCAAF', selected: false },
+      ].map((sport) => (
+        <span key={sport.label} style={{
+          padding: '4px 8px',
+          background: sport.selected ? colors.accentPrimary : colors.bgSecondary,
+          color: sport.selected ? '#FFFFFF' : colors.textPrimary,
+          borderRadius: '12px',
+          fontSize: '9px',
+          fontWeight: '600'
+        }}>{sport.label}</span>
+      ))}
+    </div>
+    
+    {/* Bet type filter pills - Spread selected */}
+    <div style={{ 
+      display: 'flex', 
+      gap: '4px', 
+      marginBottom: '6px',
+      flexWrap: 'wrap'
+    }}>
+      {[
+        { label: 'All Types', selected: false },
+        { label: 'Spread', selected: true },
+        { label: 'ML', selected: false },
+        { label: 'O/U', selected: false },
+      ].map((type) => (
+        <span key={type.label} style={{
+          padding: '4px 8px',
+          background: type.selected ? colors.accentPrimary : colors.bgSecondary,
+          color: type.selected ? '#FFFFFF' : colors.textPrimary,
+          borderRadius: '12px',
+          fontSize: '9px',
+          fontWeight: '600'
+        }}>{type.label}</span>
+      ))}
+    </div>
+    
+    {/* More filters button with badge + active filter tags */}
+    <div style={{ 
+      display: 'flex', 
+      gap: '6px', 
+      marginBottom: '8px',
+      alignItems: 'center',
+      flexWrap: 'wrap'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        padding: '5px 10px',
+        background: colors.accentPrimary,
+        color: '#FFFFFF',
+        borderRadius: '8px',
+        fontSize: '9px',
+        fontWeight: '600'
+      }}>
+        <span>⚙️</span>
+        <span>More</span>
+        <span style={{
+          background: '#FFFFFF',
+          color: colors.accentPrimary,
+          borderRadius: '50%',
+          width: '14px',
+          height: '14px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '8px',
+          fontWeight: '700'
+        }}>2</span>
+      </div>
+      
+      {/* Active filter tags */}
+      <span style={{
+        padding: '4px 8px',
+        background: 'rgba(212, 165, 116, 0.2)',
+        borderRadius: '6px',
+        fontSize: '9px',
+        fontWeight: '600',
+        color: colors.textPrimary,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px'
+      }}>
+        Wins <span style={{ color: colors.textTertiary }}>×</span>
+      </span>
+      <span style={{
+        padding: '4px 8px',
+        background: 'rgba(212, 165, 116, 0.2)',
+        borderRadius: '6px',
+        fontSize: '9px',
+        fontWeight: '600',
+        color: colors.textPrimary,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px'
+      }}>
+        Favorites <span style={{ color: colors.textTertiary }}>×</span>
+      </span>
+    </div>
+    
+    {/* Results summary */}
+    <div style={{
+      background: colors.bgElevated,
+      borderRadius: '8px',
+      padding: '8px',
+      marginBottom: '6px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      border: `1px solid ${colors.border}`
+    }}>
+      <div>
+        <div style={{ fontSize: '9px', color: colors.textSecondary }}>12 bets</div>
+        <div style={{ fontSize: '11px', fontWeight: '600', color: colors.textPrimary }}>9W - 3L</div>
+      </div>
+      <div style={{ textAlign: 'right' }}>
+        <div style={{ fontSize: '9px', color: colors.textSecondary }}>P/L</div>
+        <div style={{ fontSize: '14px', fontWeight: '800', color: colors.accentWin }}>+$285</div>
+      </div>
+    </div>
+    
+    {/* Sample filtered bets */}
+    {[
+      { desc: 'Chiefs -3', result: 'WIN', payout: '+$50' },
+      { desc: 'Cowboys -7', result: 'WIN', payout: '+$45' },
+    ].map((bet, i) => (
+      <div key={i} style={{
+        background: colors.bgElevated,
+        borderRadius: '8px',
+        padding: '8px',
+        marginBottom: '4px',
+        border: `1px solid ${colors.border}`
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{
+                background: colors.accentPrimary,
+                color: '#FFFFFF',
+                fontSize: '8px',
+                fontWeight: '700',
+                padding: '2px 5px',
+                borderRadius: '4px'
+              }}>NFL</span>
+              <span style={{ fontSize: '11px', fontWeight: '600', color: colors.textPrimary }}>{bet.desc}</span>
+            </div>
+          </div>
+          <span style={{ 
+            fontSize: '12px', 
+            fontWeight: '700', 
+            color: colors.accentWin
+          }}>{bet.payout}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+// Mini mockup of Stats page
+const TutorialStatsMockup = ({ colors }) => (
+  <div style={{
+    background: colors.bgPrimary,
+    borderRadius: '16px',
+    padding: '12px',
+    width: '280px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+  }}>
+    {/* Key Trends section - highlighted */}
+    <div style={{
+      background: colors.bgElevated,
+      borderRadius: '12px',
+      padding: '10px',
+      marginBottom: '8px',
+      border: `2px solid ${colors.accentPrimary}`
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+        <span style={{ fontSize: '12px' }}>📈</span>
+        <span style={{ fontSize: '12px', fontWeight: '700', color: colors.textPrimary }}>Key Trends</span>
+      </div>
+      
+      {/* Winning trend */}
+      <div style={{
+        background: 'rgba(124, 152, 133, 0.1)',
+        border: '1px solid rgba(124, 152, 133, 0.3)',
+        borderRadius: '8px',
+        padding: '8px',
+        marginBottom: '6px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: '600', color: colors.textPrimary }}>NFL Underdogs</div>
+            <div style={{ fontSize: '9px', color: colors.textSecondary }}>8-3 (72.7%)</div>
+          </div>
+          <div style={{ fontSize: '13px', fontWeight: '800', color: colors.accentWin }}>+$245</div>
+        </div>
+      </div>
+      
+      {/* Losing trend */}
+      <div style={{
+        background: 'rgba(184, 92, 80, 0.1)',
+        border: '1px solid rgba(184, 92, 80, 0.3)',
+        borderRadius: '8px',
+        padding: '8px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: '600', color: colors.textPrimary }}>NBA Parlays</div>
+            <div style={{ fontSize: '9px', color: colors.textSecondary }}>2-7 (22.2%)</div>
+          </div>
+          <div style={{ fontSize: '13px', fontWeight: '800', color: colors.accentLoss }}>-$180</div>
+        </div>
+      </div>
+    </div>
+    
+    {/* By Sport section (dimmed) */}
+    <div style={{ opacity: 0.5 }}>
+      <div style={{
+        background: colors.bgElevated,
+        borderRadius: '12px',
+        padding: '10px'
+      }}>
+        <div style={{ fontSize: '12px', fontWeight: '700', color: colors.textPrimary, marginBottom: '6px' }}>
+          By Sport
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', padding: '4px 0' }}>
+          <span style={{ color: colors.textPrimary }}>NFL</span>
+          <span style={{ color: colors.accentWin, fontWeight: '700' }}>+$320</span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Demo CTA Component
+const TutorialDemoCTA = ({ colors, onLoadDemo, onSkip }) => (
+  <div style={{
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '16px',
+    width: '100%',
+    maxWidth: '300px'
+  }}>
+    {/* Demo preview */}
+    <div style={{
+      background: colors.bgElevated,
+      borderRadius: '16px',
+      padding: '20px',
+      width: '100%',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      textAlign: 'center'
+    }}>
+      <div style={{ fontSize: '48px', marginBottom: '12px' }}>📊</div>
+      <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary, marginBottom: '4px' }}>
+        40 sample bets over 3 months
+      </div>
+      <div style={{ fontSize: '12px', color: colors.textSecondary }}>
+        Explore all features with realistic data
+      </div>
+    </div>
+    
+    {/* Buttons */}
+    <button
+      onClick={onLoadDemo}
+      style={{
+        width: '100%',
+        padding: '16px',
+        background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
+        color: '#FFFFFF',
+        border: 'none',
+        borderRadius: '12px',
+        fontSize: '16px',
+        fontWeight: '700',
+        cursor: 'pointer',
+        boxShadow: '0 4px 12px rgba(212, 165, 116, 0.3)'
+      }}
+    >
+      Load Demo Data →
+    </button>
+    
+    <button
+      onClick={onSkip}
+      style={{
+        width: '100%',
+        padding: '14px',
+        background: 'transparent',
+        color: colors.textSecondary,
+        border: `1px solid ${colors.border}`,
+        borderRadius: '12px',
+        fontSize: '14px',
+        fontWeight: '600',
+        cursor: 'pointer'
+      }}
+    >
+      Skip & Start Fresh
+    </button>
+  </div>
+);
+
+// ============================================
+// TUTORIAL MODAL COMPONENT (matching mockup)
+// ============================================
 const TutorialModal = memo(({ 
   show, 
   onClose, 
@@ -3755,39 +4522,13 @@ const TutorialModal = memo(({
   colors 
 }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [typedText, setTypedText] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
   
   const totalSlides = 7;
-  
-  // Typing animation for slide 3
-  useEffect(() => {
-    if (currentSlide === 2 && show) {
-      const fullText = 'Chiefs -3 2u -105';
-      let index = 0;
-      setTypedText('');
-      setShowPreview(false);
-      
-      const typeInterval = setInterval(() => {
-        if (index < fullText.length) {
-          setTypedText(fullText.substring(0, index + 1));
-          index++;
-          if (index >= 10) setShowPreview(true); // Show preview after "Chiefs -3 "
-        } else {
-          clearInterval(typeInterval);
-        }
-      }, 120);
-      
-      return () => clearInterval(typeInterval);
-    }
-  }, [currentSlide, show]);
   
   // Reset on close
   useEffect(() => {
     if (!show) {
       setCurrentSlide(0);
-      setTypedText('');
-      setShowPreview(false);
     }
   }, [show]);
   
@@ -3796,358 +4537,82 @@ const TutorialModal = memo(({
   const slides = [
     // Slide 1: Welcome
     {
-      content: (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <div style={{ fontSize: '80px', marginBottom: '24px' }}>🎰</div>
-          <h2 style={{ fontSize: '28px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
-            Welcome to The Cindy
-          </h2>
-          <p style={{ fontSize: '16px', color: colors.textSecondary, lineHeight: 1.6 }}>
-            Let me show you how to track your bets and find your winning edges.
-          </p>
+      id: 'welcome',
+      title: 'Welcome',
+      content: "This is the Cindy app. Let me show you how to use it.",
+      visual: (
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            fontFamily: 'Georgia, serif',
+            fontSize: '36px',
+            fontWeight: '700',
+            fontStyle: 'italic',
+            color: colors.textPrimary,
+            marginBottom: '8px'
+          }}>
+            The Cindy
+          </div>
+          <div style={{
+            height: '4px',
+            background: `linear-gradient(90deg, ${colors.accentPrimary}, #E8B887, transparent)`,
+            width: '180px',
+            margin: '0 auto 24px',
+            borderRadius: '2px'
+          }} />
+          <div style={{
+            background: colors.bgElevated,
+            borderRadius: '16px',
+            padding: '20px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            display: 'inline-block'
+          }}>
+            <div style={{ fontSize: '10px', color: colors.textSecondary, marginBottom: '4px' }}>TOTAL PROFIT/LOSS</div>
+            <div style={{ fontSize: '32px', fontWeight: '800', color: colors.accentWin }}>+$847.50</div>
+          </div>
         </div>
       )
     },
     // Slide 2: Set Your Unit
     {
-      content: (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <div style={{ fontSize: '80px', marginBottom: '24px' }}>💰</div>
-          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
-            Set Your Unit Size
-          </h2>
-          <p style={{ fontSize: '16px', color: colors.textSecondary, lineHeight: 1.6, marginBottom: '24px' }}>
-            Before anything else, set your unit size. $50? $100? Set this in <strong>Settings</strong> and it will carry over to all of your future bets.
-          </p>
-          <div style={{
-            background: colors.bgSecondary,
-            borderRadius: '12px',
-            padding: '16px',
-            display: 'inline-block'
-          }}>
-            <div style={{ fontSize: '14px', color: colors.textSecondary, marginBottom: '4px' }}>Unit Value ($)</div>
-            <div style={{ fontSize: '32px', fontWeight: '700', color: colors.textPrimary }}>$50</div>
-          </div>
-        </div>
-      )
+      id: 'units',
+      title: 'Set Your Unit',
+      content: "Before anything else, set your unit size. $50? $100? Set this in Settings and it will carry over to all of your future bets.",
+      visual: <TutorialSettingsMockup colors={colors} />
     },
     // Slide 3: Adding Bets (with typing animation)
     {
-      content: (
-        <div style={{ padding: '20px' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', textAlign: 'center' }}>
-            Adding Bets
-          </h2>
-          <p style={{ fontSize: '14px', color: colors.textSecondary, lineHeight: 1.5, marginBottom: '20px', textAlign: 'center' }}>
-            With <strong>Quick Add</strong>, type naturally—we'll parse the team, spread, units, and odds automatically.
-          </p>
-          
-          {/* Simulated Quick Add Input */}
-          <div style={{
-            background: colors.bgSecondary,
-            borderRadius: '12px',
-            padding: '16px',
-            border: `2px solid ${typedText.length > 5 ? colors.accentPrimary : colors.border}`,
-            marginBottom: '16px'
-          }}>
-            <div style={{
-              background: colors.bgElevated,
-              borderRadius: '8px',
-              padding: '14px',
-              fontSize: '17px',
-              fontWeight: '500',
-              color: colors.textPrimary,
-              minHeight: '24px'
-            }}>
-              {typedText}<span style={{ opacity: 0.5, animation: 'blink 1s infinite' }}>|</span>
-            </div>
-            
-            {/* Live Preview */}
-            {showPreview && (
-              <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px solid ${colors.border}` }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                  <span style={{
-                    background: colors.accentPrimary,
-                    color: '#FFFFFF',
-                    fontSize: '10px',
-                    fontWeight: '700',
-                    padding: '4px 8px',
-                    borderRadius: '4px'
-                  }}>NFL</span>
-                  <span style={{
-                    background: colors.bgElevated,
-                    color: colors.textPrimary,
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    padding: '4px 8px',
-                    borderRadius: '4px'
-                  }}>Spread</span>
-                  <span style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>
-                    {typedText.length > 10 ? 'Chiefs -3' : typedText.replace(/\s*\d+u.*/, '')}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', gap: '16px', fontSize: '12px' }}>
-                  <span><span style={{ color: colors.textTertiary }}>Units:</span> <strong>{typedText.includes('2u') ? '2u' : '1u'}</strong></span>
-                  <span><span style={{ color: colors.textTertiary }}>Odds:</span> <strong>{typedText.includes('-105') ? '-105' : '-110'}</strong></span>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <p style={{ fontSize: '12px', color: colors.textTertiary, textAlign: 'center' }}>
-            Defaults to 1 unit @ -110 if not specified
-          </p>
-        </div>
-      )
+      id: 'adding',
+      title: 'Adding Bets',
+      content: "Two ways to add bets. With Quick Add, type naturally—put in the team and the bet, and we'll do the rest. We'll assume it's 1 unit and -110, but if not, just type out what you want.",
+      visual: <TutorialQuickAddMockup colors={colors} />
     },
     // Slide 4: Dollar/Unit Toggle
     {
-      content: (
-        <div style={{ padding: '20px' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', textAlign: 'center' }}>
-            Dollars or Units?
-          </h2>
-          <p style={{ fontSize: '14px', color: colors.textSecondary, lineHeight: 1.5, marginBottom: '20px', textAlign: 'center' }}>
-            Toggle between viewing results in <strong>dollars</strong> or <strong>units</strong> anytime.
-          </p>
-          
-          {/* Simulated Header */}
-          <div style={{
-            background: colors.bgElevated,
-            borderRadius: '16px',
-            padding: '16px',
-            border: `1px solid ${colors.border}`,
-            marginBottom: '12px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ width: '40px' }} />
-              <div style={{ lineHeight: 1 }}>
-                <div style={{
-                  fontFamily: 'Georgia, serif',
-                  fontSize: '20px',
-                  fontWeight: '700',
-                  fontStyle: 'italic',
-                  color: colors.textPrimary
-                }}>The Cindy</div>
-                <div style={{
-                  height: '2px',
-                  background: `linear-gradient(90deg, ${colors.accentPrimary} 0%, transparent 100%)`,
-                  marginTop: '2px'
-                }} />
-              </div>
-              <div style={{
-                padding: '8px 14px',
-                background: colors.accentPrimary,
-                color: '#FFFFFF',
-                borderRadius: '8px',
-                fontSize: '15px',
-                fontWeight: '700',
-                boxShadow: '0 0 0 3px rgba(212, 165, 116, 0.4)'
-              }}>
-                $
-              </div>
-            </div>
-          </div>
-          
-          {/* Arrow pointing up */}
-          <div style={{ textAlign: 'right', paddingRight: '24px', marginBottom: '8px' }}>
-            <span style={{ fontSize: '24px' }}>☝️</span>
-          </div>
-          
-          <div style={{
-            background: 'rgba(212, 165, 116, 0.15)',
-            borderRadius: '12px',
-            padding: '12px 16px',
-            border: `1px dashed ${colors.accentPrimary}`
-          }}>
-            <p style={{ fontSize: '13px', color: colors.textPrimary, margin: 0, textAlign: 'center' }}>
-              Tap to switch between <strong>$</strong> and <strong>U</strong>
-            </p>
-          </div>
-        </div>
-      )
+      id: 'toggle',
+      title: '$/U Toggle',
+      content: "Do you want to see results in dollars or units? Toggle back and forth here.",
+      visual: <TutorialHomePageMockup colors={colors} />
     },
     // Slide 5: History
     {
-      content: (
-        <div style={{ padding: '20px' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', textAlign: 'center' }}>
-            Your Bet History
-          </h2>
-          <p style={{ fontSize: '14px', color: colors.textSecondary, lineHeight: 1.5, marginBottom: '16px', textAlign: 'center' }}>
-            Every bet, fully searchable and filterable. Tap any bet to edit or mark the result.
-          </p>
-          
-          {/* Simulated Filters */}
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {['NFL', 'Spread', 'Wins', 'Favorites'].map((filter, i) => (
-                <span key={i} style={{
-                  padding: '8px 12px',
-                  background: colors.accentPrimary,
-                  color: '#FFFFFF',
-                  borderRadius: '16px',
-                  fontSize: '12px',
-                  fontWeight: '600'
-                }}>{filter}</span>
-              ))}
-              <span style={{
-                padding: '8px 12px',
-                background: colors.bgSecondary,
-                color: colors.textPrimary,
-                borderRadius: '16px',
-                fontSize: '12px',
-                fontWeight: '600',
-                border: `1px solid ${colors.border}`,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                More Filters
-                <span style={{
-                  background: colors.accentPrimary,
-                  color: '#FFFFFF',
-                  borderRadius: '50%',
-                  width: '16px',
-                  height: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '10px'
-                }}>2</span>
-              </span>
-            </div>
-          </div>
-          
-          {/* Simulated Result Summary */}
-          <div style={{
-            background: colors.bgSecondary,
-            borderRadius: '12px',
-            padding: '12px 16px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <div>
-              <div style={{ fontSize: '11px', color: colors.textSecondary }}>12 bets</div>
-              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>8W - 4L</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '11px', color: colors.textSecondary }}>P/L</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: colors.accentWin }}>+$245.00</div>
-            </div>
-          </div>
-        </div>
-      )
+      id: 'history',
+      title: 'Your History',
+      content: "Every bet, filterable. Search, filter by sport/type/result, and see your full record. Tap any bet to edit or mark the result.",
+      visual: <TutorialHistoryMockup colors={colors} />
     },
     // Slide 6: Stats & Trends
     {
-      content: (
-        <div style={{ padding: '20px' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '12px', textAlign: 'center' }}>
-            Stats & Trends
-          </h2>
-          <p style={{ fontSize: '14px', color: colors.textSecondary, lineHeight: 1.5, marginBottom: '16px', textAlign: 'center' }}>
-            See where you're winning. The Stats page breaks down performance by sport, bet type, and more.
-          </p>
-          
-          {/* Simulated Key Trends */}
-          <div style={{
-            background: colors.bgSecondary,
-            borderRadius: '16px',
-            padding: '16px',
-            border: `1px solid ${colors.border}`
-          }}>
-            <div style={{ fontSize: '13px', fontWeight: '700', color: colors.accentPrimary, marginBottom: '12px' }}>
-              🔥 KEY TRENDS
-            </div>
-            
-            <div style={{
-              background: 'rgba(124, 152, 133, 0.1)',
-              border: '1px solid rgba(124, 152, 133, 0.3)',
-              borderRadius: '10px',
-              padding: '12px',
-              marginBottom: '8px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>NFL Underdogs</div>
-                  <div style={{ fontSize: '11px', color: colors.textSecondary }}>12-5 (71%)</div>
-                </div>
-                <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentWin }}>+$380</div>
-              </div>
-            </div>
-            
-            <div style={{
-              background: 'rgba(184, 92, 80, 0.1)',
-              border: '1px solid rgba(184, 92, 80, 0.3)',
-              borderRadius: '10px',
-              padding: '12px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textPrimary }}>NBA Overs</div>
-                  <div style={{ fontSize: '11px', color: colors.textSecondary }}>4-9 (31%)</div>
-                </div>
-                <div style={{ fontSize: '16px', fontWeight: '800', color: colors.accentLoss }}>-$215</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
+      id: 'stats',
+      title: 'Stats & Trends',
+      content: "See where you're winning. The Stats page breaks down your performance by sport, bet type, and more. Key Trends shows what's working (and what isn't).",
+      visual: <TutorialStatsMockup colors={colors} />
     },
     // Slide 7: Demo Mode
     {
-      content: (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <div style={{ fontSize: '80px', marginBottom: '24px' }}>🎮</div>
-          <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.textPrimary, marginBottom: '16px' }}>
-            See It In Action
-          </h2>
-          <p style={{ fontSize: '16px', color: colors.textSecondary, lineHeight: 1.6, marginBottom: '32px' }}>
-            Want to explore with sample data first? Load 40 demo bets to see how everything works.
-          </p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <button
-              onClick={() => {
-                onLoadDemo();
-                onClose();
-              }}
-              style={{
-                width: '100%',
-                padding: '16px',
-                background: `linear-gradient(135deg, ${colors.accentPrimary} 0%, #C89B6A 100%)`,
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                boxShadow: `0 4px 12px ${colors.shadow}`
-              }}
-            >
-              🎲 Load Demo Data
-            </button>
-            <button
-              onClick={onClose}
-              style={{
-                width: '100%',
-                padding: '16px',
-                background: colors.bgSecondary,
-                color: colors.textPrimary,
-                border: `1px solid ${colors.border}`,
-                borderRadius: '12px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              Skip & Start Fresh
-            </button>
-          </div>
-        </div>
-      )
+      id: 'demo',
+      title: 'Try Demo Mode',
+      content: "See it in action. Want to explore with sample data first? Load 40 demo bets to see how everything works.",
+      visual: <TutorialDemoCTA colors={colors} onLoadDemo={() => { onLoadDemo(); onClose(); }} onSkip={onClose} />
     }
   ];
   
@@ -4201,8 +4666,47 @@ const TutorialModal = memo(({
         </div>
         
         {/* Content */}
-        <div style={{ minHeight: '380px', display: 'flex', alignItems: 'center' }}>
-          {slides[currentSlide].content}
+        <div style={{ 
+          flex: 1,
+          padding: '24px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          overflowY: 'auto',
+          minHeight: '400px'
+        }}>
+          {/* Visual */}
+          <div style={{
+            marginBottom: '24px',
+            display: 'flex',
+            justifyContent: 'center'
+          }}>
+            {slides[currentSlide].visual}
+          </div>
+          
+          {/* Title */}
+          <h2 style={{
+            fontSize: '22px',
+            fontWeight: '700',
+            color: colors.textPrimary,
+            marginBottom: '12px',
+            textAlign: 'center',
+            margin: '0 0 12px 0'
+          }}>
+            {slides[currentSlide].title}
+          </h2>
+          
+          {/* Content Text */}
+          <p style={{
+            fontSize: '15px',
+            color: colors.textSecondary,
+            textAlign: 'center',
+            lineHeight: '1.6',
+            maxWidth: '340px',
+            margin: 0
+          }}>
+            {slides[currentSlide].content}
+          </p>
         </div>
         
         {/* Footer Navigation */}
