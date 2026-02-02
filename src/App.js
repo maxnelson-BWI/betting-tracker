@@ -7333,7 +7333,20 @@ const [demoBets, setDemoBets] = useState([]);
     <div className="min-h-screen" style={{ background: colors.bgPrimary }}>
       {/* Animation Overlay */}
       {animation.show && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 custom-fadeIn">
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.7)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999
+        }}>
           {/* Screen Flash for wins */}
           {animation.type === 'win' && (
             <ScreenFlash color={colors.accentWin} />
@@ -7369,26 +7382,48 @@ const [demoBets, setDemoBets] = useState([]);
             <FireEffect />
           )}
           
-          <div className="text-center relative z-10">
+          <div style={{
+            textAlign: 'center',
+            position: 'relative',
+            zIndex: 10
+          }}>
             {/* Main emoji with animation */}
             <div 
-              className={`text-9xl mb-4 ${
+              className={
                 animation.animationType === 'bounce' ? 'custom-bounce' : 
                 animation.animationType === 'pulse' ? 'custom-pulse' : 
                 animation.animationType === 'drop' ? 'custom-ping' : 'custom-bounce'
-              }`}
+              }
+              style={{
+                fontSize: '150px',
+                marginBottom: '16px',
+                lineHeight: 1
+              }}
             >
               {animation.emoji}
             </div>
             
             {/* Streak text */}
             {animation.isStreak && (
-              <div className="flex items-center justify-center gap-3 custom-pulse">
-                <span className="text-6xl">🔥</span>
-                <span className="text-5xl font-black text-orange-400 drop-shadow-2xl">
+              <div 
+                className="custom-pulse"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px'
+                }}
+              >
+                <span style={{ fontSize: '60px' }}>🔥</span>
+                <span style={{
+                  fontSize: '48px',
+                  fontWeight: '900',
+                  color: '#FB923C',
+                  textShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                }}>
                   {animation.streakText}
                 </span>
-                <span className="text-6xl">🔥</span>
+                <span style={{ fontSize: '60px' }}>🔥</span>
               </div>
             )}
           </div>
